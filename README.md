@@ -4,11 +4,12 @@
 > **API (workers.dev):** https://agi-primary.morning-star-e026.workers.dev  
 > **Mission:** Measurable autonomous reasoning—not simulated AGI theater. Metrics come from learning engine state and request performance.
 
-> **v5.0** (June 2026) — Lab consolidation: one worker, honest metrics, eval harness, goals API.
+> **v5.1** (June 2026) — Removed simulated consciousness/quantum API payloads; honest `/capabilities` endpoint.
 
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /metrics` | Measured system state (no random telemetry) |
+| `GET /capabilities` | Capability scores from learning engine (replaces `/consciousness`) |
 | `GET /eval` | Run evaluation suite, return pass rate |
 | `GET /goals` | Active autonomous goals |
 | `POST /reason` | Multi-agent reasoning (LLM when keys configured) |

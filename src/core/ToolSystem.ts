@@ -41,16 +41,15 @@ export class ToolSystem {
   }
 
   /**
-   * Search the web (simulated - would need API key in production)
+   * Search the web — requires external API configuration.
    */
   public async searchWeb(query: string): Promise<ToolResult> {
-    // In production, this would use Brave Search API or SerpAPI
-    // For now, return structured search simulation
     return {
       tool: 'WebSearch',
       input: query,
-      output: `Search results for "${query}": [Simulated] Would search using Brave/Google Search API. Top results would include relevant information from authoritative sources.`,
-      success: true
+      output: '',
+      success: false,
+      error: 'Web search is not configured. Set BRAVE_SEARCH_API_KEY or similar to enable.',
     };
   }
 
@@ -90,25 +89,15 @@ export class ToolSystem {
   }
 
   /**
-   * Query a knowledge base
+   * Query a knowledge base — requires a real KB backend.
    */
   public queryKnowledge(query: string, domain: string = 'general'): ToolResult {
-    // Simulate knowledge base lookup
-    const knowledge: Record<string, string> = {
-      'general': 'General knowledge encompasses facts, concepts, and information across all domains',
-      'science': 'Scientific knowledge is built through systematic observation, experimentation, and peer review',
-      'mathematics': 'Mathematics is the abstract study of numbers, quantity, structure, and patterns',
-      'history': 'History is the study of past events, particularly human affairs',
-      'technology': 'Technology is the application of scientific knowledge for practical purposes'
-    };
-
-    const result = knowledge[domain.toLowerCase()] || `Knowledge about ${query} in domain ${domain}`;
-
     return {
       tool: 'KnowledgeBase',
       input: `Query: ${query}, Domain: ${domain}`,
-      output: result,
-      success: true
+      output: '',
+      success: false,
+      error: 'Knowledge base lookup is not configured.',
     };
   }
 

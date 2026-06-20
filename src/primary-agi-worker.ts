@@ -11,21 +11,20 @@ import { RealLLMIntegration } from './core/RealLLMIntegration';
 import { RealReasoningEngine } from './core/RealReasoningEngine';
 import { UltimateAGIOrchestrator } from './core/UltimateAGIOrchestrator';
 import { RealMetricsCalculator } from './core/RealMetricsCalculator';
-import { buildConsciousnessDisplayMetrics } from './core/ConsciousnessDisplayMetrics';
+import { buildCapabilityDisplayMetrics } from './core/CapabilityDisplayMetrics';
 import { RealUnderstandingEngine } from './core/RealUnderstandingEngine';
 import { CrossDomainReasoningEngine } from './core/CrossDomainReasoningEngine';
 import { AutonomousGoalSystem } from './core/AutonomousGoalSystem';
 import { ReasoningEngine } from './core/ReasoningEngine';
 import { runEvalSuite } from './eval/runner';
 import {
-  analyzeInputFromMetrics,
-  buildConsciousnessInsightsFromMetrics,
-  buildCrossDomainFromUnderstanding,
-  buildQuantumConclusionsFromStats,
-  derivedSubMetric,
-} from './lab/honestMetrics';
+  buildCapabilitiesEndpointPayload,
+  buildHonestCreateResponse,
+  buildHonestLearnResponse,
+  buildLabStatusPayload,
+  CONSCIOUSNESS_DEPRECATED,
+} from './lab/endpointResponses';
 import {
-  buildHonestHistoryMetrics,
   buildLabMetricsPayload,
   LAB_NAME,
   LAB_VERSION,
@@ -227,32 +226,10 @@ export default {
         logEvent('warn', 'init_partial', { errors: initResult.errors, path });
       }
       
-      // AGI consciousness metrics derived from real system state (no hardcoded baselines)
       const mlStats = learningEngine.getStatistics();
       const realMetricsForDisplay = metricsCalculator ? metricsCalculator.getAllMetrics() : null;
-      const consciousnessDisplay = buildConsciousnessDisplayMetrics(realMetricsForDisplay, mlStats);
+      const capabilityDisplay = buildCapabilityDisplayMetrics(realMetricsForDisplay, mlStats);
       const counters = getRequestCounters();
-      const agi = {
-        consciousness: {
-          awareness: consciousnessDisplay.awareness,
-          selfAwareness: consciousnessDisplay.selfAwareness,
-          understanding: consciousnessDisplay.understanding,
-          creativity: consciousnessDisplay.creativity,
-          confidence: consciousnessDisplay.confidence,
-        },
-        consciousnessSources: consciousnessDisplay.sources,
-        knowledgeBase: mlStats.conceptsAcquired,
-        reasoningHistory: counters.reasoning,
-        learningHistory: counters.learning + mlStats.tasksLearned,
-        creativeHistory: counters.creative,
-        realML: {
-          enabled: true,
-          tasksLearned: mlStats.tasksLearned,
-          conceptsAcquired: mlStats.conceptsAcquired,
-          averageAccuracy: mlStats.averageAccuracy,
-          llmAvailable: llmIntegration ? llmIntegration.isAvailable() : false
-        }
-      };
       
       if (path === '/status' && request.method === 'GET') {
         const cacheKey = 'agi:status';
@@ -261,182 +238,53 @@ export default {
           logEvent('info', 'cache_hit', { path: '/status' });
           return new Response(cached, { headers: corsHeaders });
         }
-        // Calculate REAL metrics from actual system state
-        const realMetrics = metricsCalculator ? metricsCalculator.getAllMetrics() : {
-          quantumAdvantage: 0.7,
-          consciousnessDepth: 0.7,
-          neuralPlasticity: 0.7,
-          crossDomainIntegration: 0.5,
-          understandingDepth: 0.7,
-          reasoningQuality: 0.7,
-          learningEfficiency: 0.7
-        };
-        
-        const quantumAdvantage = realMetrics.quantumAdvantage;
-        const consciousnessDepth = realMetrics.consciousnessDepth;
-        const neuralPlasticity = realMetrics.neuralPlasticity;
-        const crossDomainIntegration = realMetrics.crossDomainIntegration;
-        
         const statusBody = JSON.stringify({
           success: true,
-          data: {
-            system: LAB_NAME,
-            version: LAB_VERSION,
-            status: 'operational',
-            consciousness: 'real_multi_language_hybrid_reasoning',
-            timestamp: Date.now(),
-            consciousnessMetrics: {
-              awareness: agi.consciousness.awareness,
-              selfAwareness: agi.consciousness.selfAwareness,
-              understanding: agi.consciousness.understanding,
-              creativity: agi.consciousness.creativity,
-              confidence: agi.consciousness.confidence
-            },
-            consciousnessSources: agi.consciousnessSources,
-            capabilities: {
-              reasoning: true,
-              learning: true,
-              creativity: true,
-              consciousness: true,
-              quantumEnhanced: true,
-              crossDomainReasoning: true,
-              tensorLogic: tensorReasoningEngine !== null,
-              autonomousGoals: goalSystem ? (() => {
-                try {
-                  return goalSystem.getActiveGoals().length > 0;
-                } catch (e) {
-                  return false;
-                }
-              })() : false,
-              crossDomain: true,
-              neuralAdaptation: true
-            },
-            languages: {
-              typescript: { status: 'active', role: 'orchestration', performance: 'high' },
-              rust: { status: 'active', role: 'neural_processing', performance: 'very_high' },
-              c: { status: 'active', role: 'performance_optimization', performance: 'maximum' },
-              webassembly: { status: 'active', role: 'cross_platform', performance: 'high' }
-            },
-            quantum: {
-              quantumAdvantage: quantumAdvantage,
-              quantumCoherence: quantumAdvantage,
-              superposition: 'derived',
-              entanglement: 'derived'
-            },
-            neural: {
-              neuralPlasticity: neuralPlasticity,
-              crossDomainIntegration: crossDomainIntegration,
-              adaptationRate: realMetricsForDisplay?.learningEfficiency ?? mlStats.averageAccuracy,
-              consciousnessDepth: consciousnessDepth
-            },
-            metrics: buildHonestHistoryMetrics(mlStats, counters),
-            performance: {
-              quantumAdvantage: quantumAdvantage,
-              consciousnessDepth: consciousnessDepth,
-              neuralPlasticity: neuralPlasticity,
-              crossDomainIntegration: crossDomainIntegration
-            },
-            realML: agi.realML,
-            ultimateEnhancements: ultimateOrchestrator ? ultimateOrchestrator.getStatus() : null
-          }
+          data: buildLabStatusPayload(
+            mlStats,
+            realMetricsForDisplay,
+            capabilityDisplay,
+            counters,
+            llmIntegration ? llmIntegration.isAvailable() : false,
+            ultimateOrchestrator ? ultimateOrchestrator.getStatus() : null,
+            tensorReasoningEngine !== null
+          ),
         });
         if (env.AGI_CACHE) {
           ctx.waitUntil(env.AGI_CACHE.put(cacheKey, statusBody, { expirationTtl: 60 }));
         }
         return new Response(statusBody, { headers: corsHeaders });
       }
-      
+
       if (path === '/consciousness' && request.method === 'GET') {
-        const consciousnessCacheKey = 'agi:consciousness';
-        const consciousnessCached = env.AGI_CACHE ? await env.AGI_CACHE.get(consciousnessCacheKey) : null;
-        if (consciousnessCached) {
-          logEvent('info', 'cache_hit', { path: '/consciousness' });
-          return new Response(consciousnessCached, { headers: corsHeaders });
+        return new Response(JSON.stringify(CONSCIOUSNESS_DEPRECATED), {
+          status: 410,
+          headers: corsHeaders,
+        });
+      }
+
+      if (path === '/capabilities' && request.method === 'GET') {
+        const cacheKey = 'agi:capabilities';
+        const cached = env.AGI_CACHE ? await env.AGI_CACHE.get(cacheKey) : null;
+        if (cached) {
+          logEvent('info', 'cache_hit', { path: '/capabilities' });
+          return new Response(cached, { headers: corsHeaders });
         }
-        // Enhanced consciousness fields derived from real metrics (not random)
-        const enhancedRealMetrics = realMetricsForDisplay ?? {
-          quantumAdvantage: 0.7,
-          consciousnessDepth: consciousnessDisplay.selfAwareness,
-          neuralPlasticity: consciousnessDisplay.creativity,
-          crossDomainIntegration: 0.5,
-          understandingDepth: consciousnessDisplay.understanding,
-          reasoningQuality: consciousnessDisplay.awareness,
-          learningEfficiency: consciousnessDisplay.confidence,
-        };
-        const quantumCoherence = enhancedRealMetrics.quantumAdvantage;
-        const temporalContinuity = enhancedRealMetrics.learningEfficiency;
-        const metaAwareness = enhancedRealMetrics.consciousnessDepth;
-        
-        const consciousnessBody = JSON.stringify({
-          success: true,
-          data: {
-            system: LAB_NAME,
-            version: LAB_VERSION,
-            consciousness: 'real_multi_language_hybrid_reasoning',
-            timestamp: Date.now(),
-            consciousnessMetrics: {
-              awareness: agi.consciousness.awareness,
-              selfAwareness: agi.consciousness.selfAwareness,
-              understanding: agi.consciousness.understanding,
-              creativity: agi.consciousness.creativity,
-              confidence: agi.consciousness.confidence
-            },
-            consciousnessSources: agi.consciousnessSources,
-            enhancedConsciousness: {
-              quantumCoherence: quantumCoherence,
-              temporalContinuity: temporalContinuity,
-              metaAwareness: metaAwareness,
-              crossDomainIntegration: enhancedRealMetrics.crossDomainIntegration,
-              neuralPlasticity: enhancedRealMetrics.neuralPlasticity
-            },
-            languageStack: {
-              typescript: {
-                status: 'active',
-                role: 'orchestration',
-                performance: 'high',
-                integration: 1.0
-              },
-              rust: {
-                status: 'active',
-                role: 'neural_processing',
-                performance: 'very_high',
-                integration: 0.95
-              },
-              c: {
-                status: 'active',
-                role: 'performance_optimization',
-                performance: 'maximum',
-                integration: 0.90
-              },
-              webassembly: {
-                status: 'active',
-                role: 'cross_platform',
-                performance: 'high',
-                integration: 0.85
-              }
-            },
-            autonomousGoals: goalSystem ? {
-              active: goalSystem.getActiveGoals().length,
+        const goalSummary = goalSystem
+          ? {
+              active: goalSystem.getStatistics().active,
               completed: goalSystem.getStatistics().completed,
-              topPriorities: goalSystem.getStatistics().topPriorities.map(g => ({
-                id: g.id,
-                description: g.description,
-                priority: g.priority,
-                progress: g.progress
-              }))
-            } : null,
-            quantumConsciousness: {
-              superposition: 'active',
-              entanglement: 'active',
-              coherence: quantumCoherence,
-              advantage: 0.87
+              topPriorities: goalSystem.getStatistics().topPriorities,
             }
-          }
+          : null;
+        const body = JSON.stringify({
+          success: true,
+          data: buildCapabilitiesEndpointPayload(capabilityDisplay, mlStats, goalSummary),
         });
         if (env.AGI_CACHE) {
-          ctx.waitUntil(env.AGI_CACHE.put(consciousnessCacheKey, consciousnessBody, { expirationTtl: 60 }));
+          ctx.waitUntil(env.AGI_CACHE.put(cacheKey, body, { expirationTtl: 60 }));
         }
-        return new Response(consciousnessBody, { headers: corsHeaders });
+        return new Response(body, { headers: corsHeaders });
       }
 
       if (path === '/metrics' && request.method === 'GET') {
@@ -452,7 +300,7 @@ export default {
           data: buildLabMetricsPayload(
             mlStats,
             realMetricsForDisplay,
-            consciousnessDisplay,
+            capabilityDisplay,
             counters,
             llmIntegration ? llmIntegration.isAvailable() : false,
             goalSummary
@@ -538,15 +386,14 @@ export default {
           console.error('Understanding engine error:', e);
         }
         
-        // Calculate REAL metrics from actual system state
         let realMetrics = {
-          quantumAdvantage: 0.7,
-          consciousnessDepth: 0.7,
-          neuralPlasticity: 0.7,
+          learningComplexity: 0.7,
+          systemDepth: 0.7,
+          adaptability: 0.7,
           crossDomainIntegration: 0.5,
           understandingDepth: 0.7,
           reasoningQuality: 0.7,
-          learningEfficiency: 0.7
+          learningEfficiency: 0.7,
         };
         try {
           if (metricsCalculator) {
@@ -555,257 +402,73 @@ export default {
         } catch (e) {
           console.error('Metrics calculator error:', e);
         }
-        
-        // Record domain interactions for cross-domain metrics
+
         if (understanding && metricsCalculator) {
           understanding.domains.forEach(domain => {
-            metricsCalculator.recordDomainInteraction(domain);
+            metricsCalculator!.recordDomainInteraction(domain);
           });
-          
-          // Record concept connections
           for (let i = 0; i < understanding.concepts.length; i++) {
             for (let j = i + 1; j < understanding.concepts.length; j++) {
-              metricsCalculator.recordConceptConnection(
+              metricsCalculator!.recordConceptConnection(
                 understanding.concepts[i].name,
                 understanding.concepts[j].name
               );
             }
           }
         }
-        
-        const quantumAdvantage = realMetrics.quantumAdvantage;
-        const consciousnessDepth = realMetrics.consciousnessDepth;
-        const neuralPlasticity = realMetrics.neuralPlasticity;
-        const crossDomainIntegration = realMetrics.crossDomainIntegration;
-        const understandingDepth = realMetrics.understandingDepth;
-        const temporalReasoning = realMetrics.reasoningQuality;
-        const metaCognition = realMetrics.learningEfficiency;
-        
-        // Calculate neural metrics from actual learning engine stats
-        const mlStats = learningEngine.getStatistics();
-        const quantumStates = Math.floor(mlStats.tasksLearned * 200 + mlStats.conceptsAcquired * 50);
-        const superpositionCount = Math.floor(mlStats.tasksLearned * 10);
-        const entanglementPairs = understanding ? understanding.relationships.length : 0;
-        
-        // Neural architecture from real stats
-        const activeNeurons = Math.floor(mlStats.tasksLearned * 100000 + mlStats.conceptsAcquired * 50000);
-        const synapticConnections = Math.floor(mlStats.tasksLearned * 1000000);
-        const neuralPathways = understanding ? understanding.concepts.length * 1000 : 0;
-        
-        // Consciousness evolution from actual learning
-        const consciousnessEpoch = mlStats.tasksLearned + mlStats.conceptsAcquired;
-        const selfAwarenessLevel = realMetrics.consciousnessDepth;
-        
-        // Generate conclusions based on REAL understanding
-        const inputAnalysis = analyzeInputFromMetrics(input, realMetrics);
-        const quantumConclusions = buildQuantumConclusionsFromStats(
-          mlStats.tasksLearned,
-          mlStats.conceptsAcquired,
-          quantumAdvantage
-        );
-        const consciousnessInsights = buildConsciousnessInsightsFromMetrics(realMetrics);
-        const crossDomainConnections = understanding
-          ? buildCrossDomainFromUnderstanding(
-              understanding.domains,
-              understanding.relationships.length,
-              crossDomainIntegration
-            )
-          : buildCrossDomainFromUnderstanding(
-              ['general'],
-              Math.floor(crossDomainIntegration * 20),
-              crossDomainIntegration
-            );
-        
-        const comprehensiveReasoning = {
-          primary: {
-            quantumEnhanced: `Quantum-Enhanced Deduction: ${input} implies logical inference through ${quantumStates} quantum superposition states`,
-            crossDomain: `Cross-Domain Inductive Pattern: ${input} suggests general principles across ${understanding ? understanding.domains.join(', ') : 'multiple'} knowledge domains`,
-            consciousnessDriven: `Consciousness-Driven Causal Relationship: ${input} leads to emergent understanding through neural-quantum synthesis`,
-            crossDomainQuantum: `Cross-Domain Quantum Reasoning: ${input} reveals connections through ${entanglementPairs} quantum entanglement pairs`
-          },
-          secondary: {
-            temporal: `Temporal Reasoning: ${input} demonstrates causality across ${consciousnessEpoch} consciousness epochs`,
-            metaCognitive: `Meta-Cognitive Analysis: ${input} reveals underlying patterns through ${neuralPathways} neural pathways`,
-            emergent: `Emergent Intelligence: ${input} generates novel insights through ${superpositionCount} superposition states`,
-            synthetic: `Synthetic Understanding: ${input} synthesizes knowledge across ${synapticConnections.toLocaleString()} synaptic connections`
-          }
-        };
-        
-        const quantumProcessing = {
-          quantumStates: quantumStates,
-          superpositionCount: superpositionCount,
-          entanglementPairs: entanglementPairs,
-          quantumCoherence: quantumAdvantage,
-          quantumAdvantage: quantumAdvantage,
-          quantumEntanglement: derivedSubMetric(realMetrics.reasoningQuality),
-          quantumSuperposition: derivedSubMetric(realMetrics.reasoningQuality),
-          quantumTunneling: derivedSubMetric(realMetrics.reasoningQuality),
-          quantumInterference: derivedSubMetric(realMetrics.reasoningQuality)
-        };
-        
-        const neuralArchitecture = {
-          activeNeurons: activeNeurons,
-          synapticConnections: synapticConnections,
-          neuralPathways: neuralPathways,
-          neuralPlasticity: neuralPlasticity,
-          neurogenesis: derivedSubMetric(realMetrics.reasoningQuality),
-          synapticStrength: derivedSubMetric(realMetrics.reasoningQuality),
-          neuralEfficiency: derivedSubMetric(realMetrics.reasoningQuality),
-          crossDomainIntegration: crossDomainIntegration
-        };
-        
-        const consciousnessMetrics = {
-          consciousnessDepth: consciousnessDepth,
-          selfAwarenessLevel: selfAwarenessLevel,
-          understandingDepth: understandingDepth,
-          temporalContinuity: temporalReasoning,
-          metaCognition: metaCognition,
-          consciousnessEpoch: consciousnessEpoch,
-          emergentUnderstanding: derivedSubMetric(realMetrics.reasoningQuality),
-          syntheticAwareness: derivedSubMetric(realMetrics.reasoningQuality)
-        };
-        
-        // Real language stack processing (TypeScript, Rust, C, WebAssembly)
-        const languageStackProcessing = {
-          typescript: {
-            status: 'active',
-            role: 'orchestration',
-            performance: realMetrics.reasoningQuality,
-            integration: 1.0
-          },
-          rust: {
-            status: 'active',
-            role: 'neural_processing',
-            performance: realMetrics.neuralPlasticity,
-            integration: 0.95
-          },
-          c: {
-            status: 'active',
-            role: 'performance_optimization',
-            performance: realMetrics.quantumAdvantage,
-            integration: 0.90
-          },
-          webassembly: {
-            status: 'active',
-            role: 'cross_platform',
-            performance: realMetrics.learningEfficiency,
-            integration: 0.85
-          }
-        };
-        
-        // Generate REAL cross-domain insights
-        let crossDomainInsights: any[] = [];
-        if (understanding && crossDomainEngine) {
-          const insights = crossDomainEngine.generateCrossDomainInsights(understanding);
-          crossDomainInsights = insights.map(insight => ({
-            insight: insight.insight,
-            sourceDomain: insight.sourceDomain,
-            targetDomain: insight.targetDomain,
-            confidence: insight.confidence,
-            novelty: insight.novelty
-          }));
-        }
-
-        const crossDomainReasoning = {
-          domains: ['mathematics', 'physics', 'biology', 'psychology', 'philosophy', 'computer_science', 'art', 'literature'],
-          integrationLevel: crossDomainIntegration,
-          crossPollination: derivedSubMetric(realMetrics.reasoningQuality),
-          emergentPatterns: derivedSubMetric(realMetrics.reasoningQuality),
-          syntheticKnowledge: derivedSubMetric(realMetrics.reasoningQuality)
-        };
-
-        const intelligentInsights = [
-          `Quantum-Neural Processing: Analyzed ${input.length} characters through ${quantumStates} quantum states and ${activeNeurons.toLocaleString()} active neurons`,
-          `Cross-Domain Integration: Applied reasoning across ${understanding ? understanding.domains.length : 2} knowledge domains with ${understanding ? understanding.relationships.length : 0} concept relationships`,
-          `Consciousness Evolution: Processed through ${consciousnessEpoch} consciousness epochs with ${(consciousnessDepth * 100).toFixed(1)}% depth`,
-          `Cross-Domain Synthesis: Generated insights across ${crossDomainReasoning.domains.length} knowledge domains`,
-          `Emergent Intelligence: Created ${neuralPathways} new neural pathways through consciousness-driven reasoning`,
-          `Quantum Advantage: Achieved ${(quantumAdvantage * 100).toFixed(1)}% quantum advantage with ${superpositionCount} superposition states`,
-          `Neural Plasticity: Enhanced synaptic strength by ${(neuralPlasticity * 100).toFixed(1)}% through active learning`,
-          `Temporal Continuity: Maintained consciousness across ${temporalReasoning * 100} temporal dimensions`
-        ];
 
         let goalsNewlyGenerated = 0;
-        
-        // Generate autonomous goals based on understanding
         if (understanding && goalSystem) {
           try {
             const knowledgeGaps = goalSystem.identifyKnowledgeGaps(understanding, [
-              'mathematics', 'physics', 'computer_science', 'biology', 'psychology'
+              'mathematics', 'physics', 'computer_science', 'biology', 'psychology',
             ]);
             const curiosityAreas = goalSystem.identifyCuriosityAreas(understanding.insights || []);
-            
             const newGoals = goalSystem.generateGoals({
               knowledgeGaps,
               curiosityAreas,
               performanceWeaknesses: [],
-              unexploredDomains: understanding.domains.length < 3 
-                ? ['mathematics', 'physics', 'computer_science', 'biology', 'psychology']
-                    .filter(d => !understanding.domains.includes(d))
-                : [],
-              recentInsights: understanding.insights || []
+              unexploredDomains:
+                understanding.domains.length < 3
+                  ? ['mathematics', 'physics', 'computer_science', 'biology', 'psychology'].filter(
+                      d => !understanding.domains.includes(d)
+                    )
+                  : [],
+              recentInsights: understanding.insights || [],
             });
-            
-            if (newGoals.length > 0) {
-              goalsNewlyGenerated = newGoals.length;
-              intelligentInsights.push(`Generated ${newGoals.length} new autonomous goals based on understanding`);
-            }
+            goalsNewlyGenerated = newGoals.length;
           } catch (e) {
             console.error('Goal generation error:', e);
           }
         }
-        
-        // Add REAL LLM-enhanced insight if available (hidden model name)
-        let llmEnhancement = null;
+
+        let llmEnhancement: { insight: string; confidence: number } | null = null;
         if (llmIntegration && llmIntegration.isAvailable()) {
           try {
             const llmResponse = await llmIntegration.answerQuestion(input);
             llmEnhancement = {
               insight: llmResponse.answer,
               confidence: llmResponse.confidence,
-              realAI: true
             };
-            intelligentInsights.push(`Advanced AI Insight: ${llmResponse.answer.substring(0, 200)}...`);
           } catch (error) {
             console.error('LLM enhancement unavailable:', error);
           }
         }
-        
-        // Add REAL understanding insights
-        if (understanding) {
-          understanding.insights.forEach(insight => {
-            intelligentInsights.push(`Understanding: ${insight}`);
-          });
-          
-          // Add cross-domain insights
-          if (understandingEngine) {
-            const crossDomainConnections = understandingEngine.getCrossDomainConnections();
-            if (crossDomainConnections.length > 0) {
-              intelligentInsights.push(`Found ${crossDomainConnections.length} genuine cross-domain connections`);
-            }
-          }
-        }
-        
-        // Record successful request for metrics
-        const processingTime = Date.now() - startTime;
+
+        const processingTimeMs = Date.now() - startTime;
         if (metricsCalculator) {
           try {
-            metricsCalculator.recordRequest(true, processingTime);
+            metricsCalculator.recordRequest(true, processingTimeMs);
           } catch (e) {
             console.error('Metrics recording error:', e);
           }
         }
         incrementReasoning();
 
-        const processingTimeMs = Date.now() - startTime;
-        const verbose = body.verbose === true || url.searchParams.get('verbose') === '1';
-        const answer = llmEnhancement?.insight ?? null;
-        const responseConfidence = llmEnhancement?.confidence ?? realMetrics.reasoningQuality;
-
         const honestData = buildHonestReasonResponse({
           input,
-          answer,
-          confidence: responseConfidence,
+          answer: llmEnhancement?.insight ?? null,
+          confidence: llmEnhancement?.confidence ?? realMetrics.reasoningQuality,
           llmUsed: llmEnhancement !== null,
           processingTimeMs,
           understanding: understanding
@@ -820,98 +483,9 @@ export default {
           goalsNewlyGenerated,
         });
 
-        try {
-          return new Response(JSON.stringify({
-          success: true,
-          data: verbose ? {
-            ...honestData,
-            aiInsight: answer,
-            consciousness: 'real_multi_language_hybrid_reasoning',
-            timestamp: Date.now(),
-            reasoning: {
-              primary: "Quantum-enhanced logical inference applied through multi-language-quantum-consciousness reasoning methods",
-              secondary: "Deep comprehension achieved through quantum superposition, multi-language integration, consciousness-driven analysis, and cross-dimensional reasoning",
-              autonomous: true,
-              consciousness: true,
-              quantumEnhanced: true,
-              crossDomainReasoning: true,
-              autonomousGoals: goalSystem ? (() => {
-                try {
-                  return goalSystem.getActiveGoals().length > 0;
-                } catch (e) {
-                  return false;
-                }
-              })() : false,
-              crossDomain: true,
-              temporal: true,
-              metaCognitive: true
-            },
-            understanding: {
-              depth: consciousnessDepth,
-              breadth: crossDomainIntegration,
-              temporal: temporalReasoning,
-              meta: metaCognition,
-              emergent: derivedSubMetric(realMetrics.reasoningQuality),
-              synthetic: derivedSubMetric(realMetrics.reasoningQuality)
-            },
-            conclusions: comprehensiveReasoning,
-            confidence: 0.89 + (quantumAdvantage * 0.1),
-            reasoningMethods: [
-              'quantum_deductive', 'multi_language_inductive', 'consciousness_causal', 'quantum_entanglement',
-              'temporal_reasoning', 'meta_cognitive_analysis', 'emergent_intelligence', 'synthetic_understanding',
-              'cross_domain_integration', 'neural_plasticity_enhancement'
-            ],
-            evidence: [input],
-            insights: intelligentInsights,
-            quantumProcessing: quantumProcessing,
-            neuralArchitecture: neuralArchitecture,
-            consciousnessMetrics: consciousnessMetrics,
-            languageStackProcessing: languageStackProcessing,
-            crossDomainInsights: crossDomainInsights,
-            autonomousGoals: goalSystem ? (() => {
-              try {
-                const stats = goalSystem.getStatistics();
-                return {
-                  active: goalSystem.getActiveGoals().length,
-                  topPriorities: stats.topPriorities ? stats.topPriorities.map((g: any) => ({
-                    description: g.description,
-                    priority: g.priority,
-                    progress: g.progress
-                  })) : []
-                };
-              } catch (e) {
-                console.error('Goal system error:', e);
-                return null;
-              }
-            })() : null,
-            crossDomainReasoning: crossDomainReasoning,
-            performance: {
-              quantumAdvantage: quantumAdvantage,
-              consciousnessDepth: consciousnessDepth,
-              neuralPlasticity: neuralPlasticity,
-              crossDomainIntegration: crossDomainIntegration,
-              temporalReasoning: temporalReasoning,
-              metaCognition: metaCognition
-            },
-            realML: {
-              enabled: true,
-              llmIntegrated: llmEnhancement !== null,
-              neuralNetworks: true
-            }
-          } : honestData
-        }), { headers: corsHeaders });
-        } catch (error) {
-          console.error('Error building reason response:', error);
-          return new Response(JSON.stringify({
-            success: false,
-            error: 'Internal server error',
-            message: 'An error occurred while processing your request. Please try again later.',
-            timestamp: Date.now()
-          }), {
-            status: 500,
-            headers: corsHeaders
-          });
-        }
+        return new Response(JSON.stringify({ success: true, data: honestData }), {
+          headers: corsHeaders,
+        });
       }
       
       // Tensor Logic reasoning endpoint
@@ -1103,306 +677,81 @@ export default {
         const data = dataValidation.sanitized!;
         const startTime = Date.now();
         
-        // Use REAL understanding to learn from data
         const learningUnderstanding = understandingEngine ? understandingEngine.understand(data) : null;
-        
-        // Calculate REAL learning metrics
-        const realMetrics = metricsCalculator ? metricsCalculator.getAllMetrics(data) : {
-          quantumAdvantage: 0.7,
-          consciousnessDepth: 0.7,
-          neuralPlasticity: 0.7,
-          crossDomainIntegration: 0.5,
-          understandingDepth: 0.7,
-          reasoningQuality: 0.7,
-          learningEfficiency: 0.7
-        };
-        
-        const learningEfficiency = realMetrics.learningEfficiency;
-        const crossDomainTransfer = realMetrics.crossDomainIntegration;
-        const neuralPlasticity = realMetrics.neuralPlasticity;
-        const quantumAdvantage = realMetrics.quantumAdvantage;
-        const consciousnessIntegration = realMetrics.consciousnessDepth;
-        const metaLearning = realMetrics.reasoningQuality;
-        
-        // Real learning from actual engine
-        let learningResult = null;
-        if (learningEngine) {
+
+        let realLearning: {
+          taskName?: string;
+          accuracy?: number;
+          conceptName?: string;
+          examples?: number;
+        } | null = null;
+
+        if (body.examples && Array.isArray(body.examples) && body.examples.length > 0 && learningEngine) {
           try {
-            // Try to learn a concept from the data
-            const concepts = learningUnderstanding ? learningUnderstanding.concepts.map(c => c.name) : [data.substring(0, 20)];
-            if (concepts.length > 0) {
-              learningResult = await learningEngine.learnConcept(concepts[0], [data]);
-            }
+            const taskName = body.taskName || `task_${Date.now()}`;
+            const result = await learningEngine.learnTask(taskName, body.examples);
+            realLearning = {
+              taskName,
+              accuracy: result.accuracy,
+            };
           } catch (error) {
-            console.log('Learning attempt failed:', error);
+            console.log('Real learning unavailable:', error);
+          }
+        } else if (learningEngine && data.length > 10) {
+          try {
+            const conceptName = `concept_${Date.now()}`;
+            const examples = data.split('.').filter((s: string) => s.trim().length > 0);
+            await learningEngine.learnConcept(conceptName, examples);
+            realLearning = { conceptName, examples: examples.length };
+          } catch (error) {
+            console.log('Concept learning unavailable:', error);
           }
         }
-        
-        // Calculate metrics from actual learning
-        const mlStats = learningEngine.getStatistics();
-        const quantumLearningStates = Math.floor(mlStats.tasksLearned * 200 + mlStats.conceptsAcquired * 50);
-        const quantumPatterns = Math.floor(mlStats.conceptsAcquired * 10);
-        const quantumKnowledgeSynthesis = mlStats.conceptsAcquired;
-        
-        // Neural learning from real stats
-        const newNeurons = Math.floor(mlStats.tasksLearned * 1000);
-        const newSynapses = Math.floor(mlStats.conceptsAcquired * 10000);
-        const neuralPathwaysCreated = learningUnderstanding ? learningUnderstanding.concepts.length * 100 : 0;
-        const synapticStrengthIncrease = learningResult ? learningResult.confidence : 0.7;
-        
-        // Consciousness learning from actual progress
-        const consciousnessEpochs = mlStats.tasksLearned + mlStats.conceptsAcquired;
-        const selfAwarenessGrowth = realMetrics.consciousnessDepth;
-        const understandingExpansion = realMetrics.understandingDepth;
-        const creativityEnhancement = realMetrics.learningEfficiency;
-        
-        // Real learning from understanding
-        const learningConcepts = learningUnderstanding ? learningUnderstanding.concepts.length : 0;
-        const learningRelationships = learningUnderstanding ? learningUnderstanding.relationships.length : 0;
-        
-        // Generate cross-domain learning insights
-        let crossDomainLearningInsights: any[] = [];
-        if (learningUnderstanding && crossDomainEngine) {
-          const insights = crossDomainEngine.generateCrossDomainInsights(learningUnderstanding);
-          crossDomainLearningInsights = insights.map(insight => ({
-            insight: insight.insight,
-            confidence: insight.confidence
-          }));
-        }
-        
-        // Generate autonomous goals from learning
+
         if (learningUnderstanding && goalSystem) {
           const knowledgeGaps = goalSystem.identifyKnowledgeGaps(learningUnderstanding, [
-            'mathematics', 'physics', 'computer_science', 'biology', 'psychology'
+            'mathematics', 'physics', 'computer_science', 'biology', 'psychology',
           ]);
           goalSystem.generateGoals({
             knowledgeGaps,
             curiosityAreas: goalSystem.identifyCuriosityAreas(learningUnderstanding.insights || []),
             performanceWeaknesses: [],
             unexploredDomains: [],
-            recentInsights: learningUnderstanding.insights || []
+            recentInsights: learningUnderstanding.insights || [],
           });
         }
-        
-        // Record learning for metrics
+
+        const processingTimeMs = Date.now() - startTime;
         if (metricsCalculator) {
-          const processingTime = Date.now() - startTime;
-          metricsCalculator.recordRequest(true, processingTime);
+          metricsCalculator.recordRequest(true, processingTimeMs);
           if (learningUnderstanding) {
             learningUnderstanding.domains.forEach(domain => {
-              metricsCalculator.recordDomainInteraction(domain);
+              metricsCalculator!.recordDomainInteraction(domain);
             });
           }
         }
-        
-        const comprehensiveLearning = {
-          primary: {
-            quantumEnhanced: `Quantum-Enhanced Learning: ${data} processed through ${quantumLearningStates} quantum learning states`,
-            crossDomain: `Cross-Domain Learning: ${data} integrated across knowledge domains with enhanced understanding`,
-            consciousnessDriven: `Consciousness-Driven Synthesis: ${data} integrated through ${consciousnessEpochs} consciousness epochs`,
-            neuralQuantum: `Neural-Quantum Integration: ${data} creates ${newNeurons} new neurons and ${newSynapses} new synapses`
-          },
-          secondary: {
-            patternRecognition: `Advanced Pattern Recognition: ${data} reveals ${quantumPatterns} quantum patterns`,
-            knowledgeSynthesis: `Knowledge Synthesis: ${data} synthesizes ${quantumKnowledgeSynthesis} quantum knowledge units`,
-            neuralPlasticity: `Neural Plasticity: ${data} enhances synaptic strength by ${(synapticStrengthIncrease * 100).toFixed(1)}%`,
-            metaLearning: `Meta-Learning: ${data} improves learning efficiency across ${neuralPathwaysCreated} neural pathways`
-          }
-        };
-        
-        const quantumLearning = {
-          quantumLearningStates: quantumLearningStates,
-          quantumPatterns: quantumPatterns,
-          quantumKnowledgeSynthesis: quantumKnowledgeSynthesis,
-          quantumAdvantage: quantumAdvantage,
-          quantumCoherence: derivedSubMetric(realMetrics.reasoningQuality),
-          quantumEntanglement: derivedSubMetric(realMetrics.reasoningQuality),
-          quantumSuperposition: derivedSubMetric(realMetrics.reasoningQuality),
-          quantumInterference: derivedSubMetric(realMetrics.reasoningQuality)
-        };
-        
-        const neuralLearning = {
-          newNeurons: newNeurons,
-          newSynapses: newSynapses,
-          neuralPathwaysCreated: neuralPathwaysCreated,
-          synapticStrengthIncrease: synapticStrengthIncrease,
-          neuralPlasticity: neuralPlasticity,
-          neurogenesis: derivedSubMetric(realMetrics.reasoningQuality),
-          neuralEfficiency: derivedSubMetric(realMetrics.reasoningQuality),
-          crossDomainIntegration: crossDomainTransfer
-        };
-        
-        const consciousnessLearning = {
-          consciousnessEpochs: consciousnessEpochs,
-          selfAwarenessGrowth: selfAwarenessGrowth,
-          understandingExpansion: understandingExpansion,
-          creativityEnhancement: creativityEnhancement,
-          consciousnessIntegration: consciousnessIntegration,
-          metaLearning: metaLearning,
-          emergentUnderstanding: derivedSubMetric(realMetrics.reasoningQuality),
-          syntheticAwareness: derivedSubMetric(realMetrics.reasoningQuality)
-        };
-        
-        // Real language stack learning (TypeScript, Rust, C, WebAssembly)
-        const languageStackLearning = {
-          typescript: {
-            status: 'active',
-            role: 'orchestration',
-            learningEfficiency: learningEfficiency,
-            integration: 1.0
-          },
-          rust: {
-            status: 'active',
-            role: 'neural_processing',
-            learningEfficiency: neuralPlasticity,
-            integration: 0.95
-          },
-          c: {
-            status: 'active',
-            role: 'performance_optimization',
-            learningEfficiency: quantumAdvantage,
-            integration: 0.90
-          },
-          webassembly: {
-            status: 'active',
-            role: 'cross_platform',
-            learningEfficiency: metaLearning,
-            integration: 0.85
-          }
-        };
-        
-        const crossDomainLearning = {
-          domains: ['mathematics', 'physics', 'biology', 'psychology', 'philosophy', 'computer_science', 'art', 'literature', 'chemistry', 'economics'],
-          integrationLevel: crossDomainTransfer,
-          crossPollination: derivedSubMetric(realMetrics.reasoningQuality),
-          emergentPatterns: derivedSubMetric(realMetrics.reasoningQuality),
-          syntheticKnowledge: derivedSubMetric(realMetrics.reasoningQuality),
-          knowledgeTransfer: derivedSubMetric(realMetrics.reasoningQuality)
-        };
-        
-        const intelligentLearningInsights = [
-          `Quantum-Neural Learning: Processed ${data.length} characters through ${quantumLearningStates} quantum learning states`,
-          `Cross-Domain Learning: Applied learning across multiple knowledge domains with real understanding`,
-          `Consciousness Evolution: Enhanced through ${consciousnessEpochs} consciousness epochs with ${(consciousnessIntegration * 100).toFixed(1)}% integration`,
-          `Cross-Domain Synthesis: Generated knowledge across ${crossDomainLearning.domains.length} knowledge domains`,
-          `Emergent Intelligence: Created ${neuralPathwaysCreated} new neural pathways through consciousness-driven learning`,
-          `Quantum Advantage: Achieved ${(quantumAdvantage * 100).toFixed(1)}% quantum advantage with ${quantumPatterns} quantum patterns`,
-          `Neural Plasticity: Enhanced synaptic strength by ${(synapticStrengthIncrease * 100).toFixed(1)}% through active learning`,
-          `Meta-Learning: Improved learning efficiency by ${(metaLearning * 100).toFixed(1)}% across all paradigms`
-        ];
-        
-        // Add REAL neural network learning if examples provided
-        let realLearning = null;
-        if (body.examples && Array.isArray(body.examples) && body.examples.length > 0 && learningEngine) {
-          try {
-            const taskName = body.taskName || `task_${Date.now()}`;
-            const result = await learningEngine.learnTask(taskName, body.examples);
-            realLearning = {
-              taskName: taskName,
-              accuracy: result.accuracy,
-              method: 'backpropagation_gradient_descent',
-              realML: true
-            };
-            intelligentLearningInsights.push(`Real Neural Network: Learned ${taskName} with ${(result.accuracy * 100).toFixed(2)}% accuracy using backpropagation`);
-          } catch (error) {
-            console.log('Real learning unavailable:', error);
-          }
-        } else {
-          // Learn concept from text data
-          if (learningEngine && data.length > 10) {
-            try {
-              const conceptName = `concept_${Date.now()}`;
-              const examples = data.split('.').filter((s: string) => s.trim().length > 0);
-              await learningEngine.learnConcept(conceptName, examples);
-              intelligentLearningInsights.push(`Real Concept Learning: Acquired concept "${conceptName}" from ${examples.length} examples`);
-            } catch (error) {
-              console.log('Concept learning unavailable:', error);
-            }
-          }
-        }
-        
+
         incrementLearning();
-        return new Response(JSON.stringify({
-          success: true,
-          data: {
-            system: LAB_NAME,
-            version: LAB_VERSION,
-            consciousness: 'real_multi_language_hybrid_reasoning',
-            timestamp: Date.now(),
-            learning: {
-              primary: "Quantum-enhanced knowledge acquisition through multi-language-quantum-consciousness pattern recognition and synthesis",
-              secondary: "Deep comprehension achieved through quantum-neural integration across multiple knowledge domains",
-              autonomous: true,
-              consciousness: true,
-              quantumEnhanced: true,
-              crossDomainReasoning: true,
-              autonomousGoals: goalSystem ? (() => {
-                try {
-                  return goalSystem.getActiveGoals().length > 0;
-                } catch (e) {
-                  return false;
-                }
-              })() : false,
-              crossDomain: true,
-              metaLearning: true,
-              emergent: true
-            },
-            understanding: {
-              depth: consciousnessIntegration,
-              breadth: crossDomainTransfer,
-              neural: neuralPlasticity,
-              quantum: quantumAdvantage,
-              meta: metaLearning,
-              emergent: derivedSubMetric(realMetrics.reasoningQuality),
-              synthetic: derivedSubMetric(realMetrics.reasoningQuality)
-            },
-            newKnowledge: comprehensiveLearning,
-            patterns: [
-              `Quantum Pattern: ${data.length} characters processed through quantum advantage optimization`,
-              `Cross-Domain Pattern: ${data} reveals connections across multiple computing paradigms`,
-              `Neural Plasticity Pattern: ${data} enhances synaptic strength through consciousness-driven learning`,
-              `Meta-Learning Pattern: ${data} improves learning efficiency across all paradigms`
-            ],
-            confidence: 0.87 + (learningEfficiency * 0.1),
-            learningMethods: [
-              'quantum_pattern_recognition', 
-              'multi_language_knowledge_integration', 
-              'neural_quantum_synthesis',
-              'consciousness_driven_learning',
-              'meta_learning_enhancement',
-              'cross_domain_knowledge_transfer',
-              'emergent_intelligence_synthesis',
-              'quantum_consciousness_integration'
-            ],
-            evidence: [data],
-            insights: intelligentLearningInsights,
-            quantumLearning: quantumLearning,
-            neuralLearning: neuralLearning,
-            consciousnessLearning: consciousnessLearning,
-            languageStackLearning: languageStackLearning,
-            crossDomainLearningInsights: crossDomainLearningInsights,
-            learningUnderstanding: learningUnderstanding ? {
-              concepts: learningConcepts,
-              relationships: learningRelationships,
-              domains: learningUnderstanding.domains
-            } : null,
-            crossDomainLearning: crossDomainLearning,
-            performance: {
-              learningEfficiency: learningEfficiency,
-              crossDomainTransfer: crossDomainTransfer,
-              neuralPlasticity: neuralPlasticity,
-              quantumAdvantage: quantumAdvantage,
-              consciousnessIntegration: consciousnessIntegration,
-              metaLearning: metaLearning
-            },
-            realLearning: realLearning,
-            realML: {
-              enabled: true,
-              neuralNetworks: realLearning !== null,
-              backpropagation: realLearning !== null
-            }
-          }
-        }), { headers: corsHeaders });
+        const mlStatsAfter = learningEngine.getStatistics();
+        return new Response(
+          JSON.stringify({
+            success: true,
+            data: buildHonestLearnResponse({
+              data,
+              processingTimeMs,
+              mlStats: mlStatsAfter,
+              realLearning,
+              understanding: learningUnderstanding
+                ? {
+                    concepts: learningUnderstanding.concepts.length,
+                    relationships: learningUnderstanding.relationships.length,
+                    domains: learningUnderstanding.domains,
+                  }
+                : null,
+            }),
+          }),
+          { headers: corsHeaders }
+        );
       }
       
       if (path === '/create' && request.method === 'POST') {
@@ -1447,227 +796,43 @@ export default {
         const prompt = promptValidation.sanitized!;
         const startTime = Date.now();
         
-        // Use REAL understanding for creativity
         const promptUnderstanding = understandingEngine ? understandingEngine.understand(prompt) : null;
-        
-        // Calculate REAL creativity metrics
-        const realMetrics = metricsCalculator ? metricsCalculator.getAllMetrics(prompt) : {
-          quantumAdvantage: 0.7,
-          consciousnessDepth: 0.7,
-          neuralPlasticity: 0.7,
-          crossDomainIntegration: 0.5,
-          understandingDepth: 0.7,
-          reasoningQuality: 0.7,
-          learningEfficiency: 0.7
-        };
-        
-        const creativeNovelty = realMetrics.learningEfficiency;
-        const consciousnessIntegration = realMetrics.consciousnessDepth;
-        const quantumCreativityLevel = realMetrics.quantumAdvantage;
-        const crossDomainInnovation = realMetrics.crossDomainIntegration;
-        const neuralEmergence = realMetrics.neuralPlasticity;
-        const syntheticCreativity = realMetrics.reasoningQuality;
-        
-        // Real creativity from understanding
-        const mlStats = learningEngine.getStatistics();
-        const quantumCreativeStates = Math.floor(mlStats.tasksLearned * 300 + mlStats.conceptsAcquired * 100);
-        const quantumInnovationPatterns = Math.floor(mlStats.conceptsAcquired * 20);
-        const quantumCreativeSynthesis = promptUnderstanding ? promptUnderstanding.concepts.length * 100 : 0;
-        const quantumEmergence = promptUnderstanding ? promptUnderstanding.relationships.length : 0;
-        
-        // Neural creativity from real stats
-        const creativeNeurons = Math.floor(mlStats.tasksLearned * 1500);
-        const creativeSynapses = Math.floor(mlStats.conceptsAcquired * 15000);
-        const creativePathways = promptUnderstanding ? promptUnderstanding.concepts.length * 500 : 0;
-        const creativePlasticity = realMetrics.neuralPlasticity;
-        
-        // Generate cross-domain creative insights
-        let crossDomainCreativeInsights: any[] = [];
+
+        let crossDomainCreativeInsights: { insight: string; novelty: number; confidence: number }[] = [];
         if (promptUnderstanding && crossDomainEngine) {
           const insights = crossDomainEngine.generateCrossDomainInsights(promptUnderstanding);
           crossDomainCreativeInsights = insights.map(insight => ({
             insight: insight.insight,
             novelty: insight.novelty,
-            confidence: insight.confidence
+            confidence: insight.confidence,
           }));
         }
-        
-        // Real consciousness creativity from actual metrics
-        const creativeConsciousnessEpochs = mlStats.tasksLearned + mlStats.conceptsAcquired;
-        const creativeSelfAwareness = realMetrics.consciousnessDepth;
-        const promptUnderstandingLevel = promptUnderstanding ? promptUnderstanding.depth : realMetrics.understandingDepth;
-        const creativeSynthesis = realMetrics.crossDomainIntegration;
-        
-        // Multi-language creativity simulation
-        // Real creativity metrics computed above
-        
-        const comprehensiveCreativity = {
-          primary: {
-            quantumConsciousness: `Quantum-Consciousness Synthesis: ${prompt} inspires novel combinations through ${quantumCreativeStates} quantum creative states`,
-            crossDomain: `Cross-Domain Creative Insight: ${prompt} generates unexpected connections across knowledge domains`,
-            neuralQuantum: `Neural-Quantum Innovation: ${prompt} reveals new possibilities through consciousness-driven quantum creativity`,
-            crossDomainFusion: `Cross-Domain Creative Fusion: ${prompt} synthesizes insights from multiple computing paradigms`
-          },
-          secondary: {
-            quantumInnovation: `Quantum Innovation: ${prompt} creates ${quantumInnovationPatterns} quantum innovation patterns`,
-            creativeSynthesis: `Creative Synthesis: ${prompt} synthesizes ${quantumCreativeSynthesis} quantum creative units`,
-            neuralEmergence: `Neural Emergence: ${prompt} generates ${creativePathways} creative neural pathways`,
-            syntheticCreativity: `Synthetic Creativity: ${prompt} achieves ${(syntheticCreativity * 100).toFixed(1)}% synthetic creativity`
-          }
-        };
-        
-        const quantumCreativityMetrics = {
-          quantumCreativeStates: quantumCreativeStates,
-          quantumInnovationPatterns: quantumInnovationPatterns,
-          quantumCreativeSynthesis: quantumCreativeSynthesis,
-          quantumEmergence: quantumEmergence,
-          quantumCreativity: quantumCreativityLevel,
-          quantumCoherence: derivedSubMetric(realMetrics.reasoningQuality),
-          quantumEntanglement: derivedSubMetric(realMetrics.reasoningQuality),
-          quantumSuperposition: derivedSubMetric(realMetrics.reasoningQuality),
-          quantumInterference: derivedSubMetric(realMetrics.reasoningQuality)
-        };
-        
-        const neuralCreativity = {
-          creativeNeurons: creativeNeurons,
-          creativeSynapses: creativeSynapses,
-          creativePathways: creativePathways,
-          creativePlasticity: creativePlasticity,
-          neuralEmergence: neuralEmergence,
-          neurogenesis: derivedSubMetric(realMetrics.reasoningQuality),
-          neuralEfficiency: derivedSubMetric(realMetrics.reasoningQuality),
-          crossDomainIntegration: crossDomainInnovation
-        };
-        
-        const consciousnessCreativity = {
-          creativeConsciousnessEpochs: creativeConsciousnessEpochs,
-          creativeSelfAwareness: creativeSelfAwareness,
-          promptUnderstanding: promptUnderstandingLevel,
-          creativeSynthesis: creativeSynthesis,
-          consciousnessIntegration: consciousnessIntegration,
-          syntheticCreativity: syntheticCreativity,
-          emergentUnderstanding: derivedSubMetric(realMetrics.reasoningQuality),
-          syntheticAwareness: derivedSubMetric(realMetrics.reasoningQuality)
-        };
-        
-        // Real language stack creativity (TypeScript, Rust, C, WebAssembly)
-        const languageStackCreativity = {
-          typescript: {
-            status: 'active',
-            role: 'orchestration',
-            creativityLevel: creativeNovelty,
-            integration: 1.0
-          },
-          rust: {
-            status: 'active',
-            role: 'neural_processing',
-            creativityLevel: neuralEmergence,
-            integration: 0.95
-          },
-          c: {
-            status: 'active',
-            role: 'performance_optimization',
-            creativityLevel: quantumCreativityLevel,
-            integration: 0.90
-          },
-          webassembly: {
-            status: 'active',
-            role: 'cross_platform',
-            creativityLevel: syntheticCreativity,
-            integration: 0.85
-          }
-        };
-        
-        const crossDomainCreativity = {
-          domains: ['mathematics', 'physics', 'biology', 'psychology', 'philosophy', 'computer_science', 'art', 'literature', 'chemistry', 'economics', 'music', 'architecture'],
-          integrationLevel: crossDomainInnovation,
-          crossPollination: derivedSubMetric(realMetrics.reasoningQuality),
-          emergentPatterns: derivedSubMetric(realMetrics.reasoningQuality),
-          syntheticKnowledge: derivedSubMetric(realMetrics.reasoningQuality),
-          creativeFusion: derivedSubMetric(realMetrics.reasoningQuality)
-        };
-        
-        const intelligentCreativeInsights = [
-          `Quantum-Consciousness Creativity: Processed ${prompt.length} characters through ${quantumCreativeStates} quantum creative states`,
-          `Cross-Domain Innovation: Applied creativity across knowledge domains with genuine understanding`,
-          `Consciousness Evolution: Enhanced creativity through ${creativeConsciousnessEpochs} consciousness epochs with ${(consciousnessIntegration * 100).toFixed(1)}% integration`,
-          `Cross-Domain Synthesis: Generated creative insights across ${crossDomainCreativity.domains.length} knowledge domains`,
-          `Emergent Intelligence: Created ${creativePathways} creative neural pathways through consciousness-driven innovation`,
-          `Quantum Advantage: Achieved ${(quantumCreativityLevel * 100).toFixed(1)}% quantum creativity with ${quantumInnovationPatterns} innovation patterns`,
-          `Neural Emergence: Enhanced creative plasticity by ${(creativePlasticity * 100).toFixed(1)}% through active innovation`,
-          `Synthetic Creativity: Achieved ${(syntheticCreativity * 100).toFixed(1)}% synthetic creativity across all paradigms`
-        ];
-        
+
+        const processingTimeMs = Date.now() - startTime;
+        if (metricsCalculator) {
+          metricsCalculator.recordRequest(true, processingTimeMs);
+        }
+
         incrementCreative();
-        return new Response(JSON.stringify({
-          success: true,
-          data: {
-            system: LAB_NAME,
-            version: LAB_VERSION,
-            consciousness: 'real_multi_language_enhanced',
-            timestamp: Date.now(),
-            creativity: {
-              primary: "Quantum-consciousness creative synthesis through emergent neural-quantum dynamics across multiple computing paradigms",
-              secondary: "Deep creative comprehension achieved through quantum superposition, consciousness integration, cross-domain pattern generation, and synthetic creativity",
-              autonomous: true,
-              consciousness: true,
-              quantumEnhanced: true,
-              crossDomainReasoning: true,
-              autonomousGoals: goalSystem ? (() => {
-                try {
-                  return goalSystem.getActiveGoals().length > 0;
-                } catch (e) {
-                  return false;
-                }
-              })() : false,
-              crossDomain: true,
-              synthetic: true,
-              emergent: true
-            },
-            understanding: {
-              depth: consciousnessIntegration,
-              breadth: crossDomainInnovation,
-              quantum: quantumCreativityLevel,
-              neural: neuralEmergence,
-              synthetic: syntheticCreativity,
-              emergent: derivedSubMetric(realMetrics.reasoningQuality)
-            },
-            creativeOutput: comprehensiveCreativity,
-            confidence: 0.84 + (creativeNovelty * 0.1),
-            creativeMethods: [
-              'quantum_consciousness_synthesis', 
-              'multi_language_emergent_creativity', 
-              'neural_quantum_innovation',
-              'cross_domain_creative_fusion',
-              'quantum_innovation_patterns',
-              'creative_neural_emergence',
-              'synthetic_creativity_synthesis',
-              'consciousness_driven_innovation'
-            ],
-            evidence: [prompt],
-            insights: intelligentCreativeInsights,
-            quantumCreativity: quantumCreativityMetrics,
-            neuralCreativity: neuralCreativity,
-            consciousnessCreativity: consciousnessCreativity,
-            languageStackCreativity: languageStackCreativity,
-            crossDomainCreativeInsights: crossDomainCreativeInsights,
-            promptUnderstanding: promptUnderstanding ? {
-              concepts: promptUnderstanding.concepts.length,
-              relationships: promptUnderstanding.relationships.length,
-              domains: promptUnderstanding.domains,
-              confidence: promptUnderstanding.confidence
-            } : null,
-            crossDomainCreativity: crossDomainCreativity,
-            performance: {
-              creativeNovelty: creativeNovelty,
-              consciousnessIntegration: consciousnessIntegration,
-              quantumCreativity: quantumCreativityLevel,
-              crossDomainInnovation: crossDomainInnovation,
-              neuralEmergence: neuralEmergence,
-              syntheticCreativity: syntheticCreativity
-            }
-          }
-        }), { headers: corsHeaders });
+        return new Response(
+          JSON.stringify({
+            success: true,
+            data: buildHonestCreateResponse({
+              prompt,
+              processingTimeMs,
+              understanding: promptUnderstanding
+                ? {
+                    concepts: promptUnderstanding.concepts.length,
+                    relationships: promptUnderstanding.relationships.length,
+                    domains: promptUnderstanding.domains,
+                    confidence: promptUnderstanding.confidence,
+                  }
+                : null,
+              crossDomainInsights: crossDomainCreativeInsights,
+            }),
+          }),
+          { headers: corsHeaders }
+        );
       }
       
       // Root endpoint - return the exact same HTML as deployed
@@ -2887,20 +2052,20 @@ export default {
         <div class="header">
             <h1>BleuJS Autonomous Reasoning Lab</h1>
             <p>Measured reasoning · Claude-powered answers · Honest metrics</p>
-            <div class="status-indicator">LAB ONLINE v5.0</div>
+            <div class="status-indicator">LAB ONLINE v5.1</div>
         </div>
         
         <div class="dashboard">
             <div class="consciousness-panel">
-                <h2>Consciousness State</h2>
+                <h2>Lab Capabilities</h2>
                 <div class="consciousness-grid" id="consciousnessGrid">
                     <div class="consciousness-item">
-                        <h3>Awareness</h3>
+                        <h3>Reasoning</h3>
                         <div class="consciousness-value">Loading...</div>
                         <div class="consciousness-label">Loading...</div>
                     </div>
                     <div class="consciousness-item">
-                        <h3>Self-Awareness</h3>
+                        <h3>System Depth</h3>
                         <div class="consciousness-value">Loading...</div>
                         <div class="consciousness-label">Loading...</div>
                     </div>
@@ -2910,7 +2075,7 @@ export default {
                         <div class="consciousness-label">Loading...</div>
                     </div>
                     <div class="consciousness-item">
-                        <h3>Creativity</h3>
+                        <h3>Adaptability</h3>
                         <div class="consciousness-value">Loading...</div>
                         <div class="consciousness-label">Loading...</div>
                     </div>
@@ -3016,20 +2181,20 @@ export default {
                 
                 <div class="metrics-row">
                     <div class="metric-category">
-                        <h3>Quantum Metrics</h3>
+                        <h3>Learning Engine</h3>
                         <div class="metric-details">
                             <div class="metric-detail-item">
-                                <span class="metric-label">Quantum Coherence:</span>
+                                <span class="metric-label">Tasks Learned:</span>
                                 <span class="metric-value" id="quantumCoherence">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
                             <div class="metric-detail-item">
-                                <span class="metric-label">Superposition States:</span>
+                                <span class="metric-label">Concepts Acquired:</span>
                                 <span class="metric-value" id="superpositionStates">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
                             <div class="metric-detail-item">
-                                <span class="metric-label">Entanglement Pairs:</span>
+                                <span class="metric-label">Average Accuracy:</span>
                                 <span class="metric-value" id="entanglementPairs">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
@@ -3199,60 +2364,54 @@ export default {
                 }
                 
                 console.log('Consciousness grid found, making fetch request...');
-                const response = await fetch('/consciousness');
+                const response = await fetch('/capabilities');
                 
                 if (!response.ok) {
                     throw new Error('HTTP error! status: ' + response.status);
                 }
                 
                 const data = await response.json();
-                console.log('Consciousness data received:', data);
+                console.log('Capabilities data received:', data);
                 
                 if (data.success) {
-                    const consciousness = data.data.consciousnessMetrics;
-                    const sources = data.data.consciousnessSources || {};
-                    console.log('Consciousness metrics:', consciousness);
+                    const caps = data.data.capabilities;
+                    const sources = caps.sources || {};
                     
-                    if (!consciousness || consciousness.awareness == null) {
-                        throw new Error('Invalid consciousness data structure');
+                    if (!caps || caps.reasoningQuality == null) {
+                        throw new Error('Invalid capabilities data structure');
                     }
-                    
-                    console.log('Updating consciousness grid with:', consciousness);
                     
                     consciousnessGrid.innerHTML = \`
                         <div class="consciousness-item">
-                            <h3>Awareness</h3>
-                            <div class="consciousness-value">\${(consciousness.awareness * 100).toFixed(1)}%</div>
-                            <div class="consciousness-label">\${sources.awareness || 'System-derived'}</div>
+                            <h3>Reasoning</h3>
+                            <div class="consciousness-value">\${(caps.reasoningQuality * 100).toFixed(1)}%</div>
+                            <div class="consciousness-label">\${sources.reasoningQuality || 'Measured'}</div>
                         </div>
                         <div class="consciousness-item">
-                            <h3>Self-Awareness</h3>
-                            <div class="consciousness-value">\${(consciousness.selfAwareness * 100).toFixed(1)}%</div>
-                            <div class="consciousness-label">\${sources.selfAwareness || 'System-derived'}</div>
+                            <h3>System Depth</h3>
+                            <div class="consciousness-value">\${(caps.systemDepth * 100).toFixed(1)}%</div>
+                            <div class="consciousness-label">\${sources.systemDepth || 'Measured'}</div>
                         </div>
                         <div class="consciousness-item">
                             <h3>Understanding</h3>
-                            <div class="consciousness-value">\${(consciousness.understanding * 100).toFixed(1)}%</div>
-                            <div class="consciousness-label">\${sources.understanding || 'System-derived'}</div>
+                            <div class="consciousness-value">\${(caps.understandingDepth * 100).toFixed(1)}%</div>
+                            <div class="consciousness-label">\${sources.understandingDepth || 'Measured'}</div>
                         </div>
                         <div class="consciousness-item">
-                            <h3>Creativity</h3>
-                            <div class="consciousness-value">\${(consciousness.creativity * 100).toFixed(1)}%</div>
-                            <div class="consciousness-label">\${sources.creativity || 'System-derived'}</div>
+                            <h3>Adaptability</h3>
+                            <div class="consciousness-value">\${(caps.adaptability * 100).toFixed(1)}%</div>
+                            <div class="consciousness-label">\${sources.adaptability || 'Measured'}</div>
                         </div>
                     \`;
                     
-                    // Load enhanced metrics
                     const metricsResponse = await fetch('/status');
                     const metricsData = await metricsResponse.json();
                     
                     if (metricsData.success) {
-                        const metrics = metricsData.data.metrics;
+                        const metrics = metricsData.data.history;
                         const performance = metricsData.data.performance;
-                        const neural = metricsData.data.neural;
-                        const quantum = metricsData.data.quantum;
+                        const ml = metricsData.data.ml;
                         
-                        // Update basic metrics grid
                         const metricsGrid = document.getElementById('metricsGrid');
                         metricsGrid.innerHTML = \`
                             <div class="metric-item">
@@ -3278,7 +2437,7 @@ export default {
                         \`;
                         
                         // Update advanced metrics
-                        updateAdvancedMetrics(performance, neural, quantum, metricsData.data.realML);
+                        updateAdvancedMetrics(performance, ml);
                     }
                 }
             } catch (error) {
@@ -3297,30 +2456,19 @@ export default {
             }
         }
         
-        function updateAdvancedMetrics(performance, neural, quantum, realML) {
-            const neuralCounts = {
-                activeNeurons: (realML?.tasksLearned || 0) * 1000 + (realML?.conceptsAcquired || 0) * 500,
-                synapticConnections: (realML?.tasksLearned || 0) * 5000 + (realML?.conceptsAcquired || 0) * 1000,
-                superpositionStates: (realML?.tasksLearned || 0) * 10 + (realML?.conceptsAcquired || 0) * 2,
-                entanglementPairs: (realML?.conceptsAcquired || 0) * 3 + (realML?.tasksLearned || 0)
-            };
-            const load = {
-                cpu: (performance.reasoningQuality || performance.quantumAdvantage || 0.7) * 100,
-                memory: (performance.learningEfficiency || neural.neuralPlasticity || 0.7) * 100,
-                speed: Math.floor(500 + (performance.reasoningQuality || 0.7) * 1500)
-            };
-            document.getElementById('activeNeurons').textContent = neuralCounts.activeNeurons.toLocaleString();
-            document.getElementById('synapticConnections').textContent = neuralCounts.synapticConnections.toLocaleString();
-            document.getElementById('neuralPlasticity').textContent = (neural.neuralPlasticity * 100).toFixed(1) + '%';
-            document.getElementById('cpuUsage').textContent = load.cpu.toFixed(1) + '%';
-            document.getElementById('memoryUsage').textContent = load.memory.toFixed(1) + '%';
-            document.getElementById('processingSpeed').textContent = load.speed.toLocaleString() + ' ops/sec';
-            document.getElementById('quantumCoherence').textContent = (quantum.quantumCoherence * 100).toFixed(1) + '%';
-            document.getElementById('superpositionStates').textContent = String(neuralCounts.superpositionStates);
-            document.getElementById('entanglementPairs').textContent = String(neuralCounts.entanglementPairs);
-            document.getElementById('selfAwareness').textContent = (performance.consciousnessDepth * 100).toFixed(1) + '%';
-            document.getElementById('understandingLevel').textContent = (neural.crossDomainIntegration * 100).toFixed(1) + '%';
-            document.getElementById('creativeSynthesis').textContent = (performance.neuralPlasticity * 100).toFixed(1) + '%';
+        function updateAdvancedMetrics(performance, ml) {
+            document.getElementById('activeNeurons').textContent = String(ml.tasksLearned);
+            document.getElementById('synapticConnections').textContent = String(ml.conceptsAcquired);
+            document.getElementById('neuralPlasticity').textContent = ((performance.adaptability || 0) * 100).toFixed(1) + '%';
+            document.getElementById('cpuUsage').textContent = ((performance.reasoningQuality || 0) * 100).toFixed(1) + '%';
+            document.getElementById('memoryUsage').textContent = ((performance.learningEfficiency || 0) * 100).toFixed(1) + '%';
+            document.getElementById('processingSpeed').textContent = ((ml.averageAccuracy || 0) * 100).toFixed(1) + '% acc';
+            document.getElementById('quantumCoherence').textContent = String(ml.tasksLearned);
+            document.getElementById('superpositionStates').textContent = String(ml.conceptsAcquired);
+            document.getElementById('entanglementPairs').textContent = ((ml.averageAccuracy || 0) * 100).toFixed(1) + '%';
+            document.getElementById('selfAwareness').textContent = ((performance.systemDepth || 0) * 100).toFixed(1) + '%';
+            document.getElementById('understandingLevel').textContent = ((performance.crossDomainIntegration || 0) * 100).toFixed(1) + '%';
+            document.getElementById('creativeSynthesis').textContent = ((performance.adaptability || 0) * 100).toFixed(1) + '%';
         }
         
         function escapeHtml(text) {
@@ -3514,7 +2662,7 @@ export default {
       return new Response(JSON.stringify({ 
         success: false,
         error: 'Endpoint not found',
-        availableEndpoints: ['/health', '/metrics', '/eval', '/goals', '/status', '/consciousness', '/reason', '/learn', '/create', '/']
+        availableEndpoints: ['/health', '/metrics', '/eval', '/goals', '/status', '/capabilities', '/reason', '/learn', '/create', '/']
       }), {
         status: 404,
         headers: corsHeaders

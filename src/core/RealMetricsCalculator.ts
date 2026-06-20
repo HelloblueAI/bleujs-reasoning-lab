@@ -6,9 +6,9 @@
 import { RealLearningEngine } from './RealLearningEngine';
 
 export interface RealMetrics {
-  quantumAdvantage: number;
-  consciousnessDepth: number;
-  neuralPlasticity: number;
+  learningComplexity: number;
+  systemDepth: number;
+  adaptability: number;
   crossDomainIntegration: number;
   understandingDepth: number;
   reasoningQuality: number;
@@ -28,9 +28,9 @@ export class RealMetricsCalculator {
   }
 
   /**
-   * Calculate quantum advantage from actual neural network complexity
+   * Learning complexity from neural network task depth and accuracy.
    */
-  calculateQuantumAdvantage(): number {
+  calculateLearningComplexity(): number {
     const stats = this.learningEngine.getStatistics();
     // Base advantage on actual learning performance
     const baseAdvantage = stats.averageAccuracy;
@@ -40,9 +40,9 @@ export class RealMetricsCalculator {
   }
 
   /**
-   * Calculate consciousness depth from actual system awareness
+   * System depth from learning capability and concept knowledge.
    */
-  calculateConsciousnessDepth(): number {
+  calculateSystemDepth(): number {
     const stats = this.learningEngine.getStatistics();
     // Base depth on learning capability
     const learningDepth = stats.averageAccuracy * 0.6;
@@ -55,9 +55,9 @@ export class RealMetricsCalculator {
   }
 
   /**
-   * Calculate neural plasticity from actual learning rate
+   * Adaptability from learning rate and concept acquisition.
    */
-  calculateNeuralPlasticity(): number {
+  calculateAdaptability(): number {
     const stats = this.learningEngine.getStatistics();
     // Plasticity based on how well system learns new tasks
     const learningPlasticity = stats.averageAccuracy * 0.7;
@@ -194,13 +194,13 @@ export class RealMetricsCalculator {
    */
   getAllMetrics(input?: string): RealMetrics {
     return {
-      quantumAdvantage: this.calculateQuantumAdvantage(),
-      consciousnessDepth: this.calculateConsciousnessDepth(),
-      neuralPlasticity: this.calculateNeuralPlasticity(),
+      learningComplexity: this.calculateLearningComplexity(),
+      systemDepth: this.calculateSystemDepth(),
+      adaptability: this.calculateAdaptability(),
       crossDomainIntegration: this.calculateCrossDomainIntegration(),
-      understandingDepth: input ? this.calculateUnderstandingDepth(input) : this.calculateConsciousnessDepth(),
+      understandingDepth: input ? this.calculateUnderstandingDepth(input) : this.calculateSystemDepth(),
       reasoningQuality: this.calculateReasoningQuality(),
-      learningEfficiency: this.calculateLearningEfficiency()
+      learningEfficiency: this.calculateLearningEfficiency(),
     };
   }
 }

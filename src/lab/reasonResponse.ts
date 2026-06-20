@@ -23,8 +23,6 @@ export type HonestReasonResponse = {
     active: number;
     newlyGenerated: number;
   } | null;
-  /** Pass verbose=true on the request for the legacy full payload */
-  _note?: string;
 };
 
 export function buildHonestReasonResponse(params: {
@@ -63,6 +61,5 @@ export function buildHonestReasonResponse(params: {
       params.goalsActive > 0 || params.goalsNewlyGenerated > 0
         ? { active: params.goalsActive, newlyGenerated: params.goalsNewlyGenerated }
         : null,
-    _note: 'Add {"verbose":true} to request body for legacy detailed metadata.',
   };
 }
