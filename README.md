@@ -49,7 +49,7 @@ Set `ANTHROPIC_API_KEY` via `npx wrangler secret put ANTHROPIC_API_KEY --env pro
 
 ## What this is
 
-A **research lab** for orchestrated reasoning: multi-agent pipelines, optional Claude/GPT integration, learning-engine state, and an eval harness with honest pass rates. It is **not** a claim of artificial general intelligence or machine consciousness.
+A **research lab** for orchestrated reasoning: multi-agent pipelines, optional LLM integration (Anthropic/OpenAI), learning-engine state, and an eval harness with honest pass rates. It is **not** a claim of artificial general intelligence or machine consciousness.
 
 **Active production path:** `primary-agi-worker.ts` → `UltimateAGIOrchestrator`, `RealLLMIntegration`, `CapabilityDisplayMetrics` (honest capability scores from the learning engine).
 
@@ -62,7 +62,7 @@ A **research lab** for orchestrated reasoning: multi-agent pipelines, optional C
 ```
 primary-agi-worker.ts
 ├── UltimateAGIOrchestrator   # reasoning / learning / creative agents
-├── RealLLMIntegration        # Claude when API key present
+├── RealLLMIntegration        # LLM when API key present
 ├── AutonomousGoalSystem      # goals API (execution loop: planned)
 ├── lab/honestMetrics         # measured counters, no Math.random()
 ├── lab/reasonResponse        # slim /reason payload

@@ -2078,7 +2078,7 @@ export default {
                 </a>
             </div>
             <h1>BleuJS Reasoning</h1>
-            <p>Measured reasoning · Claude when configured · No simulated metrics</p>
+            <p>Measured reasoning · LLM when configured · No simulated metrics</p>
             <div class="status-indicator">Online · v5.1</div>
         </div>
         
@@ -2263,7 +2263,7 @@ export default {
             <div class="documentation-content">
                 <div id="overview" class="documentation-tab-content active">
                     <h3>BleuJS Reasoning v5.1</h3>
-                    <p>A measured reasoning API on Cloudflare Workers — multi-agent orchestration, optional Claude integration, and an eval harness. Not a claim of AGI.</p>
+                    <p>A measured reasoning API on Cloudflare Workers — multi-agent orchestration, optional LLM integration, and an eval harness. Not a claim of AGI.</p>
                     
                     <h4>What it does</h4>
                     <ul>
@@ -2281,7 +2281,7 @@ export default {
                     
                     <h4>Components</h4>
                     <ul>
-                        <li><strong>RealLLMIntegration:</strong> Claude when API key present</li>
+                        <li><strong>RealLLMIntegration:</strong> Anthropic or OpenAI when API key present</li>
                         <li><strong>RealLearningEngine:</strong> Backpropagation on small tasks (XOR baseline)</li>
                         <li><strong>RealUnderstandingEngine:</strong> Concept and domain extraction from input</li>
                         <li><strong>AutonomousGoalSystem:</strong> Goal tracking (execution loop planned)</li>
@@ -2335,7 +2335,7 @@ export default {
                 <div class="endpoint-item">
                     <div class="method">POST</div>
                     <div class="path">/reason</div>
-                    <div class="description">Reasoning with Claude when configured; slim JSON response</div>
+                    <div class="description">Reasoning with LLM when configured; slim JSON response</div>
                 </div>
                 
                 <div class="endpoint-item">
@@ -2588,7 +2588,7 @@ export default {
             if (endpoint === 'reason' && answer != null) {
                 document.getElementById('resultPanelTitle').textContent = 'Answer';
                 const meta = [
-                    payload.llmUsed ? 'Claude' : (payload.confidence === 1 ? 'Local math' : 'Local reasoning'),
+                    payload.llmUsed ? 'LLM' : (payload.confidence === 1 ? 'Local math' : 'Local reasoning'),
                     ((payload.confidence ?? 0) * 100).toFixed(0) + '% confidence',
                     (payload.processingTimeMs ?? '—') + 'ms'
                 ].join(' · ');
