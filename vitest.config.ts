@@ -32,7 +32,9 @@ export default defineConfig({
       '@/models': resolve(__dirname, './src/models'),
       '@/utils': resolve(__dirname, './src/utils'),
       '@/types': resolve(__dirname, './src/types'),
-      '@/demo': resolve(__dirname, './src/demo')
+      '@/demo': resolve(__dirname, './src/demo'),
+      '@/lab': resolve(__dirname, './src/lab'),
+      '@/eval': resolve(__dirname, './src/eval')
     }
   }
 }); 

@@ -51,7 +51,7 @@
     "src/*worker*.ts",
     "src/sentient-web-interface.ts",
     "src/enhanced-web-interface-worker.ts",
-    "src/advanced-agi-worker.ts",
+    "src/primary-agi-worker.ts",
     "src/real-agi-worker*.ts",
     "src/simple-worker.ts",
     "src/web-interface.ts"

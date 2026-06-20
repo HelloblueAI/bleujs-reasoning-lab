@@ -1,6 +1,7 @@
-# Real AGI Worker - same code as advanced-agi, route real-agi.bleujs.org
+# DEPRECATED — deploy via wrangler.toml (primary) instead
+# Real AGI Worker - same code as primary, route real-agi.bleujs.org
 name = "real-agi"
-main = "src/advanced-agi-worker.ts"
+main = "src/primary-agi-worker.ts"
 compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat"]
 

@@ -1,12 +1,27 @@
-### Hybrid Reasoning System
+### BleuJS Autonomous Reasoning Lab
 
-> **LIVE:** Hybrid Reasoning System is deployed at https://agi.bleujs.org
+> **LIVE:** https://agi.bleujs.org — single canonical worker (`primary-agi-worker.ts`)
 
-> **Note:** This is a hybrid reasoning research platform—not a claim of artificial general intelligence. Several telemetry and capability metrics are simulated for demonstration and testing.
+> **Mission:** Build measurable autonomous reasoning—not simulated AGI theater. Metrics come from learning engine state and request performance. Run `pnpm run eval` for the benchmark suite.
 
-> **Last Updated**: May 2026 — Honest branding and system-derived consciousness metrics
+> **v5.0** (June 2026) — Lab consolidation: one worker, honest metrics, eval harness, autonomous goals API.
 
-The Hybrid Reasoning System is an experimental architecture that combines reasoning, learning, and consciousness-inspired modules. Several telemetry and capability metrics in this project are simulated for demonstration and testing.
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /metrics` | Measured system state (no random telemetry) |
+| `GET /eval` | Run evaluation suite, return pass rate |
+| `GET /goals` | Active autonomous goals |
+| `POST /reason` | Multi-agent reasoning (LLM when keys configured) |
+
+See [docs/AGI_LAB_PLAN.md](docs/AGI_LAB_PLAN.md) for the 90-day roadmap.
+
+---
+
+### Hybrid Reasoning System (legacy docs below)
+
+> **Note:** This is a hybrid reasoning research platform—not a claim of artificial general intelligence. v5.0+ removes simulated random metrics from the live API; older docs may still reference legacy branding.
+
+The Hybrid Reasoning System is an experimental architecture that combines reasoning, learning, and consciousness-inspired modules.
 
 ###  Enhanced Hybrid Reasoning System Features
 

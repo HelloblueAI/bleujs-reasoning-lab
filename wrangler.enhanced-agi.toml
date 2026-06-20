@@ -1,6 +1,7 @@
+# DEPRECATED — deploy via wrangler.toml (primary) instead
 # AGI Enhanced API Worker - api.agi.bleujs.org
 name = "enhanced-agi"
-main = "src/enhanced-agi-worker.ts"
+main = "src/primary-agi-worker.ts"
 compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat"]
 
