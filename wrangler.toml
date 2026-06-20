@@ -13,6 +13,7 @@ ENVIRONMENT = "development"
 [env.production]
 name = "agi-primary"
 routes = ["agi.bleujs.org/*"]
+workers_dev = true
 [env.production.vars]
 ENVIRONMENT = "production"
 
