@@ -27,6 +27,7 @@ import {
   LAB_VERSION,
 } from './lab/labStatus';
 import { buildHonestReasonResponse } from './lab/reasonResponse';
+import { stripMarkdownEmphasis, tryArithmeticReason } from './lab/arithmeticReason';
 import {
   getRequestCounters,
   incrementCreative,
@@ -433,7 +434,9 @@ export default {
         }
 
         let goalsNewlyGenerated = 0;
-        if (understanding && goalSystem) {
+        const localArithmetic = tryArithmeticReason(input);
+
+        if (!localArithmetic && understanding && goalSystem) {
           try {
             const knowledgeGaps = goalSystem.identifyKnowledgeGaps(understanding, [
               'mathematics', 'physics', 'computer_science', 'biology', 'psychology',
@@ -458,11 +461,16 @@ export default {
         }
 
         let llmEnhancement: { insight: string; confidence: number } | null = null;
-        if (llmIntegration && llmIntegration.isAvailable()) {
+        if (localArithmetic) {
+          llmEnhancement = {
+            insight: localArithmetic.answer,
+            confidence: localArithmetic.confidence,
+          };
+        } else if (llmIntegration && llmIntegration.isAvailable()) {
           try {
             const llmResponse = await llmIntegration.answerQuestion(input);
             llmEnhancement = {
-              insight: llmResponse.answer,
+              insight: stripMarkdownEmphasis(llmResponse.answer),
               confidence: llmResponse.confidence,
             };
           } catch (error) {
@@ -484,7 +492,7 @@ export default {
           input,
           answer: llmEnhancement?.insight ?? null,
           confidence: llmEnhancement?.confidence ?? realMetrics.reasoningQuality,
-          llmUsed: llmEnhancement !== null,
+          llmUsed: !localArithmetic && llmEnhancement !== null,
           processingTimeMs,
           understanding: understanding
             ? {
@@ -494,8 +502,8 @@ export default {
                 insights: understanding.insights,
               }
             : null,
-          goalsActive: goalSystem ? goalSystem.getActiveGoals().length : 0,
-          goalsNewlyGenerated,
+          goalsActive: localArithmetic ? 0 : goalSystem ? goalSystem.getActiveGoals().length : 0,
+          goalsNewlyGenerated: localArithmetic ? 0 : goalsNewlyGenerated,
         });
 
         return new Response(JSON.stringify({ success: true, data: honestData }), {
@@ -2620,7 +2628,7 @@ export default {
             if (endpoint === 'reason' && answer != null) {
                 document.getElementById('resultPanelTitle').textContent = 'Answer';
                 const meta = [
-                    payload.llmUsed ? 'Claude' : 'Local reasoning',
+                    payload.llmUsed ? 'Claude' : (payload.confidence === 1 ? 'Local math' : 'Local reasoning'),
                     ((payload.confidence ?? 0) * 100).toFixed(0) + '% confidence',
                     (payload.processingTimeMs ?? '—') + 'ms'
                 ].join(' · ');
