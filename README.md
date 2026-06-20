@@ -13,7 +13,7 @@
 | `GET /capabilities` | Capability scores from learning engine (replaces `/consciousness`) |
 | `GET /eval` | Run evaluation suite, return pass rate |
 | `GET /goals` | Active autonomous goals |
-| `POST /reason` | Multi-agent reasoning (LLM when keys configured) |
+| `POST /reason` | Reasoning via BleuJS API (`bleujs-chat`); Anthropic/OpenAI fallback |
 
 See [docs/AGI_LAB_PLAN.md](docs/AGI_LAB_PLAN.md) for the 90-day roadmap and [docs/deployment/API_ACCESS.md](docs/deployment/API_ACCESS.md) if the custom domain returns a bot challenge.
 
@@ -40,16 +40,32 @@ curl https://agi-primary.morning-star-e026.workers.dev/metrics
 curl https://agi-primary.morning-star-e026.workers.dev/capabilities
 curl -X POST https://agi-primary.morning-star-e026.workers.dev/reason \
   -H "Content-Type: application/json" \
-  -d '{"input": "What is 17 × 23?"}'
+  -d '{"input": "where is tehran"}'
 ```
 
-Set `BLEUJS_API_KEY` via `npx wrangler secret put BLEUJS_API_KEY --env production` for live LLM reasoning (optional Anthropic/OpenAI fallback).
+Example response (BleuJS primary path):
+
+```json
+{
+  "success": true,
+  "data": {
+    "system": "BleuJS Reasoning",
+    "answer": "Tehran is the capital city of Iran...",
+    "llmUsed": true,
+    "llmProvider": "bleujs"
+  }
+}
+```
+
+`llmProvider` identifies which backend answered: `bleujs` (BleuJS API / `api.bleujs.org`), `anthropic`, or `openai`. Simple arithmetic may use local math instead (`llmUsed: false`).
+
+Set `BLEUJS_API_KEY` via `npx wrangler secret put BLEUJS_API_KEY --env production` for live reasoning. BleuJS is the primary LLM; Anthropic and OpenAI are optional fallbacks when BleuJS is unavailable or returns a non-answer.
 
 ---
 
 ## What this is
 
-A **research lab** for orchestrated reasoning: multi-agent pipelines, optional LLM integration (Anthropic/OpenAI), learning-engine state, and an eval harness with honest pass rates. It is **not** a claim of artificial general intelligence or machine consciousness.
+A **research lab** for orchestrated reasoning: multi-agent pipelines, BleuJS API as the primary LLM (`bleujs-chat` via `api.bleujs.org`), Anthropic/OpenAI fallback, learning-engine state, and an eval harness with honest pass rates. It is **not** a claim of artificial general intelligence or machine consciousness.
 
 **Active production path:** `primary-agi-worker.ts` → `UltimateAGIOrchestrator`, `RealLLMIntegration`, `CapabilityDisplayMetrics` (honest capability scores from the learning engine).
 
@@ -62,7 +78,7 @@ A **research lab** for orchestrated reasoning: multi-agent pipelines, optional L
 ```
 primary-agi-worker.ts
 ├── UltimateAGIOrchestrator   # reasoning / learning / creative agents
-├── RealLLMIntegration        # LLM when API key present
+├── RealLLMIntegration        # BleuJS API primary; Anthropic/OpenAI fallback
 ├── AutonomousGoalSystem      # goals API (execution loop: planned)
 ├── lab/honestMetrics         # measured counters, no Math.random()
 ├── lab/reasonResponse        # slim /reason payload

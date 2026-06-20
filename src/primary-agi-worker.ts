@@ -2296,7 +2296,7 @@ export default {
                     
                     <h4>Components</h4>
                     <ul>
-                        <li><strong>RealLLMIntegration:</strong> Anthropic or OpenAI when API key present</li>
+                        <li><strong>RealLLMIntegration:</strong> BleuJS API (<code>bleujs-chat</code>) primary; Anthropic/OpenAI fallback</li>
                         <li><strong>RealLearningEngine:</strong> Backpropagation on small tasks (XOR baseline)</li>
                         <li><strong>RealUnderstandingEngine:</strong> Concept and domain extraction from input</li>
                         <li><strong>AutonomousGoalSystem:</strong> Goal tracking (execution loop planned)</li>
@@ -2350,7 +2350,7 @@ export default {
                 <div class="endpoint-item">
                     <div class="method">POST</div>
                     <div class="path">/reason</div>
-                    <div class="description">Reasoning with LLM when configured; slim JSON response</div>
+                    <div class="description">Reasoning via BleuJS API when configured; response includes <code>llmProvider</code> (<code>bleujs</code>, <code>anthropic</code>, or <code>openai</code>)</div>
                 </div>
                 
                 <div class="endpoint-item">
@@ -2370,7 +2370,7 @@ export default {
                 <h3>API Notes</h3>
                 <ul>
                     <li><strong>Measured metrics:</strong> No random or simulated telemetry on live endpoints</li>
-                    <li><strong>LLM:</strong> Set <code>BLEUJS_API_KEY</code> via Wrangler secrets (Anthropic/OpenAI optional fallback)</li>
+                    <li><strong>LLM:</strong> <code>BLEUJS_API_KEY</code> (primary, <code>api.bleujs.org</code>); <code>ANTHROPIC_API_KEY</code> / <code>OPENAI_API_KEY</code> optional fallback. Check <code>llmProvider</code> in <code>/reason</code> responses.</li>
                     <li><strong>/consciousness:</strong> Deprecated alias of /capabilities for older clients</li>
                     <li><strong>CORS:</strong> Open for GET and POST from any origin</li>
                 </ul>
@@ -2605,7 +2605,10 @@ export default {
                 const meta = [
                     !payload.llmUsed
                         ? (payload.confidence === 1 ? 'Local math' : 'Local reasoning')
-                        : (payload.llmProvider === 'bleujs' ? 'BleuJS' : 'LLM'),
+                        : (payload.llmProvider === 'bleujs' ? 'BleuJS API'
+                            : payload.llmProvider === 'anthropic' ? 'Anthropic'
+                            : payload.llmProvider === 'openai' ? 'OpenAI'
+                            : 'LLM'),
                     ((payload.confidence ?? 0) * 100).toFixed(0) + '% confidence',
                     (payload.processingTimeMs ?? '—') + 'ms'
                 ].join(' · ');
