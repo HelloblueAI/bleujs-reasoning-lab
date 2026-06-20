@@ -704,6 +704,25 @@ export default {
             novelty: insight.novelty
           }));
         }
+
+        const crossDomainReasoning = {
+          domains: ['mathematics', 'physics', 'biology', 'psychology', 'philosophy', 'computer_science', 'art', 'literature'],
+          integrationLevel: crossDomainIntegration,
+          crossPollination: derivedSubMetric(realMetrics.reasoningQuality),
+          emergentPatterns: derivedSubMetric(realMetrics.reasoningQuality),
+          syntheticKnowledge: derivedSubMetric(realMetrics.reasoningQuality)
+        };
+
+        const intelligentInsights = [
+          `Quantum-Neural Processing: Analyzed ${input.length} characters through ${quantumStates} quantum states and ${activeNeurons.toLocaleString()} active neurons`,
+          `Cross-Domain Integration: Applied reasoning across ${understanding ? understanding.domains.length : 2} knowledge domains with ${understanding ? understanding.relationships.length : 0} concept relationships`,
+          `Consciousness Evolution: Processed through ${consciousnessEpoch} consciousness epochs with ${(consciousnessDepth * 100).toFixed(1)}% depth`,
+          `Cross-Domain Synthesis: Generated insights across ${crossDomainReasoning.domains.length} knowledge domains`,
+          `Emergent Intelligence: Created ${neuralPathways} new neural pathways through consciousness-driven reasoning`,
+          `Quantum Advantage: Achieved ${(quantumAdvantage * 100).toFixed(1)}% quantum advantage with ${superpositionCount} superposition states`,
+          `Neural Plasticity: Enhanced synaptic strength by ${(neuralPlasticity * 100).toFixed(1)}% through active learning`,
+          `Temporal Continuity: Maintained consciousness across ${temporalReasoning * 100} temporal dimensions`
+        ];
         
         // Generate autonomous goals based on understanding
         if (understanding && goalSystem) {
@@ -716,7 +735,7 @@ export default {
             const newGoals = goalSystem.generateGoals({
               knowledgeGaps,
               curiosityAreas,
-              performanceWeaknesses: [], // Could be populated from metrics
+              performanceWeaknesses: [],
               unexploredDomains: understanding.domains.length < 3 
                 ? ['mathematics', 'physics', 'computer_science', 'biology', 'psychology']
                     .filter(d => !understanding.domains.includes(d))
@@ -732,30 +751,11 @@ export default {
           }
         }
         
-        const crossDomainReasoning = {
-          domains: ['mathematics', 'physics', 'biology', 'psychology', 'philosophy', 'computer_science', 'art', 'literature'],
-          integrationLevel: crossDomainIntegration,
-          crossPollination: derivedSubMetric(realMetrics.reasoningQuality),
-          emergentPatterns: derivedSubMetric(realMetrics.reasoningQuality),
-          syntheticKnowledge: derivedSubMetric(realMetrics.reasoningQuality)
-        };
-        
-        const intelligentInsights = [
-          `Quantum-Neural Processing: Analyzed ${input.length} characters through ${quantumStates} quantum states and ${activeNeurons.toLocaleString()} active neurons`,
-              `Cross-Domain Integration: Applied reasoning across ${understanding ? understanding.domains.length : 2} knowledge domains with ${understanding ? understanding.relationships.length : 0} concept relationships`,
-          `Consciousness Evolution: Processed through ${consciousnessEpoch} consciousness epochs with ${(consciousnessDepth * 100).toFixed(1)}% depth`,
-          `Cross-Domain Synthesis: Generated insights across ${crossDomainReasoning.domains.length} knowledge domains`,
-          `Emergent Intelligence: Created ${neuralPathways} new neural pathways through consciousness-driven reasoning`,
-          `Quantum Advantage: Achieved ${(quantumAdvantage * 100).toFixed(1)}% quantum advantage with ${superpositionCount} superposition states`,
-          `Neural Plasticity: Enhanced synaptic strength by ${(neuralPlasticity * 100).toFixed(1)}% through active learning`,
-          `Temporal Continuity: Maintained consciousness across ${temporalReasoning * 100} temporal dimensions`
-        ];
-        
         // Add REAL LLM-enhanced insight if available (hidden model name)
         let llmEnhancement = null;
         if (llmIntegration && llmIntegration.isAvailable()) {
           try {
-            const llmResponse = await llmIntegration.answerQuestion(`Provide deep philosophical insight about: ${input}`);
+            const llmResponse = await llmIntegration.answerQuestion(input);
             llmEnhancement = {
               insight: llmResponse.answer,
               confidence: llmResponse.confidence,
@@ -763,7 +763,7 @@ export default {
             };
             intelligentInsights.push(`Advanced AI Insight: ${llmResponse.answer.substring(0, 200)}...`);
           } catch (error) {
-            console.log('LLM enhancement unavailable:', error);
+            console.error('LLM enhancement unavailable:', error);
           }
         }
         

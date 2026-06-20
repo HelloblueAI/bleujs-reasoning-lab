@@ -10,13 +10,21 @@ export interface LLMResponse {
   reasoning?: string;
 }
 
+/** Default Claude model — pinned snapshot ID per Anthropic docs */
+const DEFAULT_CLAUDE_MODEL = 'claude-sonnet-4-6';
+const DEFAULT_OPENAI_MODEL = 'gpt-4o';
+
 export class RealLLMIntegration {
   private anthropicKey: string | undefined;
   private openaiKey: string | undefined;
+  private claudeModel: string;
+  private openaiModel: string;
 
-  constructor(anthropicKey?: string, openaiKey?: string) {
+  constructor(anthropicKey?: string, openaiKey?: string, claudeModel = DEFAULT_CLAUDE_MODEL, openaiModel = DEFAULT_OPENAI_MODEL) {
     this.anthropicKey = anthropicKey;
     this.openaiKey = openaiKey;
+    this.claudeModel = claudeModel;
+    this.openaiModel = openaiModel;
   }
 
   /**
@@ -36,7 +44,7 @@ export class RealLLMIntegration {
           'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
-          model: 'claude-3-5-sonnet-20241022',
+          model: this.claudeModel,
           max_tokens: 1024,
           messages: [{
             role: 'user',
@@ -88,7 +96,7 @@ export class RealLLMIntegration {
           'Authorization': `Bearer ${this.openaiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4',
+          model: this.openaiModel,
           messages,
           max_tokens: 1024,
           temperature: 0.7
@@ -117,7 +125,8 @@ export class RealLLMIntegration {
    * Answer a question using the best available LLM
    */
   public async answerQuestion(question: string): Promise<LLMResponse> {
-    // Try Claude first (better reasoning), fallback to GPT
+    let lastError: Error | undefined;
+
     if (this.anthropicKey) {
       try {
         return await this.queryClaude(
@@ -125,7 +134,8 @@ export class RealLLMIntegration {
           'You are a helpful AI assistant integrated into a Hybrid Reasoning System. Provide clear, accurate, and thoughtful responses.'
         );
       } catch (error) {
-        console.error('Claude failed, trying GPT:', error);
+        lastError = error instanceof Error ? error : new Error(String(error));
+        console.error('Claude failed:', lastError.message);
       }
     }
 
@@ -136,7 +146,7 @@ export class RealLLMIntegration {
       );
     }
 
-    throw new Error('No LLM API keys configured');
+    throw lastError ?? new Error('No LLM API keys configured');
   }
 
   /**
@@ -219,8 +229,8 @@ export class RealLLMIntegration {
    */
   public getAvailableModels(): string[] {
     const models: string[] = [];
-    if (this.anthropicKey) models.push('claude-3.5-sonnet');
-    if (this.openaiKey) models.push('gpt-4');
+    if (this.anthropicKey) models.push(this.claudeModel);
+    if (this.openaiKey) models.push(this.openaiModel);
     return models;
   }
 }
