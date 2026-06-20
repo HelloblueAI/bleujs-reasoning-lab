@@ -201,7 +201,7 @@ export default {
       'X-Frame-Options': 'DENY',
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
-      'Cache-Control': 'public, max-age=3600'
+      'Cache-Control': 'no-cache, no-store, must-revalidate'
     };
     
     // Handle CORS preflight
@@ -1678,7 +1678,7 @@ export default {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hybrid Reasoning System</title>
+    <title>BleuJS Autonomous Reasoning Lab</title>
     <style>
         * {
             margin: 0;
@@ -1973,6 +1973,39 @@ export default {
             border-left: 4px solid var(--accent);
             border-radius: 0 8px 8px 0;
         }
+
+        .lab-answer h2 { font-size: 1.35rem; margin: 1rem 0 0.5rem; color: var(--accent); }
+        .lab-answer h3 { font-size: 1.15rem; margin: 1rem 0 0.5rem; color: var(--text-primary); }
+        .lab-answer h4 { font-size: 1rem; margin: 0.75rem 0 0.35rem; color: var(--text-secondary); }
+        .lab-answer p { margin: 0.5rem 0; }
+        .lab-answer ul { margin: 0.5rem 0 0.5rem 1.25rem; }
+        .lab-answer li { margin: 0.25rem 0; }
+        .lab-answer blockquote {
+            margin: 0.75rem 0;
+            padding: 0.5rem 1rem;
+            border-left: 3px solid var(--accent);
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        .lab-answer hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+        .lab-answer code {
+            background: var(--bg-primary);
+            padding: 0.1rem 0.35rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .lab-answer table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.75rem 0;
+            font-size: 0.9rem;
+        }
+        .lab-answer th, .lab-answer td {
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.6rem;
+            text-align: left;
+        }
+        .lab-answer th { background: var(--bg-primary); color: var(--accent); }
 
         .lab-meta {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -2852,9 +2885,9 @@ export default {
 <body>
     <div class="container">
         <div class="header">
-            <h1>Hybrid Reasoning System</h1>
-            <p>Multi-Language-Quantum-Consciousness-Hybrid Intelligence with Advanced Computing Integration</p>
-            <div class="status-indicator">HYBRID REASONING ONLINE</div>
+            <h1>BleuJS Autonomous Reasoning Lab</h1>
+            <p>Measured reasoning · Claude-powered answers · Honest metrics</p>
+            <div class="status-indicator">LAB ONLINE v5.0</div>
         </div>
         
         <div class="dashboard">
@@ -2907,7 +2940,7 @@ export default {
         </div>
         
         <div class="result-panel" id="resultPanel" style="display: none;">
-            <h3>Response</h3>
+            <h3 id="resultPanelTitle">Answer</h3>
             <div class="result-content" id="hrsResult"></div>
         </div>
         
@@ -3298,27 +3331,89 @@ export default {
                 .replace(/"/g, '&quot;');
         }
 
+        function renderMarkdown(text) {
+            const lines = String(text).split('\\n');
+            const out = [];
+            let inList = false;
+            let tableRows = [];
+
+            function flushTable() {
+                if (tableRows.length === 0) return;
+                const rows = tableRows.filter(r => !/^\\|[\\s\\-:|]+\\|$/.test(r.trim()));
+                if (rows.length === 0) { tableRows = []; return; }
+                let t = '<table><tbody>';
+                rows.forEach((row, i) => {
+                    const cells = row.split('|').map(c => c.trim()).filter(Boolean);
+                    const tag = i === 0 ? 'th' : 'td';
+                    t += '<tr>' + cells.map(c => '<' + tag + '>' + c + '</' + tag + '>').join('') + '</tr>';
+                });
+                t += '</tbody></table>';
+                out.push(t);
+                tableRows = [];
+            }
+
+            for (const raw of lines) {
+                const line = raw
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+                const bold = (s) => s.replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');
+                const code = (s) => s.replace(/\`([^\`]+)\`/g, '<code>$1</code>');
+
+                if (line.trim().startsWith('|')) {
+                    if (inList) { out.push('</ul>'); inList = false; }
+                    tableRows.push(line);
+                    continue;
+                }
+                flushTable();
+
+                if (/^### (.+)/.test(line)) { if (inList) { out.push('</ul>'); inList = false; } out.push('<h4>' + bold(code(line.replace(/^### /, ''))) + '</h4>'); continue; }
+                if (/^## (.+)/.test(line)) { if (inList) { out.push('</ul>'); inList = false; } out.push('<h3>' + bold(code(line.replace(/^## /, ''))) + '</h3>'); continue; }
+                if (/^# (.+)/.test(line)) { if (inList) { out.push('</ul>'); inList = false; } out.push('<h2>' + bold(code(line.replace(/^# /, ''))) + '</h2>'); continue; }
+                if (/^---+$/.test(line.trim())) { if (inList) { out.push('</ul>'); inList = false; } out.push('<hr>'); continue; }
+                if (/^&gt; (.+)/.test(line)) { if (inList) { out.push('</ul>'); inList = false; } out.push('<blockquote>' + bold(code(line.replace(/^&gt; /, ''))) + '</blockquote>'); continue; }
+                if (/^- (.+)/.test(line)) {
+                    if (!inList) { out.push('<ul>'); inList = true; }
+                    out.push('<li>' + bold(code(line.slice(2))) + '</li>');
+                    continue;
+                }
+                if (line.trim() === '') {
+                    if (inList) { out.push('</ul>'); inList = false; }
+                    continue;
+                }
+                if (inList) { out.push('</ul>'); inList = false; }
+                out.push('<p>' + bold(code(line)) + '</p>');
+            }
+            flushTable();
+            if (inList) out.push('</ul>');
+            return out.join('');
+        }
+
         function formatLabResponse(endpoint, payload) {
-            if (endpoint === 'reason' && payload.answer != null) {
+            const answer = payload.answer ?? payload.aiInsight ?? null;
+            if (endpoint === 'reason' && answer != null) {
+                document.getElementById('resultPanelTitle').textContent = 'Answer';
                 const meta = [
                     payload.llmUsed ? 'Claude' : 'Local reasoning',
-                    (payload.confidence * 100).toFixed(0) + '% confidence',
-                    payload.processingTimeMs + 'ms'
+                    ((payload.confidence ?? 0) * 100).toFixed(0) + '% confidence',
+                    (payload.processingTimeMs ?? '—') + 'ms'
                 ].join(' · ');
                 let html = '<div class="lab-meta">' + escapeHtml(meta) + '</div>';
-                html += '<div class="lab-answer">' + escapeHtml(payload.answer) + '</div>';
+                html += '<div class="lab-answer">' + renderMarkdown(answer) + '</div>';
                 if (payload.understanding) {
-                    html += '<div class="lab-meta">Domains: ' + escapeHtml(payload.understanding.domains.join(', ') || 'general') +
-                        ' · ' + payload.understanding.conceptCount + ' concepts</div>';
+                    html += '<div class="lab-meta">Domains: ' + escapeHtml((payload.understanding.domains || []).join(', ') || 'general') +
+                        ' · ' + (payload.understanding.conceptCount ?? 0) + ' concepts</div>';
                 }
-                html += '<details class="lab-details"><summary>Technical JSON</summary><pre>' +
+                html += '<details class="lab-details"><summary>Raw JSON</summary><pre>' +
                     escapeHtml(JSON.stringify(payload, null, 2)) + '</pre></details>';
                 return html;
             }
-            if (endpoint === 'reason' && !payload.answer) {
+            if (endpoint === 'reason' && !answer) {
+                document.getElementById('resultPanelTitle').textContent = 'Response';
                 return '<div class="lab-meta">No LLM answer — check API keys.</div><pre>' +
                     escapeHtml(JSON.stringify(payload, null, 2)) + '</pre>';
             }
+            document.getElementById('resultPanelTitle').textContent = 'Response';
             return '<pre>' + escapeHtml(JSON.stringify(payload, null, 2)) + '</pre>';
         }
 
