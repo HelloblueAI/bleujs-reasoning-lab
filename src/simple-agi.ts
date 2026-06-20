@@ -2,17 +2,18 @@
 
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
+import { secureRandom } from '@/utils/security';
 
 // Simple Logger
 class Logger {
   constructor(private component: string) {}
   
   info(message: string, data?: any) {
-    console.log(`[${new Date().toISOString()}] [INFO ] [${this.component}] ${message}`, data || '');
+    console.log(`[${new Date().toISOString()}] [INFO ] [${this.component}]`, message, data ?? '');
   }
   
   error(message: string, error?: any) {
-    console.error(`[${new Date().toISOString()}] [ERROR] [${this.component}] ${message}`, error || '');
+    console.error(`[${new Date().toISOString()}] [ERROR] [${this.component}]`, message, error ?? '');
   }
 }
 
@@ -46,10 +47,10 @@ class SimpleAGI extends EventEmitter {
   }
   
   async reason(input: string): Promise<any> {
-    this.logger.info(`Processing input: ${input}`);
+    this.logger.info('Processing input:', input);
     
     // Simple reasoning logic
-    const confidence = Math.random() * 0.4 + 0.6; // 60-100% confidence
+    const confidence = secureRandom() * 0.4 + 0.6; // 60-100% confidence
     const reasoning = `Analyzed input: "${input}" using logical reasoning`;
     const conclusion = `Based on analysis, the input appears to be ${input.length > 10 ? 'complex' : 'simple'}`;
     

@@ -2,6 +2,7 @@ import { Agent, AgentConfig } from './Agent';
 import { Goal, Action, Experience, ReasoningResult, LearningResult, ReasoningTask, ReasoningSession, AdaptationResult, ActionResult, SelfImprovementResult } from '@/types';
 import { AgentPerformance } from './Agent';
 import { ReasoningEngine } from '@/core/ReasoningEngine';
+import { generateSecureId, secureRandom } from '@/utils/security';
 
 export interface ReasoningAgentConfig extends AgentConfig {
   reasoningEngine: ReasoningEngine;
@@ -350,7 +351,7 @@ export class ReasoningAgent extends Agent {
   // Enhanced private methods with full implementations
   private createReasoningTask(input: any, context?: Record<string, any>): ReasoningTask {
     const task: ReasoningTask = {
-      id: `reasoning_task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('reasoning_task'),
       name: 'Advanced Reasoning Task',
       type: this.determineTaskType(input),
       input: input,
@@ -592,7 +593,7 @@ export class ReasoningAgent extends Agent {
 
   private createExperience(input: any): Experience {
     return {
-      id: `exp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('exp'),
       timestamp: Date.now(),
       context: {
         id: `context_${Date.now()}`,
@@ -810,7 +811,7 @@ export class ReasoningAgent extends Agent {
     if (requirements.capabilities) {
       requirements.capabilities.forEach((capability: string) => {
         actions.push({
-          id: `action_${Date.now()}_${capability}_${Math.random().toString(36).substr(2, 9)}`,
+          id: generateSecureId(`action_${capability}`),
           type: 'adapt',
           parameters: {
             capability: capability,
@@ -845,15 +846,15 @@ export class ReasoningAgent extends Agent {
     feedback: any;
   }> {
     // Simulate action execution with enhanced logic
-    const success = Math.random() > 0.1; // 90% success rate for reasoning actions
+    const success = secureRandom() > 0.1; // 90% success rate for reasoning actions
     const result = success ? { 
       message: 'Action executed successfully',
       capability: action.parameters?.['capability'],
       improvement: 0.1
     } : null;
     const feedback = { 
-      performance: Math.random() * 0.3 + 0.7,
-      learning: Math.random() * 0.2 + 0.8
+      performance: secureRandom() * 0.3 + 0.7,
+      learning: secureRandom() * 0.2 + 0.8
     };
     
     return { success, result, feedback };
@@ -943,7 +944,7 @@ export class ReasoningAgent extends Agent {
   }
 
   private calculateGoalComplexity(goal: Goal): number {
-    return goal.priority * 0.5 + Math.random() * 0.5;
+    return goal.priority * 0.5 + secureRandom() * 0.5;
   }
 
   private estimateGoalResources(goal: Goal): any {

@@ -1,4 +1,5 @@
 import { Logger } from '@/utils/Logger';
+import { isSafeObjectKey } from '@/utils/security';
 
 export interface SystemConfig {
   // Core system settings
@@ -458,6 +459,9 @@ export class ConfigurationManager {
     let value: any = this.config;
     
     for (const key of keys) {
+      if (!isSafeObjectKey(key)) {
+        return undefined;
+      }
       if (value && typeof value === 'object' && key in value) {
         value = value[key];
       } else {
@@ -471,11 +475,15 @@ export class ConfigurationManager {
   public setValue(path: string, value: any, source: string = 'manual'): boolean {
     const keys = path.split('.');
     const lastKey = keys.pop()!;
+    if (!keys.every(isSafeObjectKey) || !isSafeObjectKey(lastKey)) {
+      this.logger.error('Invalid configuration path', { path } as any);
+      return false;
+    }
     let current: any = this.config;
     
     // Navigate to the parent object
     for (const key of keys) {
-      if (!(key in current) || typeof current[key] !== 'object') {
+      if (!(key in current) || typeof current[key] !== 'object' || current[key] === null) {
         current[key] = {};
       }
       current = current[key];
@@ -483,7 +491,7 @@ export class ConfigurationManager {
     
     // Validate the value
     const validationRule = this.validationRules.get(path);
-    if (validationRule && !validationRule(value)) {
+    if (typeof validationRule === 'function' && !validationRule(value)) {
       this.logger.error('Invalid configuration value', { path, value } as any);
       return false;
     }
@@ -518,7 +526,7 @@ export class ConfigurationManager {
       const value = this.getValue(path);
       if (value === undefined) {
         errors.push(`Missing configuration: ${path}`);
-      } else if (!validator(value)) {
+      } else if (typeof validator !== 'function' || !validator(value)) {
         errors.push(`Invalid configuration: ${path} = ${value}`);
       }
     }

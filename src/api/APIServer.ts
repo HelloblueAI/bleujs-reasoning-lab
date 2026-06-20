@@ -6,6 +6,7 @@ import _rateLimit from 'express-rate-limit';
 import { AGISystem } from '@/core/AGISystem';
 import { ConfigurationManager } from '@/config/ConfigurationManager';
 import { Logger } from '@/utils/Logger';
+import { escapeHtml } from '@/utils/security';
 
 export interface APIEndpoint {
   path: string;
@@ -1214,8 +1215,8 @@ export class APIServer {
         return;
       }
       
-      // Basic input sanitization
-      const sanitizedInput = input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+      // Basic input sanitization — escape HTML entities instead of regex filtering
+      const sanitizedInput = escapeHtml(input);
       
       const response = {
         success: true,

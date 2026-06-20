@@ -2,6 +2,7 @@ import { Agent, AgentConfig } from './Agent';
 import { Goal, Action, CreativeResult, CreativeTask, CreativeSession, ActionResult, SelfImprovementResult } from '@/types';
 import { AgentPerformance } from './Agent';
 import { CreativeEngine } from '@/types';
+import { generateSecureId, secureRandom } from '@/utils/security';
 
 export interface CreativeAgentConfig extends AgentConfig {
   creativeEngine: CreativeEngine;
@@ -324,7 +325,7 @@ export class CreativeAgent extends Agent {
   // Enhanced private methods with full implementations
   private createCreativeTask(input: any, context?: Record<string, any>): CreativeTask {
     const task: CreativeTask = {
-      id: `creative_task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('creative_task'),
       name: 'Advanced Creative Task',
       type: this.determineCreativeType(input),
       input: input,
@@ -628,18 +629,18 @@ export class CreativeAgent extends Agent {
 
   private gatherInspiration(input: any, context?: Record<string, any>): string {
     const sources = Array.from(this.inspirationSources);
-    const selectedSource = sources[Math.floor(Math.random() * sources.length)];
+    const selectedSource = sources[Math.floor(secureRandom() * sources.length)];
     return `Inspiration gathered from ${selectedSource} for creative process`;
   }
 
   private performDivergentThinking(input: any, context?: Record<string, any>): string {
     const strategies = Array.from(this.creativeStrategies);
-    const selectedStrategy = strategies[Math.floor(Math.random() * strategies.length)];
+    const selectedStrategy = strategies[Math.floor(secureRandom() * strategies.length)];
     return `Divergent thinking applied using ${selectedStrategy} strategy`;
   }
 
   private generateCreativeIdeas(input: any, creativeType: string, context?: Record<string, any>): string {
-    const ideaCount = Math.floor(Math.random() * 5) + 3; // 3-7 ideas
+    const ideaCount = Math.floor(secureRandom() * 5) + 3; // 3-7 ideas
     return `Generated ${ideaCount} creative ideas using ${creativeType} approach`;
   }
 
@@ -787,7 +788,7 @@ export class CreativeAgent extends Agent {
     if (requirements.capabilities) {
       requirements.capabilities.forEach((capability: string) => {
         actions.push({
-          id: `creative_action_${Date.now()}_${capability}_${Math.random().toString(36).substr(2, 9)}`,
+          id: generateSecureId(`creative_action_${capability}`),
           type: 'create',
           parameters: {
             capability: capability,
@@ -822,7 +823,7 @@ export class CreativeAgent extends Agent {
     feedback: any;
   }> {
     // Simulate creative action execution with enhanced logic
-    const success = Math.random() > 0.2; // 80% success rate for creative actions
+    const success = secureRandom() > 0.2; // 80% success rate for creative actions
     const result = success ? { 
       message: 'Creative action executed successfully',
       capability: action.parameters?.['capability'],
@@ -830,9 +831,9 @@ export class CreativeAgent extends Agent {
       creativityGained: true
     } : null;
     const feedback = { 
-      performance: Math.random() * 0.3 + 0.7,
-      creativity: Math.random() * 0.3 + 0.7,
-      innovation: Math.random() * 0.2 + 0.8
+      performance: secureRandom() * 0.3 + 0.7,
+      creativity: secureRandom() * 0.3 + 0.7,
+      innovation: secureRandom() * 0.2 + 0.8
     };
     
     return { success, result, feedback };
@@ -931,7 +932,7 @@ export class CreativeAgent extends Agent {
   }
 
   private calculateGoalComplexity(goal: Goal): number {
-    return goal.priority * 0.5 + Math.random() * 0.5;
+    return goal.priority * 0.5 + secureRandom() * 0.5;
   }
 
   private estimateGoalResources(goal: Goal): any {

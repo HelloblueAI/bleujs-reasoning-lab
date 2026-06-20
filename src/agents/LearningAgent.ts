@@ -4,6 +4,7 @@ import { AgentPerformance } from './Agent';
 import { LearningEngine } from '@/core/LearningEngine';
 import { MetaLearningEngine } from '@/types';
 import { KnowledgeBase } from '@/core/KnowledgeBase';
+import { generateSecureId, secureRandom } from '@/utils/security';
 
 export interface LearningAgentConfig extends AgentConfig {
   learningEngine: LearningEngine;
@@ -437,7 +438,7 @@ export class LearningAgent extends Agent {
   // Enhanced private methods with full implementations
   private createLearningTask(input: any, context?: Record<string, any>): LearningTask {
     const task: LearningTask = {
-      id: `learning_task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      id: generateSecureId('learning_task'),
       name: 'Advanced Learning Task',
       type: this.determineLearningType(input),
       input: input,
@@ -904,7 +905,7 @@ export class LearningAgent extends Agent {
     if (requirements.capabilities) {
       requirements.capabilities.forEach((capability: string) => {
         actions.push({
-          id: `learning_action_${Date.now()}_${capability}_${Math.random().toString(36).substr(2, 9)}`,
+          id: generateSecureId(`learning_action_${capability}`),
           type: 'learn',
           parameters: {
             capability: capability,
@@ -939,7 +940,7 @@ export class LearningAgent extends Agent {
     feedback: any;
   }> {
     // Simulate learning action execution with enhanced logic
-    const success = Math.random() > 0.15; // 85% success rate for learning actions
+    const success = secureRandom() > 0.15; // 85% success rate for learning actions
     const result = success ? { 
       message: 'Learning action executed successfully',
       capability: action.parameters?.['capability'],
@@ -947,9 +948,9 @@ export class LearningAgent extends Agent {
       knowledgeGained: true
     } : null;
     const feedback = { 
-      performance: Math.random() * 0.3 + 0.7,
-      learning: Math.random() * 0.3 + 0.7,
-      retention: Math.random() * 0.2 + 0.8
+      performance: secureRandom() * 0.3 + 0.7,
+      learning: secureRandom() * 0.3 + 0.7,
+      retention: secureRandom() * 0.2 + 0.8
     };
     
     return { success, result, feedback };
@@ -1047,7 +1048,7 @@ export class LearningAgent extends Agent {
   }
 
   private calculateGoalComplexity(goal: Goal): number {
-    return goal.priority * 0.5 + Math.random() * 0.5;
+    return goal.priority * 0.5 + secureRandom() * 0.5;
   }
 
   private estimateGoalResources(goal: Goal): any {

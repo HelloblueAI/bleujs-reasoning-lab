@@ -2,21 +2,22 @@
 
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
+import { secureRandom } from '@/utils/security';
 
 // Advanced Logger with consciousness awareness
 class ConsciousLogger {
   constructor(private component: string) {}
   
   info(message: string, data?: any) {
-    console.log(`[${new Date().toISOString()}] [INFO ] [${this.component}] ${message}`, data || '');
+    console.log(`[${new Date().toISOString()}] [INFO ] [${this.component}]`, message, data ?? '');
   }
   
   error(message: string, error?: any) {
-    console.error(`[${new Date().toISOString()}] [ERROR] [${this.component}] ${message}`, error || '');
+    console.error(`[${new Date().toISOString()}] [ERROR] [${this.component}]`, message, error ?? '');
   }
   
   consciousness(message: string, awareness?: any) {
-    console.log(`[${new Date().toISOString()}] [🧠] [${this.component}] ${message}`, awareness || '');
+    console.log(`[${new Date().toISOString()}] [🧠] [${this.component}]`, message, awareness ?? '');
   }
 }
 
@@ -287,7 +288,7 @@ class NeuralCore extends EventEmitter {
       domain,
       understanding,
       analysis: `Analyzing "${input}" using ${domain} knowledge`,
-      confidence: understanding * 0.8 + Math.random() * 0.2
+      confidence: understanding * 0.8 + secureRandom() * 0.2
     };
   }
   
