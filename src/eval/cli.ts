@@ -8,7 +8,7 @@ import { runEvalSuite } from './runner';
 const llm = process.argv.includes('--llm');
 
 async function main() {
-  console.log('BleuJS Autonomous Reasoning Lab — Eval Suite\n');
+  console.log('BleuJS Reasoning — Eval Suite\n');
   const result = await runEvalSuite(llm);
 
   for (const r of result.results) {

@@ -1,8 +1,9 @@
-### BleuJS Autonomous Reasoning Lab
+### BleuJS Reasoning
 
-> **LIVE:** https://agi.bleujs.org — canonical worker: `src/primary-agi-worker.ts`  
+> **Product:** BleuJS Reasoning — live at https://agi.bleujs.org  
+> **Project (research lab):** BleuJS Autonomous Reasoning Lab — see [docs/AGI_LAB_PLAN.md](docs/AGI_LAB_PLAN.md)  
 > **API (workers.dev):** https://agi-primary.morning-star-e026.workers.dev  
-> **Mission:** Measurable autonomous reasoning—not simulated AGI theater. Metrics come from learning engine state and request performance.
+> **Mission:** Measurable reasoning—not simulated AGI theater.
 
 > **v5.1** (June 2026) — Removed simulated consciousness/quantum API payloads; honest `/capabilities` endpoint.
 
@@ -97,7 +98,7 @@ Legacy `enhanced-agi` scripts now point at the primary worker (`worker:dev`). Ol
 
 <div align="center">
 
-[![Live Lab](https://img.shields.io/badge/Live-Autonomous%20Reasoning%20Lab-brightgreen?style=for-the-badge)](https://agi.bleujs.org)
+[![Live](https://img.shields.io/badge/Live-BleuJS%20Reasoning-brightgreen?style=for-the-badge)](https://agi.bleujs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange.svg)](https://workers.cloudflare.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)

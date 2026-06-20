@@ -7,7 +7,10 @@ import type { CapabilityDisplayMetrics } from '@/core/CapabilityDisplayMetrics';
 import type { Goal } from '@/core/AutonomousGoalSystem';
 
 export const LAB_VERSION = '5.1.0';
-export const LAB_NAME = 'BleuJS Autonomous Reasoning Lab';
+/** Public product name (API + dashboard) */
+export const LAB_NAME = 'BleuJS Reasoning';
+/** Internal project name — used in docs and repo */
+export const LAB_PROJECT_NAME = 'BleuJS Autonomous Reasoning Lab';
 
 export type MlStats = {
   tasksLearned: number;

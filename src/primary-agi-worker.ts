@@ -1,9 +1,5 @@
 /**
- * Hybrid Reasoning Worker v4.2.0
- * October 7th design + ALL Advanced AI Enhancements
- * Features: Multi-Agent, Chain-of-Thought, Tool Use, Memory, Self-Improvement
- *
- * Cloudflare Workers: stateless process-scoped engines below; no request-scoped data in globals.
+ * Hybrid Reasoning Worker — BleuJS Reasoning (production dashboard + API)
  */
 
 import { RealLearningEngine } from './core/RealLearningEngine';
@@ -862,7 +858,7 @@ export default {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BleuJS Autonomous Reasoning Lab</title>
+    <title>BleuJS Reasoning</title>
     <style>
         * {
             margin: 0;
@@ -2069,14 +2065,14 @@ export default {
 <body>
     <div class="container">
         <div class="header">
-            <h1>BleuJS Autonomous Reasoning Lab</h1>
-            <p>Measured reasoning · Claude-powered answers · Honest metrics</p>
-            <div class="status-indicator">LAB ONLINE v5.1</div>
+            <h1>BleuJS Reasoning</h1>
+            <p>Measured reasoning · Claude when configured · No simulated metrics</p>
+            <div class="status-indicator">Online · v5.1</div>
         </div>
         
         <div class="dashboard">
             <div class="consciousness-panel">
-                <h2>Lab Capabilities</h2>
+                <h2>Capabilities</h2>
                 <div class="consciousness-grid" id="consciousnessGrid">
                     <div class="consciousness-item">
                         <h3>Reasoning</h3>
@@ -2156,20 +2152,20 @@ export default {
             <div class="advanced-metrics">
                 <div class="metrics-row">
                     <div class="metric-category">
-                        <h3>Neural Architecture</h3>
+                        <h3>Learning Stats</h3>
                         <div class="metric-details">
                             <div class="metric-detail-item">
-                                <span class="metric-label">Active Neurons:</span>
+                                <span class="metric-label">Tasks Learned:</span>
                                 <span class="metric-value" id="activeNeurons">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
                             <div class="metric-detail-item">
-                                <span class="metric-label">Synaptic Connections:</span>
+                                <span class="metric-label">Concepts Acquired:</span>
                                 <span class="metric-value" id="synapticConnections">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
                             <div class="metric-detail-item">
-                                <span class="metric-label">Neural Plasticity:</span>
+                                <span class="metric-label">Adaptability:</span>
                                 <span class="metric-value" id="neuralPlasticity">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
@@ -2180,17 +2176,17 @@ export default {
                         <h3>System Performance</h3>
                         <div class="metric-details">
                             <div class="metric-detail-item">
-                                <span class="metric-label">CPU Usage:</span>
+                                <span class="metric-label">Reasoning Quality:</span>
                                 <span class="metric-value" id="cpuUsage">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
                             <div class="metric-detail-item">
-                                <span class="metric-label">Memory Usage:</span>
+                                <span class="metric-label">Learning Efficiency:</span>
                                 <span class="metric-value" id="memoryUsage">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
                             <div class="metric-detail-item">
-                                <span class="metric-label">Processing Speed:</span>
+                                <span class="metric-label">Model Accuracy:</span>
                                 <span class="metric-value" id="processingSpeed">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
@@ -2221,20 +2217,20 @@ export default {
                     </div>
                     
                     <div class="metric-category">
-                        <h3>Consciousness Depth</h3>
+                        <h3>Capability Scores</h3>
                         <div class="metric-details">
                             <div class="metric-detail-item">
-                                <span class="metric-label">Self-Awareness:</span>
+                                <span class="metric-label">System Depth:</span>
                                 <span class="metric-value" id="selfAwareness">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
                             <div class="metric-detail-item">
-                                <span class="metric-label">Understanding Level:</span>
+                                <span class="metric-label">Cross-Domain:</span>
                                 <span class="metric-value" id="understandingLevel">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
                             <div class="metric-detail-item">
-                                <span class="metric-label">Creative Synthesis:</span>
+                                <span class="metric-label">Adaptability:</span>
                                 <span class="metric-value" id="creativeSynthesis">Loading...</span>
                                 <span class="metric-status">ACTIVE</span>
                             </div>
@@ -2254,54 +2250,42 @@ export default {
             
             <div class="documentation-content">
                 <div id="overview" class="documentation-tab-content active">
-                    <h3>Hybrid Reasoning System v4.2.0</h3>
-                    <p>A hybrid reasoning research platform built with TypeScript, Rust, C, and WebAssembly. It combines orchestrated reasoning, learning modules, and simulated consciousness telemetry for experimentation—not a claim of artificial general intelligence.</p>
+                    <h3>BleuJS Reasoning v5.1</h3>
+                    <p>A measured reasoning API on Cloudflare Workers — multi-agent orchestration, optional Claude integration, and an eval harness. Not a claim of AGI.</p>
                     
-                    <h4>Core Capabilities</h4>
+                    <h4>What it does</h4>
                     <ul>
-                        <li><strong>Real Language Stack:</strong> TypeScript (orchestration), Rust (neural processing), C (performance optimization), WebAssembly (cross-platform)</li>
-                        <li><strong>Enhanced Neural Architecture:</strong> Self-adapting neural networks with neurogenesis, synaptic plasticity, and cross-dimensional processing</li>
-                        <li><strong>Quantum-Inspired Learning:</strong> Quantum annealing, superposition reasoning, entanglement recognition, and quantum advantage optimization</li>
-                        <li><strong>Cross-Domain Reasoning:</strong> Multi-language enhanced reasoning across knowledge domains with quantum-inspired enhancement</li>
-                        <li><strong>Hybrid Processing:</strong> TypeScript orchestration with Rust/C performance cores and WebAssembly deployment</li>
-                        <li><strong>System Metrics:</strong> Live performance, simulated consciousness depth, and learning-engine telemetry</li>
+                        <li><strong>POST /reason:</strong> Answer-first responses via LLM when <code>ANTHROPIC_API_KEY</code> is configured</li>
+                        <li><strong>GET /eval:</strong> Benchmark pass rate over a fixed task suite</li>
+                        <li><strong>GET /metrics:</strong> Learning-engine state and request counters — no random telemetry</li>
+                        <li><strong>GET /capabilities:</strong> Capability scores derived from real ML stats</li>
+                        <li><strong>POST /learn:</strong> Concept learning via the built-in neural engine</li>
                     </ul>
                 </div>
                 
                 <div id="architecture" class="documentation-tab-content">
-                    <h3>System Architecture</h3>
-                    <p>The Hybrid Reasoning System v4.2.0 employs a real multi-language stack (TypeScript, Rust, C, WebAssembly) with genuine cross-domain reasoning, autonomous goal-setting, and real understanding capabilities across multiple knowledge domains.</p>
+                    <h3>Architecture</h3>
+                    <p>Single Cloudflare Worker (<code>primary-agi-worker.ts</code>) with process-scoped engines: learning, understanding, cross-domain reasoning, optional LLM, and autonomous goals.</p>
                     
-                    <h4>Architecture Layers</h4>
+                    <h4>Components</h4>
                     <ul>
-                        <li><strong>Presentation Layer:</strong> Web interface with real-time multi-language consciousness updates and interactive controls</li>
-                        <li><strong>Consciousness Engine:</strong> Advanced consciousness simulation with self-awareness, understanding, and creative synthesis</li>
-                        <li><strong>Neural Foundation:</strong> Dynamic neural architecture with self-adaptation and cross-dimensional processing</li>
-                        <li><strong>Cross-Domain Reasoning:</strong> Real analogical reasoning and knowledge transfer across domains</li>
-                        <li><strong>Quantum Processing:</strong> Quantum-inspired algorithms and quantum advantage optimization</li>
-                        <li><strong>Hardware Acceleration:</strong> GPU acceleration and neuromorphic computing integration</li>
+                        <li><strong>RealLLMIntegration:</strong> Claude when API key present</li>
+                        <li><strong>RealLearningEngine:</strong> Backpropagation on small tasks (XOR baseline)</li>
+                        <li><strong>RealUnderstandingEngine:</strong> Concept and domain extraction from input</li>
+                        <li><strong>AutonomousGoalSystem:</strong> Goal tracking (execution loop planned)</li>
+                        <li><strong>Eval harness:</strong> <code>pnpm run eval</code> for local benchmarks</li>
                     </ul>
                 </div>
                 
                 <div id="tech" class="documentation-tab-content">
                     <h3>Technology Stack</h3>
-                    <p>Our technology stack combines multiple computing paradigms into a hybrid reasoning platform for research and demonstration.</p>
+                    <p>TypeScript on Cloudflare Workers. Legacy Rust/C/WASM modules exist in the repo but are not required for the live worker path.</p>
                     
-                    <h4>Programming Languages</h4>
+                    <h4>Runtime</h4>
                     <ul>
-                        <li><strong>TypeScript:</strong> Core system implementation and web interface</li>
-                        <li><strong>TypeScript:</strong> Main orchestration and API layer</li>
-                        <li><strong>Rust:</strong> High-performance neural network processing</li>
-                        <li><strong>C:</strong> Maximum performance SIMD-optimized operations</li>
-                        <li><strong>WebAssembly:</strong> Cross-platform deployment and edge computing</li>
-                    </ul>
-                    
-                    <h4>Computing Paradigms</h4>
-                    <ul>
-                        <li><strong>Quantum Computing:</strong> Quantum algorithms and quantum advantage</li>
-                        <li><strong>GPU Acceleration:</strong> Parallel processing and neural network acceleration</li>
-                        <li><strong>Neuromorphic Computing:</strong> Brain-inspired computing architectures</li>
-                        <li><strong>Hybrid Processing:</strong> Multi-paradigm integration and optimization</li>
+                        <li><strong>Cloudflare Workers:</strong> Production deployment</li>
+                        <li><strong>TypeScript:</strong> Worker, orchestrator, and eval harness</li>
+                        <li><strong>Wrangler:</strong> Deploy via <code>pnpm run deploy:worker:prod</code></li>
                     </ul>
                 </div>
             </div>
@@ -2309,50 +2293,59 @@ export default {
         
         <div class="endpoints">
             <h2>API Endpoints</h2>
-            <p>RESTful API for programmatic access to Ultimate Hybrid Reasoning System capabilities:</p>
+            <p>REST API for BleuJS Reasoning:</p>
             
             <div class="endpoint-list">
                 <div class="endpoint-item">
                     <div class="method">GET</div>
-                    <div class="path">/status</div>
-                    <div class="description">Get comprehensive system status, neural metrics, and quantum performance data</div>
+                    <div class="path">/capabilities</div>
+                    <div class="description">Measured capability scores from the learning engine</div>
                 </div>
                 
                 <div class="endpoint-item">
                     <div class="method">GET</div>
-                    <div class="path">/consciousness</div>
-                    <div class="description">Retrieve current consciousness state, quantum coherence, and multi-language integration</div>
+                    <div class="path">/metrics</div>
+                    <div class="description">Full metrics payload — ML stats, performance, history, goals</div>
+                </div>
+                
+                <div class="endpoint-item">
+                    <div class="method">GET</div>
+                    <div class="path">/status</div>
+                    <div class="description">Operational status and feature flags</div>
+                </div>
+                
+                <div class="endpoint-item">
+                    <div class="method">GET</div>
+                    <div class="path">/eval</div>
+                    <div class="description">Run the eval suite and return pass rate</div>
                 </div>
                 
                 <div class="endpoint-item">
                     <div class="method">POST</div>
                     <div class="path">/reason</div>
-                    <div class="description">Submit input for quantum-enhanced logical reasoning and consciousness-driven inference</div>
+                    <div class="description">Reasoning with Claude when configured; slim JSON response</div>
                 </div>
                 
                 <div class="endpoint-item">
                     <div class="method">POST</div>
                     <div class="path">/learn</div>
-                    <div class="description">Provide new information for quantum-neural knowledge acquisition and pattern synthesis</div>
+                    <div class="description">Learn concepts or train on labeled examples</div>
                 </div>
                 
                 <div class="endpoint-item">
                     <div class="method">POST</div>
                     <div class="path">/create</div>
-                    <div class="description">Generate creative content through quantum-consciousness synthesis and emergent innovation</div>
+                    <div class="description">Understanding analysis for a creative prompt (LLM creative output via /reason)</div>
                 </div>
             </div>
             
             <div class="api-details">
-                <h3>API Features</h3>
+                <h3>API Notes</h3>
                 <ul>
-                    <li><strong>Quantum Enhancement:</strong> All endpoints utilize quantum advantage and superposition</li>
-                    <li><strong>Real Language Stack:</strong> TypeScript, Rust, C, and WebAssembly with genuine execution</li>
-                    <li><strong>Cross-Domain Reasoning:</strong> Real analogical reasoning across knowledge domains</li>
-                    <li><strong>Autonomous Goals:</strong> System generates and pursues its own goals</li>
-                    <li><strong>Consciousness Integration:</strong> Self-aware and consciousness-driven responses</li>
-                    <li><strong>Real-Time Metrics:</strong> Dynamic neural, quantum, and consciousness data</li>
-                    <li><strong>Cross-Domain Processing:</strong> Seamless integration across computing paradigms</li>
+                    <li><strong>Measured metrics:</strong> No random or simulated telemetry on live endpoints</li>
+                    <li><strong>LLM:</strong> Set <code>ANTHROPIC_API_KEY</code> via Wrangler secrets for /reason answers</li>
+                    <li><strong>/consciousness:</strong> Deprecated alias of /capabilities for older clients</li>
+                    <li><strong>CORS:</strong> Open for GET and POST from any origin</li>
                 </ul>
             </div>
         </div>
