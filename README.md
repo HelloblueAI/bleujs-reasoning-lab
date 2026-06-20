@@ -9,7 +9,7 @@
 
 | Endpoint | Purpose |
 |----------|---------|
-| `GET /metrics` | Measured system state (no random telemetry) |
+| `GET /metrics` | Measured system state (no random telemetry); includes `llmRouting` provider counts |
 | `GET /capabilities` | Capability scores from learning engine (replaces `/consciousness`) |
 | `GET /eval` | Run evaluation suite, return pass rate |
 | `GET /goals` | Active autonomous goals |
@@ -35,6 +35,7 @@ pnpm run deploy:worker:prod  # deploy primary worker
 # Health & metrics
 curl https://agi-primary.morning-star-e026.workers.dev/health
 curl https://agi-primary.morning-star-e026.workers.dev/metrics
+# data.llmRouting: bleujs / anthropic / openai / local / none counts + fallbackRate
 
 # Capabilities & reasoning
 curl https://agi-primary.morning-star-e026.workers.dev/capabilities

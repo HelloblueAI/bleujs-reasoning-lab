@@ -30,10 +30,12 @@ import { buildHonestReasonResponse } from './lab/reasonResponse';
 import { stripMarkdownEmphasis, tryArithmeticReason } from './lab/arithmeticReason';
 import { getReasonMaxTokens, getReasonSystemPrompt, isSimpleFactualQuestion } from './lab/reasonPrompt';
 import {
+  getLlmProviderCounters,
   getRequestCounters,
   incrementCreative,
   incrementLearning,
   incrementReasoning,
+  recordReasonProvider,
 } from './lab/requestCounters';
 
 /** Structured log for Workers Observability (JSON parseable). */
@@ -329,7 +331,8 @@ export default {
             capabilityDisplay,
             counters,
             llmIntegration ? llmIntegration.isAvailable() : false,
-            goalSummary
+            goalSummary,
+            getLlmProviderCounters()
           ),
         });
         return new Response(metricsBody, { headers: corsHeaders });
@@ -481,6 +484,17 @@ export default {
           }
         }
         incrementReasoning();
+        if (localArithmetic) {
+          recordReasonProvider('local');
+        } else if (llmEnhancement?.provider === 'bleujs') {
+          recordReasonProvider('bleujs');
+        } else if (llmEnhancement?.provider === 'anthropic') {
+          recordReasonProvider('anthropic');
+        } else if (llmEnhancement?.provider === 'openai') {
+          recordReasonProvider('openai');
+        } else {
+          recordReasonProvider('none');
+        }
 
         const honestData = buildHonestReasonResponse({
           input,

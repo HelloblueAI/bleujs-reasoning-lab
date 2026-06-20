@@ -36,7 +36,16 @@ export function buildLabMetricsPayload(
   capabilities: CapabilityDisplayMetrics,
   counters: { reasoning: number; learning: number; creative: number },
   llmAvailable: boolean,
-  goals: { active: number; completed: number; topPriorities: Goal[] } | null
+  goals: { active: number; completed: number; topPriorities: Goal[] } | null,
+  llmRouting?: {
+    bleujs: number;
+    anthropic: number;
+    openai: number;
+    local: number;
+    none: number;
+    llmTotal: number;
+    fallbackRate: number;
+  }
 ) {
   const metrics = realMetrics ?? {
     learningComplexity: mlStats.averageAccuracy,
@@ -78,6 +87,15 @@ export function buildLabMetricsPayload(
       systemDepth: metrics.systemDepth,
     },
     history: buildHonestHistoryMetrics(mlStats, counters),
+    llmRouting: llmRouting ?? {
+      bleujs: 0,
+      anthropic: 0,
+      openai: 0,
+      local: 0,
+      none: 0,
+      llmTotal: 0,
+      fallbackRate: 0,
+    },
     goals,
   };
 }
