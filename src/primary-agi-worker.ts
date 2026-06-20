@@ -980,24 +980,6 @@ export default {
             border: 1px solid var(--border);
             border-radius: 15px;
             padding: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .consciousness-panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent), var(--success), var(--warning));
-            animation: shimmer 3s infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
         }
         
         .consciousness-panel h2 {
