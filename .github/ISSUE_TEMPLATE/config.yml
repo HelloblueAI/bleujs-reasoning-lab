@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Contributing guide
+    url: https://github.com/HelloblueAI/neural-quantum-consciousness-framework/blob/main/CONTRIBUTING.md
+    about: Setup, PR process, and what we accept
+  - name: Good first issues (doc)
+    url: https://github.com/HelloblueAI/neural-quantum-consciousness-framework/blob/main/docs/GOOD_FIRST_ISSUES.md
+    about: Suggested starter tasks

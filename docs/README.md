@@ -620,7 +620,7 @@ gantt
 
 We welcome contributions from researchers, developers, and visionaries:
 1. Fork the repo & create a feature branch
-2. Implement your improvement (see [`CONTRIBUTING.md`](CONTRIBUTING.md) if available)
+2. Implement your improvement (see [`CONTRIBUTING.md`](../CONTRIBUTING.md))
 3. Add/extend tests in [`tests/`](tests/)
 4. Submit a pull request
 

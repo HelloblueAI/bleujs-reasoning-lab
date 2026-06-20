@@ -36,14 +36,11 @@ pnpm run deploy:worker:prod  # deploy primary worker
 curl https://agi-primary.morning-star-e026.workers.dev/health
 curl https://agi-primary.morning-star-e026.workers.dev/metrics
 
-# Reasoning (slim response by default)
+# Capabilities & reasoning
+curl https://agi-primary.morning-star-e026.workers.dev/capabilities
 curl -X POST https://agi-primary.morning-star-e026.workers.dev/reason \
   -H "Content-Type: application/json" \
   -d '{"input": "What is 17 × 23?"}'
-
-# Legacy verbose JSON
-curl -X POST .../reason -H "Content-Type: application/json" \
-  -d '{"input": "...", "verbose": true}'
 ```
 
 Set `ANTHROPIC_API_KEY` via `npx wrangler secret put ANTHROPIC_API_KEY --env production` for live LLM reasoning.
@@ -54,7 +51,7 @@ Set `ANTHROPIC_API_KEY` via `npx wrangler secret put ANTHROPIC_API_KEY --env pro
 
 A **research lab** for orchestrated reasoning: multi-agent pipelines, optional Claude/GPT integration, learning-engine state, and an eval harness with honest pass rates. It is **not** a claim of artificial general intelligence or machine consciousness.
 
-**Active production path:** `primary-agi-worker.ts` → `UltimateAGIOrchestrator`, `RealLLMIntegration`, `ConsciousnessDisplayMetrics` (dashboard labels mapped from real ML stats—not a consciousness engine).
+**Active production path:** `primary-agi-worker.ts` → `UltimateAGIOrchestrator`, `RealLLMIntegration`, `CapabilityDisplayMetrics` (honest capability scores from the learning engine).
 
 **Archived (reference only):** legacy workers, quantum/consciousness engines, and pre-v5 entry points live under [`src/archive/`](src/archive/README.md). Do not deploy from there.
 
@@ -90,9 +87,13 @@ Legacy `enhanced-agi` scripts now point at the primary worker (`worker:dev`). Ol
 
 ## Contributing
 
-1. Fork and create a feature branch
-2. Add tests for behavior changes (`tests/eval`, `tests/unit`)
-3. Open a pull request
+We welcome PRs for eval tasks, honest API improvements, docs, and lab features aligned with [docs/AGI_LAB_PLAN.md](docs/AGI_LAB_PLAN.md).
+
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md) and pick a task from [docs/GOOD_FIRST_ISSUES.md](docs/GOOD_FIRST_ISSUES.md)
+2. Run `pnpm run test:eval` and `pnpm run test:unit` before opening a PR
+3. CI runs the same checks on every pull request ([`.github/workflows/lab-ci.yml`](.github/workflows/lab-ci.yml))
+
+Production deploy is maintainer-only; you do not need Cloudflare access to contribute.
 
 ---
 

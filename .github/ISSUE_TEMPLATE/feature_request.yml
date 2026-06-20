@@ -1,0 +1,34 @@
+name: Feature request
+description: Propose a lab improvement aligned with measurable reasoning
+title: "[feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        See [docs/AGI_LAB_PLAN.md](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/blob/main/docs/AGI_LAB_PLAN.md) and [docs/GOOD_FIRST_ISSUES.md](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/blob/main/docs/GOOD_FIRST_ISSUES.md).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: What measurable outcome should improve? (eval pass rate, latency, honesty, etc.)
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope alignment
+      options:
+        - label: Fits primary worker / lab / eval path (not archived consciousness modules)
+          required: true
+        - label: Can be tested with test:eval or test:unit
+          required: false
