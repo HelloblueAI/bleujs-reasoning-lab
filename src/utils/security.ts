@@ -1,9 +1,7 @@
 /** Security helpers for CodeQL-compliant patterns */
 
-const UNSAFE_OBJECT_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
-
 export function isSafeObjectKey(key: string): boolean {
-  return !UNSAFE_OBJECT_KEYS.has(key);
+  return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
 }
 
 export function secureRandom(): number {

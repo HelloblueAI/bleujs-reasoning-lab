@@ -483,8 +483,15 @@ export class ConfigurationManager {
     
     // Navigate to the parent object
     for (const key of keys) {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        this.logger.error('Invalid configuration path', { path } as any);
+        return false;
+      }
       if (!(key in current) || typeof current[key] !== 'object' || current[key] === null) {
-        current[key] = {};
+        // Inline literal guard — CodeQL traces this shape, not isSafeObjectKey()
+        if (key !== '__proto__' && key !== 'constructor' && key !== 'prototype') {
+          current[key] = {};
+        }
       }
       current = current[key];
     }
@@ -497,6 +504,10 @@ export class ConfigurationManager {
     }
     
     const oldValue = current[lastKey];
+    if (lastKey === '__proto__' || lastKey === 'constructor' || lastKey === 'prototype') {
+      this.logger.error('Invalid configuration path', { path } as any);
+      return false;
+    }
     current[lastKey] = value;
     
     // Record the change
