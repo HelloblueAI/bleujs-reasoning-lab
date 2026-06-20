@@ -108,6 +108,8 @@ export class RealUnderstandingEngine {
       { pattern: /\b(energy|power|work|joule)\b/i, concept: 'energy', domain: 'physics' },
       { pattern: /\b(algorithm|code|program|software)\b/i, concept: 'algorithm', domain: 'computer_science' },
       { pattern: /\b(data|information|storage|database)\b/i, concept: 'data', domain: 'computer_science' },
+      { pattern: /\bwhere\b.*\b(is|are|was|were)\b/i, concept: 'location_query', domain: 'geography' },
+      { pattern: /\b(capital|city|country|continent|region|province|latitude|longitude)\b/i, concept: 'geography', domain: 'geography' },
       { pattern: /\b(learn|learning|train|training)\b/i, concept: 'learning', domain: 'general' },
       { pattern: /\b(understand|comprehend|grasp|know)\b/i, concept: 'understanding', domain: 'general' },
       { pattern: /\b(reason|reasoning|logic|logical)\b/i, concept: 'reasoning', domain: 'general' },
@@ -131,6 +133,21 @@ export class RealUnderstandingEngine {
         });
       }
     });
+    
+    const placeMatch = text.match(/\bwhere\s+(?:is|are)\s+(?:the\s+)?([a-z][a-z\s'-]{1,40}?)\??\s*$/i);
+    if (placeMatch) {
+      const place = placeMatch[1].trim();
+      if (!foundConcepts.has(place.toLowerCase())) {
+        foundConcepts.add(place.toLowerCase());
+        concepts.push({
+          name: place,
+          domain: 'geography',
+          confidence: 0.8,
+          relationships: [],
+          properties: new Map(),
+        });
+      }
+    }
     
     // Extract noun phrases as potential new concepts
     const nounPhrases = this.extractNounPhrases(text);

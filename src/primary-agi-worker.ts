@@ -28,6 +28,7 @@ import {
 } from './lab/labStatus';
 import { buildHonestReasonResponse } from './lab/reasonResponse';
 import { stripMarkdownEmphasis, tryArithmeticReason } from './lab/arithmeticReason';
+import { getReasonMaxTokens, getReasonSystemPrompt, isSimpleFactualQuestion } from './lab/reasonPrompt';
 import {
   getRequestCounters,
   incrementCreative,
@@ -433,32 +434,7 @@ export default {
           }
         }
 
-        let goalsNewlyGenerated = 0;
         const localArithmetic = tryArithmeticReason(input);
-
-        if (!localArithmetic && understanding && goalSystem) {
-          try {
-            const knowledgeGaps = goalSystem.identifyKnowledgeGaps(understanding, [
-              'mathematics', 'physics', 'computer_science', 'biology', 'psychology',
-            ]);
-            const curiosityAreas = goalSystem.identifyCuriosityAreas(understanding.insights || []);
-            const newGoals = goalSystem.generateGoals({
-              knowledgeGaps,
-              curiosityAreas,
-              performanceWeaknesses: [],
-              unexploredDomains:
-                understanding.domains.length < 3
-                  ? ['mathematics', 'physics', 'computer_science', 'biology', 'psychology'].filter(
-                      d => !understanding.domains.includes(d)
-                    )
-                  : [],
-              recentInsights: understanding.insights || [],
-            });
-            goalsNewlyGenerated = newGoals.length;
-          } catch (e) {
-            console.error('Goal generation error:', e);
-          }
-        }
 
         let llmEnhancement: { insight: string; confidence: number } | null = null;
         if (localArithmetic) {
@@ -468,7 +444,11 @@ export default {
           };
         } else if (llmIntegration && llmIntegration.isAvailable()) {
           try {
-            const llmResponse = await llmIntegration.answerQuestion(input);
+            const simpleFactual = isSimpleFactualQuestion(input);
+            const llmResponse = await llmIntegration.answerQuestion(input, {
+              systemPrompt: getReasonSystemPrompt(simpleFactual),
+              maxTokens: getReasonMaxTokens(simpleFactual),
+            });
             llmEnhancement = {
               insight: stripMarkdownEmphasis(llmResponse.answer),
               confidence: llmResponse.confidence,
@@ -502,8 +482,6 @@ export default {
                 insights: understanding.insights,
               }
             : null,
-          goalsActive: localArithmetic ? 0 : goalSystem ? goalSystem.getActiveGoals().length : 0,
-          goalsNewlyGenerated: localArithmetic ? 0 : goalsNewlyGenerated,
         });
 
         return new Response(JSON.stringify({ success: true, data: honestData }), {

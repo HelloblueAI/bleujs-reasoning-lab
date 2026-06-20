@@ -30,7 +30,7 @@ export class RealLLMIntegration {
   /**
    * Query Claude AI using direct fetch
    */
-  private async queryClaude(prompt: string, systemPrompt?: string): Promise<LLMResponse> {
+  private async queryClaude(prompt: string, systemPrompt?: string, maxTokens = 1024): Promise<LLMResponse> {
     if (!this.anthropicKey) {
       throw new Error('Anthropic API key not configured');
     }
@@ -45,7 +45,7 @@ export class RealLLMIntegration {
         },
         body: JSON.stringify({
           model: this.claudeModel,
-          max_tokens: 1024,
+          max_tokens: maxTokens,
           messages: [{
             role: 'user',
             content: prompt
@@ -75,7 +75,7 @@ export class RealLLMIntegration {
   /**
    * Query OpenAI GPT using direct fetch
    */
-  private async queryGPT(prompt: string, systemPrompt?: string): Promise<LLMResponse> {
+  private async queryGPT(prompt: string, systemPrompt?: string, maxTokens = 1024): Promise<LLMResponse> {
     if (!this.openaiKey) {
       throw new Error('OpenAI API key not configured');
     }
@@ -98,7 +98,7 @@ export class RealLLMIntegration {
         body: JSON.stringify({
           model: this.openaiModel,
           messages,
-          max_tokens: 1024,
+          max_tokens: maxTokens,
           temperature: 0.7
         })
       });
@@ -124,15 +124,19 @@ export class RealLLMIntegration {
   /**
    * Answer a question using the best available LLM
    */
-  public async answerQuestion(question: string): Promise<LLMResponse> {
+  public async answerQuestion(
+    question: string,
+    options?: { systemPrompt?: string; maxTokens?: number }
+  ): Promise<LLMResponse> {
+    const systemPrompt =
+      options?.systemPrompt ??
+      'You are BleuJS Reasoning. Provide clear, accurate, thoughtful responses.';
+    const maxTokens = options?.maxTokens ?? 1024;
     let lastError: Error | undefined;
 
     if (this.anthropicKey) {
       try {
-        return await this.queryClaude(
-          question,
-          'You are a helpful AI assistant integrated into a Hybrid Reasoning System. Provide clear, accurate, and thoughtful responses.'
-        );
+        return await this.queryClaude(question, systemPrompt, maxTokens);
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
         console.error('Claude failed:', lastError.message);
@@ -140,10 +144,7 @@ export class RealLLMIntegration {
     }
 
     if (this.openaiKey) {
-      return await this.queryGPT(
-        question,
-        'You are a helpful AI assistant integrated into a Hybrid Reasoning System. Provide clear, accurate, and thoughtful responses.'
-      );
+      return await this.queryGPT(question, systemPrompt, maxTokens);
     }
 
     throw lastError ?? new Error('No LLM API keys configured');

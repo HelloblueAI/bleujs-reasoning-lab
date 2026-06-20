@@ -19,10 +19,6 @@ export type HonestReasonResponse = {
     relationshipCount: number;
     insights: string[];
   } | null;
-  goals: {
-    active: number;
-    newlyGenerated: number;
-  } | null;
 };
 
 export function buildHonestReasonResponse(params: {
@@ -37,8 +33,6 @@ export function buildHonestReasonResponse(params: {
     relationships: unknown[];
     insights: string[];
   } | null;
-  goalsActive: number;
-  goalsNewlyGenerated: number;
 }): HonestReasonResponse {
   return {
     system: LAB_NAME,
@@ -57,9 +51,5 @@ export function buildHonestReasonResponse(params: {
           insights: params.understanding.insights.slice(0, 5),
         }
       : null,
-    goals:
-      params.goalsActive > 0 || params.goalsNewlyGenerated > 0
-        ? { active: params.goalsActive, newlyGenerated: params.goalsNewlyGenerated }
-        : null,
   };
 }
