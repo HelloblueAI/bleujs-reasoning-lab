@@ -3,6 +3,7 @@
  */
 
 import { LAB_NAME, LAB_VERSION } from './labStatus';
+import type { LLMProvider } from '../core/RealLLMIntegration';
 
 export type HonestReasonResponse = {
   system: string;
@@ -12,6 +13,7 @@ export type HonestReasonResponse = {
   answer: string | null;
   confidence: number;
   llmUsed: boolean;
+  llmProvider?: LLMProvider | null;
   processingTimeMs: number;
   understanding: {
     conceptCount: number;
@@ -26,6 +28,7 @@ export function buildHonestReasonResponse(params: {
   answer: string | null;
   confidence: number;
   llmUsed: boolean;
+  llmProvider?: LLMProvider | null;
   processingTimeMs: number;
   understanding: {
     concepts: { name: string }[];
@@ -42,6 +45,7 @@ export function buildHonestReasonResponse(params: {
     answer: params.answer,
     confidence: params.confidence,
     llmUsed: params.llmUsed,
+    llmProvider: params.llmProvider ?? null,
     processingTimeMs: params.processingTimeMs,
     understanding: params.understanding
       ? {

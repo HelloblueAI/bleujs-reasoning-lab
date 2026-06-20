@@ -43,7 +43,7 @@ curl -X POST https://agi-primary.morning-star-e026.workers.dev/reason \
   -d '{"input": "What is 17 × 23?"}'
 ```
 
-Set `ANTHROPIC_API_KEY` via `npx wrangler secret put ANTHROPIC_API_KEY --env production` for live LLM reasoning.
+Set `BLEUJS_API_KEY` via `npx wrangler secret put BLEUJS_API_KEY --env production` for live LLM reasoning (optional Anthropic/OpenAI fallback).
 
 ---
 

@@ -58,6 +58,7 @@ let tensorReasoningEngine: ReasoningEngine | null = null;
 
 /** Env: secrets via wrangler secret put; optional AGI_CACHE KV binding for response cache. Run `wrangler types` to sync with config. */
 interface Env {
+  BLEUJS_API_KEY?: string;
   ANTHROPIC_API_KEY?: string;
   OPENAI_API_KEY?: string;
   ENVIRONMENT?: string;
@@ -137,16 +138,24 @@ async function safeInitializeSystems(env: Env): Promise<{ success: boolean; erro
     console.error('Learning engine initialization error:', error);
   }
   
-  // Initialize LLM integration (requires API keys)
-  if (!llmIntegration && (env.ANTHROPIC_API_KEY || env.OPENAI_API_KEY)) {
+  const hasLlmKey = !!(env.BLEUJS_API_KEY || env.ANTHROPIC_API_KEY || env.OPENAI_API_KEY);
+
+  // Initialize LLM integration (BleuJS primary, Anthropic/OpenAI fallback)
+  if (!llmIntegration && hasLlmKey) {
     try {
-      llmIntegration = new RealLLMIntegration(env.ANTHROPIC_API_KEY, env.OPENAI_API_KEY);
-      console.log('✓ Real LLM Integration initialized (Claude + GPT)');
+      llmIntegration = new RealLLMIntegration(
+        env.ANTHROPIC_API_KEY,
+        env.OPENAI_API_KEY,
+        undefined,
+        undefined,
+        env.BLEUJS_API_KEY
+      );
+      console.log('✓ Real LLM Integration initialized (BleuJS + fallback)');
     } catch (error) {
       errors.push(`LLM integration initialization failed: ${(error as Error).message}`);
       console.warn('LLM integration unavailable:', error);
     }
-  } else if (!env.ANTHROPIC_API_KEY && !env.OPENAI_API_KEY) {
+  } else if (!hasLlmKey) {
     console.warn('⚠ LLM integration disabled: API keys not configured');
   }
   
@@ -436,7 +445,11 @@ export default {
 
         const localArithmetic = tryArithmeticReason(input);
 
-        let llmEnhancement: { insight: string; confidence: number } | null = null;
+        let llmEnhancement: {
+          insight: string;
+          confidence: number;
+          provider?: 'bleujs' | 'anthropic' | 'openai';
+        } | null = null;
         if (localArithmetic) {
           llmEnhancement = {
             insight: localArithmetic.answer,
@@ -452,6 +465,7 @@ export default {
             llmEnhancement = {
               insight: stripMarkdownEmphasis(llmResponse.answer),
               confidence: llmResponse.confidence,
+              provider: llmResponse.provider,
             };
           } catch (error) {
             console.error('LLM enhancement unavailable:', error);
@@ -473,6 +487,7 @@ export default {
           answer: llmEnhancement?.insight ?? null,
           confidence: llmEnhancement?.confidence ?? realMetrics.reasoningQuality,
           llmUsed: !localArithmetic && llmEnhancement !== null,
+          llmProvider: localArithmetic ? null : (llmEnhancement?.provider ?? null),
           processingTimeMs,
           understanding: understanding
             ? {
@@ -2267,7 +2282,7 @@ export default {
                     
                     <h4>What it does</h4>
                     <ul>
-                        <li><strong>POST /reason:</strong> Answer-first responses via LLM when <code>ANTHROPIC_API_KEY</code> is configured</li>
+                        <li><strong>POST /reason:</strong> Answer-first responses via BleuJS API when <code>BLEUJS_API_KEY</code> is configured</li>
                         <li><strong>GET /eval:</strong> Benchmark pass rate over a fixed task suite</li>
                         <li><strong>GET /metrics:</strong> Learning-engine state and request counters — no random telemetry</li>
                         <li><strong>GET /capabilities:</strong> Capability scores derived from real ML stats</li>
@@ -2355,7 +2370,7 @@ export default {
                 <h3>API Notes</h3>
                 <ul>
                     <li><strong>Measured metrics:</strong> No random or simulated telemetry on live endpoints</li>
-                    <li><strong>LLM:</strong> Set <code>ANTHROPIC_API_KEY</code> via Wrangler secrets for /reason answers</li>
+                    <li><strong>LLM:</strong> Set <code>BLEUJS_API_KEY</code> via Wrangler secrets (Anthropic/OpenAI optional fallback)</li>
                     <li><strong>/consciousness:</strong> Deprecated alias of /capabilities for older clients</li>
                     <li><strong>CORS:</strong> Open for GET and POST from any origin</li>
                 </ul>
@@ -2588,7 +2603,9 @@ export default {
             if (endpoint === 'reason' && answer != null) {
                 document.getElementById('resultPanelTitle').textContent = 'Answer';
                 const meta = [
-                    payload.llmUsed ? 'LLM' : (payload.confidence === 1 ? 'Local math' : 'Local reasoning'),
+                    !payload.llmUsed
+                        ? (payload.confidence === 1 ? 'Local math' : 'Local reasoning')
+                        : (payload.llmProvider === 'bleujs' ? 'BleuJS' : 'LLM'),
                     ((payload.confidence ?? 0) * 100).toFixed(0) + '% confidence',
                     (payload.processingTimeMs ?? '—') + 'ms'
                 ].join(' · ');

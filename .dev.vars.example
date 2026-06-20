@@ -3,7 +3,8 @@
 #
 #   cp .dev.vars.example .dev.vars
 #
-# Production: use `wrangler secret put <NAME> --config wrangler.toml` per environment.
+# Production: use `wrangler secret put <NAME> --config wrangler.toml --env production`
 
+BLEUJS_API_KEY=
 ANTHROPIC_API_KEY=
 OPENAI_API_KEY=
