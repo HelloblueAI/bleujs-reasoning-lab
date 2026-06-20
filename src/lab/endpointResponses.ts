@@ -95,6 +95,53 @@ export function buildCapabilitiesEndpointPayload(
   };
 }
 
+/** Back-compat for cached dashboards that still call GET /consciousness */
+export function buildConsciousnessCompatPayload(
+  capabilities: CapabilityDisplayMetrics,
+  mlStats: MlStats,
+  goals: { active: number; completed: number; topPriorities: Goal[] } | null
+) {
+  const base = buildCapabilitiesEndpointPayload(capabilities, mlStats, goals);
+  const c = base.capabilities;
+  const s = c.sources;
+  return {
+    ...base,
+    deprecated: true,
+    useInstead: '/capabilities',
+    consciousnessMetrics: {
+      awareness: c.reasoningQuality,
+      selfAwareness: c.systemDepth,
+      understanding: c.understandingDepth,
+      creativity: c.adaptability,
+      confidence: c.confidence,
+    },
+    consciousnessSources: {
+      awareness: s.reasoningQuality,
+      selfAwareness: s.systemDepth,
+      understanding: s.understandingDepth,
+      creativity: s.adaptability,
+    },
+  };
+}
+
+/** Back-compat fields for cached dashboard JS reading /status */
+export function withLegacyStatusShims(payload: ReturnType<typeof buildLabStatusPayload>) {
+  return {
+    ...payload,
+    metrics: payload.history,
+    realML: payload.ml,
+    neural: {
+      neuralPlasticity: payload.performance.adaptability,
+      crossDomainIntegration: payload.performance.crossDomainIntegration,
+      consciousnessDepth: payload.performance.systemDepth,
+    },
+    quantum: {
+      quantumCoherence: payload.performance.learningComplexity,
+      quantumAdvantage: payload.performance.learningComplexity,
+    },
+  };
+}
+
 export function buildHonestLearnResponse(params: {
   data: string;
   processingTimeMs: number;
@@ -145,10 +192,3 @@ export function buildHonestCreateResponse(params: {
     crossDomainInsights: params.crossDomainInsights.slice(0, 5),
   };
 }
-
-export const CONSCIOUSNESS_DEPRECATED = {
-  success: false,
-  deprecated: true,
-  redirect: '/capabilities',
-  message: 'GET /consciousness removed. Use GET /capabilities or GET /metrics for measured lab state.',
-};

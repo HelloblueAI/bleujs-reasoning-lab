@@ -19,10 +19,11 @@ import { ReasoningEngine } from './core/ReasoningEngine';
 import { runEvalSuite } from './eval/runner';
 import {
   buildCapabilitiesEndpointPayload,
+  buildConsciousnessCompatPayload,
   buildHonestCreateResponse,
   buildHonestLearnResponse,
   buildLabStatusPayload,
-  CONSCIOUSNESS_DEPRECATED,
+  withLegacyStatusShims,
 } from './lab/endpointResponses';
 import {
   buildLabMetricsPayload,
@@ -240,14 +241,16 @@ export default {
         }
         const statusBody = JSON.stringify({
           success: true,
-          data: buildLabStatusPayload(
-            mlStats,
-            realMetricsForDisplay,
-            capabilityDisplay,
-            counters,
-            llmIntegration ? llmIntegration.isAvailable() : false,
-            ultimateOrchestrator ? ultimateOrchestrator.getStatus() : null,
-            tensorReasoningEngine !== null
+          data: withLegacyStatusShims(
+            buildLabStatusPayload(
+              mlStats,
+              realMetricsForDisplay,
+              capabilityDisplay,
+              counters,
+              llmIntegration ? llmIntegration.isAvailable() : false,
+              ultimateOrchestrator ? ultimateOrchestrator.getStatus() : null,
+              tensorReasoningEngine !== null
+            )
           ),
         });
         if (env.AGI_CACHE) {
@@ -257,10 +260,26 @@ export default {
       }
 
       if (path === '/consciousness' && request.method === 'GET') {
-        return new Response(JSON.stringify(CONSCIOUSNESS_DEPRECATED), {
-          status: 410,
-          headers: corsHeaders,
+        const cacheKey = 'agi:consciousness-compat';
+        const cached = env.AGI_CACHE ? await env.AGI_CACHE.get(cacheKey) : null;
+        if (cached) {
+          return new Response(cached, { headers: corsHeaders });
+        }
+        const goalSummary = goalSystem
+          ? {
+              active: goalSystem.getStatistics().active,
+              completed: goalSystem.getStatistics().completed,
+              topPriorities: goalSystem.getStatistics().topPriorities,
+            }
+          : null;
+        const body = JSON.stringify({
+          success: true,
+          data: buildConsciousnessCompatPayload(capabilityDisplay, mlStats, goalSummary),
         });
+        if (env.AGI_CACHE) {
+          ctx.waitUntil(env.AGI_CACHE.put(cacheKey, body, { expirationTtl: 60 }));
+        }
+        return new Response(body, { headers: corsHeaders });
       }
 
       if (path === '/capabilities' && request.method === 'GET') {
@@ -2353,122 +2372,144 @@ export default {
         });
         
         async function loadSystemStatus() {
+            const consciousnessGrid = document.getElementById('consciousnessGrid');
+            if (!consciousnessGrid) return;
+
+            function renderCapabilities(caps, sources) {
+                consciousnessGrid.innerHTML = \`
+                    <div class="consciousness-item">
+                        <h3>Reasoning</h3>
+                        <div class="consciousness-value">\${(caps.reasoningQuality * 100).toFixed(1)}%</div>
+                        <div class="consciousness-label">\${sources.reasoningQuality || sources.awareness || 'Measured'}</div>
+                    </div>
+                    <div class="consciousness-item">
+                        <h3>System Depth</h3>
+                        <div class="consciousness-value">\${(caps.systemDepth * 100).toFixed(1)}%</div>
+                        <div class="consciousness-label">\${sources.systemDepth || sources.selfAwareness || 'Measured'}</div>
+                    </div>
+                    <div class="consciousness-item">
+                        <h3>Understanding</h3>
+                        <div class="consciousness-value">\${(caps.understandingDepth * 100).toFixed(1)}%</div>
+                        <div class="consciousness-label">\${sources.understandingDepth || sources.understanding || 'Measured'}</div>
+                    </div>
+                    <div class="consciousness-item">
+                        <h3>Adaptability</h3>
+                        <div class="consciousness-value">\${(caps.adaptability * 100).toFixed(1)}%</div>
+                        <div class="consciousness-label">\${sources.adaptability || sources.creativity || 'Measured'}</div>
+                    </div>
+                \`;
+            }
+
+            function normalizeCapabilities(data) {
+                const d = data.data || {};
+                if (d.capabilities) {
+                    return { caps: d.capabilities, sources: d.capabilities.sources || {} };
+                }
+                if (d.consciousnessMetrics) {
+                    const m = d.consciousnessMetrics;
+                    const s = d.consciousnessSources || {};
+                    return {
+                        caps: {
+                            reasoningQuality: m.awareness,
+                            systemDepth: m.selfAwareness,
+                            understandingDepth: m.understanding,
+                            adaptability: m.creativity,
+                        },
+                        sources: {
+                            reasoningQuality: s.awareness,
+                            systemDepth: s.selfAwareness,
+                            understandingDepth: s.understanding,
+                            adaptability: s.creativity,
+                        },
+                    };
+                }
+                return null;
+            }
+
             try {
-                console.log('Loading system status...');
-                
-                // Check if consciousness grid exists
-                const consciousnessGrid = document.getElementById('consciousnessGrid');
-                if (!consciousnessGrid) {
-                    console.error('Consciousness grid not found!');
-                    return;
+                let capResponse = await fetch('/capabilities');
+                if (!capResponse.ok) {
+                    capResponse = await fetch('/consciousness');
                 }
-                
-                console.log('Consciousness grid found, making fetch request...');
-                const response = await fetch('/capabilities');
-                
-                if (!response.ok) {
-                    throw new Error('HTTP error! status: ' + response.status);
+                if (!capResponse.ok) {
+                    throw new Error('HTTP ' + capResponse.status);
                 }
-                
-                const data = await response.json();
-                console.log('Capabilities data received:', data);
-                
-                if (data.success) {
-                    const caps = data.data.capabilities;
-                    const sources = caps.sources || {};
-                    
-                    if (!caps || caps.reasoningQuality == null) {
-                        throw new Error('Invalid capabilities data structure');
-                    }
-                    
-                    consciousnessGrid.innerHTML = \`
-                        <div class="consciousness-item">
-                            <h3>Reasoning</h3>
-                            <div class="consciousness-value">\${(caps.reasoningQuality * 100).toFixed(1)}%</div>
-                            <div class="consciousness-label">\${sources.reasoningQuality || 'Measured'}</div>
-                        </div>
-                        <div class="consciousness-item">
-                            <h3>System Depth</h3>
-                            <div class="consciousness-value">\${(caps.systemDepth * 100).toFixed(1)}%</div>
-                            <div class="consciousness-label">\${sources.systemDepth || 'Measured'}</div>
-                        </div>
-                        <div class="consciousness-item">
-                            <h3>Understanding</h3>
-                            <div class="consciousness-value">\${(caps.understandingDepth * 100).toFixed(1)}%</div>
-                            <div class="consciousness-label">\${sources.understandingDepth || 'Measured'}</div>
-                        </div>
-                        <div class="consciousness-item">
-                            <h3>Adaptability</h3>
-                            <div class="consciousness-value">\${(caps.adaptability * 100).toFixed(1)}%</div>
-                            <div class="consciousness-label">\${sources.adaptability || 'Measured'}</div>
-                        </div>
-                    \`;
-                    
-                    const metricsResponse = await fetch('/status');
-                    const metricsData = await metricsResponse.json();
-                    
-                    if (metricsData.success) {
-                        const metrics = metricsData.data.history;
-                        const performance = metricsData.data.performance;
-                        const ml = metricsData.data.ml;
-                        
-                        const metricsGrid = document.getElementById('metricsGrid');
-                        metricsGrid.innerHTML = \`
-                            <div class="metric-item">
-                                <div class="metric-value">\${metrics.knowledgeBaseSize}</div>
-                                <div class="metric-label">Knowledge Base</div>
-                                <div class="metric-status">ACTIVE</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">\${metrics.reasoningHistorySize}</div>
-                                <div class="metric-label">Reasoning History</div>
-                                <div class="metric-status">ACTIVE</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">\${metrics.learningHistorySize}</div>
-                                <div class="metric-label">Learning History</div>
-                                <div class="metric-status">ACTIVE</div>
-                            </div>
-                            <div class="metric-item">
-                                <div class="metric-value">\${metrics.creativeHistorySize}</div>
-                                <div class="metric-label">Creative History</div>
-                                <div class="metric-status">ACTIVE</div>
-                            </div>
-                        \`;
-                        
-                        // Update advanced metrics
-                        updateAdvancedMetrics(performance, ml);
-                    }
+                const capData = await capResponse.json();
+                const normalized = normalizeCapabilities(capData);
+                if (!capData.success || !normalized || normalized.caps.reasoningQuality == null) {
+                    throw new Error('Invalid capabilities response');
                 }
+                renderCapabilities(normalized.caps, normalized.sources);
             } catch (error) {
-                console.error('Failed to load system status:', error);
-                // Display error in the UI for debugging
-                const consciousnessGrid = document.getElementById('consciousnessGrid');
-                if (consciousnessGrid) {
-                    consciousnessGrid.innerHTML = \`
-                        <div class="consciousness-item">
-                            <h3>Error</h3>
-                            <div class="consciousness-value">Failed to load</div>
-                            <div class="consciousness-label">Check console for details</div>
+                console.error('Failed to load capabilities:', error);
+                consciousnessGrid.innerHTML = \`
+                    <div class="consciousness-item">
+                        <h3>Error</h3>
+                        <div class="consciousness-value">Failed to load</div>
+                        <div class="consciousness-label">Hard refresh (Ctrl+Shift+R) or try workers.dev URL</div>
+                    </div>
+                \`;
+                return;
+            }
+
+            try {
+                const metricsResponse = await fetch('/status');
+                if (!metricsResponse.ok) return;
+                const metricsData = await metricsResponse.json();
+                if (!metricsData.success) return;
+
+                const metrics = metricsData.data.history || metricsData.data.metrics;
+                const performance = metricsData.data.performance || {};
+                const ml = metricsData.data.ml || metricsData.data.realML || {};
+                const metricsGrid = document.getElementById('metricsGrid');
+                if (metrics && metricsGrid) {
+                    metricsGrid.innerHTML = \`
+                        <div class="metric-item">
+                            <div class="metric-value">\${metrics.knowledgeBaseSize ?? 0}</div>
+                            <div class="metric-label">Knowledge Base</div>
+                            <div class="metric-status">ACTIVE</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">\${metrics.reasoningHistorySize ?? 0}</div>
+                            <div class="metric-label">Reasoning History</div>
+                            <div class="metric-status">ACTIVE</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">\${metrics.learningHistorySize ?? 0}</div>
+                            <div class="metric-label">Learning History</div>
+                            <div class="metric-status">ACTIVE</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">\${metrics.creativeHistorySize ?? 0}</div>
+                            <div class="metric-label">Creative History</div>
+                            <div class="metric-status">ACTIVE</div>
                         </div>
                     \`;
                 }
+                updateAdvancedMetrics(performance, ml);
+            } catch (error) {
+                console.error('Failed to load status metrics:', error);
             }
         }
         
+        function setMetricText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        }
+
         function updateAdvancedMetrics(performance, ml) {
-            document.getElementById('activeNeurons').textContent = String(ml.tasksLearned);
-            document.getElementById('synapticConnections').textContent = String(ml.conceptsAcquired);
-            document.getElementById('neuralPlasticity').textContent = ((performance.adaptability || 0) * 100).toFixed(1) + '%';
-            document.getElementById('cpuUsage').textContent = ((performance.reasoningQuality || 0) * 100).toFixed(1) + '%';
-            document.getElementById('memoryUsage').textContent = ((performance.learningEfficiency || 0) * 100).toFixed(1) + '%';
-            document.getElementById('processingSpeed').textContent = ((ml.averageAccuracy || 0) * 100).toFixed(1) + '% acc';
-            document.getElementById('quantumCoherence').textContent = String(ml.tasksLearned);
-            document.getElementById('superpositionStates').textContent = String(ml.conceptsAcquired);
-            document.getElementById('entanglementPairs').textContent = ((ml.averageAccuracy || 0) * 100).toFixed(1) + '%';
-            document.getElementById('selfAwareness').textContent = ((performance.systemDepth || 0) * 100).toFixed(1) + '%';
-            document.getElementById('understandingLevel').textContent = ((performance.crossDomainIntegration || 0) * 100).toFixed(1) + '%';
-            document.getElementById('creativeSynthesis').textContent = ((performance.adaptability || 0) * 100).toFixed(1) + '%';
+            setMetricText('activeNeurons', String(ml.tasksLearned ?? 0));
+            setMetricText('synapticConnections', String(ml.conceptsAcquired ?? 0));
+            setMetricText('neuralPlasticity', ((performance.adaptability || 0) * 100).toFixed(1) + '%');
+            setMetricText('cpuUsage', ((performance.reasoningQuality || 0) * 100).toFixed(1) + '%');
+            setMetricText('memoryUsage', ((performance.learningEfficiency || 0) * 100).toFixed(1) + '%');
+            setMetricText('processingSpeed', ((ml.averageAccuracy || 0) * 100).toFixed(1) + '% acc');
+            setMetricText('quantumCoherence', String(ml.tasksLearned ?? 0));
+            setMetricText('superpositionStates', String(ml.conceptsAcquired ?? 0));
+            setMetricText('entanglementPairs', ((ml.averageAccuracy || 0) * 100).toFixed(1) + '%');
+            setMetricText('selfAwareness', ((performance.systemDepth || 0) * 100).toFixed(1) + '%');
+            setMetricText('understandingLevel', ((performance.crossDomainIntegration || 0) * 100).toFixed(1) + '%');
+            setMetricText('creativeSynthesis', ((performance.adaptability || 0) * 100).toFixed(1) + '%');
         }
         
         function escapeHtml(text) {
