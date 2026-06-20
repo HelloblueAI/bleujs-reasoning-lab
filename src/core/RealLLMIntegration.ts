@@ -3,6 +3,8 @@
  * BleuJS API first, then Anthropic/OpenAI fallback.
  */
 
+import { isClarificationOnlyResponse } from '../lab/reasonPrompt';
+
 export type LLMProvider = 'bleujs' | 'anthropic' | 'openai';
 
 export interface LLMResponse {
@@ -188,13 +190,18 @@ export class RealLLMIntegration {
   private async queryWithFallback(
     prompt: string,
     systemPrompt: string,
-    maxTokens: number
+    maxTokens: number,
+    qualityCheckInput?: string
   ): Promise<LLMResponse> {
     let lastError: Error | undefined;
 
     if (this.bleujsKey) {
       try {
-        return await this.queryBleuJS(prompt, systemPrompt, maxTokens);
+        const result = await this.queryBleuJS(prompt, systemPrompt, maxTokens);
+        if (!qualityCheckInput || !isClarificationOnlyResponse(result.answer, qualityCheckInput)) {
+          return result;
+        }
+        console.warn('BleuJS returned clarification-only response, trying fallback');
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
         console.error('BleuJS failed:', lastError.message);
@@ -228,7 +235,7 @@ export class RealLLMIntegration {
       options?.systemPrompt ??
       'You are BleuJS Reasoning. Provide clear, accurate, thoughtful responses.';
     const maxTokens = options?.maxTokens ?? 1024;
-    return this.queryWithFallback(question, systemPrompt, maxTokens);
+    return this.queryWithFallback(question, systemPrompt, maxTokens, question);
   }
 
   /**

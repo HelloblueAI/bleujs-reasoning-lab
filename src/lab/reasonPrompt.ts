@@ -23,3 +23,29 @@ export function getReasonSystemPrompt(simple: boolean): string {
 export function getReasonMaxTokens(simple: boolean): number {
   return simple ? 256 : 1024;
 }
+
+/** Detect LLM answers that ask for clarification instead of answering. */
+export function isClarificationOnlyResponse(answer: string, input: string): boolean {
+  if (!isSimpleFactualQuestion(input)) {
+    return false;
+  }
+
+  const lower = answer.toLowerCase();
+  const clarificationPhrases = [
+    'restate the question',
+    'missing detail',
+    'answerable as soon as',
+    'could you clarify',
+    'need more information',
+    'please provide more',
+    'what would you like',
+    'say if you want a short verdict',
+  ];
+
+  if (clarificationPhrases.some((phrase) => lower.includes(phrase))) {
+    return true;
+  }
+
+  const bulletCount = (answer.match(/^\s*[•\-\*]/gm) || []).length;
+  return bulletCount >= 3 && answer.length < 800;
+}
