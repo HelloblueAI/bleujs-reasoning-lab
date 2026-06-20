@@ -35,7 +35,7 @@ pnpm run deploy:worker:prod  # deploy primary worker
 # Health & metrics
 curl https://agi-primary.morning-star-e026.workers.dev/health
 curl https://agi-primary.morning-star-e026.workers.dev/metrics
-# data.llmRouting: bleujs / anthropic / openai / local / none counts + fallbackRate
+# data.llmRouting: bleujs / anthropic / openai / local / none counts + fallbackRate (per worker isolate)
 
 # Capabilities & reasoning
 curl https://agi-primary.morning-star-e026.workers.dev/capabilities

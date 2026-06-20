@@ -87,14 +87,17 @@ export function buildLabMetricsPayload(
       systemDepth: metrics.systemDepth,
     },
     history: buildHonestHistoryMetrics(mlStats, counters),
-    llmRouting: llmRouting ?? {
-      bleujs: 0,
-      anthropic: 0,
-      openai: 0,
-      local: 0,
-      none: 0,
-      llmTotal: 0,
-      fallbackRate: 0,
+    llmRouting: {
+      ...(llmRouting ?? {
+        bleujs: 0,
+        anthropic: 0,
+        openai: 0,
+        local: 0,
+        none: 0,
+        llmTotal: 0,
+        fallbackRate: 0,
+      }),
+      scope: 'isolate' as const,
     },
     goals,
   };
