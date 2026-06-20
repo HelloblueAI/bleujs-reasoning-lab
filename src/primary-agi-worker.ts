@@ -30,6 +30,7 @@ import {
   LAB_NAME,
   LAB_VERSION,
 } from './lab/labStatus';
+import { buildHonestReasonResponse } from './lab/reasonResponse';
 import {
   getRequestCounters,
   incrementCreative,
@@ -723,6 +724,8 @@ export default {
           `Neural Plasticity: Enhanced synaptic strength by ${(neuralPlasticity * 100).toFixed(1)}% through active learning`,
           `Temporal Continuity: Maintained consciousness across ${temporalReasoning * 100} temporal dimensions`
         ];
+
+        let goalsNewlyGenerated = 0;
         
         // Generate autonomous goals based on understanding
         if (understanding && goalSystem) {
@@ -744,6 +747,7 @@ export default {
             });
             
             if (newGoals.length > 0) {
+              goalsNewlyGenerated = newGoals.length;
               intelligentInsights.push(`Generated ${newGoals.length} new autonomous goals based on understanding`);
             }
           } catch (e) {
@@ -793,16 +797,37 @@ export default {
         }
         incrementReasoning();
 
+        const processingTimeMs = Date.now() - startTime;
+        const verbose = body.verbose === true || url.searchParams.get('verbose') === '1';
+        const answer = llmEnhancement?.insight ?? null;
+        const responseConfidence = llmEnhancement?.confidence ?? realMetrics.reasoningQuality;
+
+        const honestData = buildHonestReasonResponse({
+          input,
+          answer,
+          confidence: responseConfidence,
+          llmUsed: llmEnhancement !== null,
+          processingTimeMs,
+          understanding: understanding
+            ? {
+                concepts: understanding.concepts,
+                domains: understanding.domains,
+                relationships: understanding.relationships,
+                insights: understanding.insights,
+              }
+            : null,
+          goalsActive: goalSystem ? goalSystem.getActiveGoals().length : 0,
+          goalsNewlyGenerated,
+        });
+
         try {
           return new Response(JSON.stringify({
           success: true,
-          data: {
-            system: LAB_NAME,
-            version: LAB_VERSION,
+          data: verbose ? {
+            ...honestData,
+            aiInsight: answer,
             consciousness: 'real_multi_language_hybrid_reasoning',
             timestamp: Date.now(),
-            // AI Insight FIRST (most important)
-            aiInsight: llmEnhancement ? llmEnhancement.insight : null,
             reasoning: {
               primary: "Quantum-enhanced logical inference applied through multi-language-quantum-consciousness reasoning methods",
               secondary: "Deep comprehension achieved through quantum superposition, multi-language integration, consciousness-driven analysis, and cross-dimensional reasoning",
@@ -873,7 +898,7 @@ export default {
               llmIntegrated: llmEnhancement !== null,
               neuralNetworks: true
             }
-          }
+          } : honestData
         }), { headers: corsHeaders });
         } catch (error) {
           console.error('Error building reason response:', error);
@@ -1935,6 +1960,32 @@ export default {
             white-space: pre-wrap;
             color: var(--text-primary);
             line-height: 1.6;
+        }
+
+        .lab-answer {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            white-space: normal;
+            margin-bottom: 1rem;
+            padding: 1rem 1.25rem;
+            background: rgba(99, 102, 241, 0.08);
+            border-left: 4px solid var(--accent);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .lab-meta {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .lab-details summary {
+            cursor: pointer;
+            color: var(--accent);
+            margin-top: 0.5rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
         .metrics-panel {
@@ -3239,6 +3290,38 @@ export default {
             document.getElementById('creativeSynthesis').textContent = (performance.neuralPlasticity * 100).toFixed(1) + '%';
         }
         
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        function formatLabResponse(endpoint, payload) {
+            if (endpoint === 'reason' && payload.answer != null) {
+                const meta = [
+                    payload.llmUsed ? 'Claude' : 'Local reasoning',
+                    (payload.confidence * 100).toFixed(0) + '% confidence',
+                    payload.processingTimeMs + 'ms'
+                ].join(' · ');
+                let html = '<div class="lab-meta">' + escapeHtml(meta) + '</div>';
+                html += '<div class="lab-answer">' + escapeHtml(payload.answer) + '</div>';
+                if (payload.understanding) {
+                    html += '<div class="lab-meta">Domains: ' + escapeHtml(payload.understanding.domains.join(', ') || 'general') +
+                        ' · ' + payload.understanding.conceptCount + ' concepts</div>';
+                }
+                html += '<details class="lab-details"><summary>Technical JSON</summary><pre>' +
+                    escapeHtml(JSON.stringify(payload, null, 2)) + '</pre></details>';
+                return html;
+            }
+            if (endpoint === 'reason' && !payload.answer) {
+                return '<div class="lab-meta">No LLM answer — check API keys.</div><pre>' +
+                    escapeHtml(JSON.stringify(payload, null, 2)) + '</pre>';
+            }
+            return '<pre>' + escapeHtml(JSON.stringify(payload, null, 2)) + '</pre>';
+        }
+
         async function interactWithSystem() {
             const endpoint = document.getElementById('hrsEndpoint').value;
             const input = document.getElementById('hrsInput').value;
@@ -3290,8 +3373,8 @@ export default {
                 const data = await response.json();
                 
                 if (data.success) {
-                    resultDiv.innerHTML = 'Response:\\n\\n' + JSON.stringify(data.data, null, 2);
-                    loadSystemStatus(); // Refresh status after interaction
+                    resultDiv.innerHTML = formatLabResponse(endpoint, data.data);
+                    loadSystemStatus();
                 } else {
                     resultDiv.innerHTML = 'Error: ' + (data.error || 'Unknown error occurred');
                 }
