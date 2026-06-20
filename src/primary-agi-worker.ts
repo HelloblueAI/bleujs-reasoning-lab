@@ -30,12 +30,18 @@ import { buildHonestReasonResponse } from './lab/reasonResponse';
 import { stripMarkdownEmphasis, tryArithmeticReason } from './lab/arithmeticReason';
 import { getReasonMaxTokens, getReasonSystemPrompt, isSimpleFactualQuestion } from './lab/reasonPrompt';
 import {
+  buildLlmRoutingPayload,
+  readLlmRoutingFromKv,
+  recordLlmRoutingInKv,
+} from './lab/llmRoutingMetrics';
+import {
   getLlmProviderCounters,
   getRequestCounters,
   incrementCreative,
   incrementLearning,
   incrementReasoning,
   recordReasonProvider,
+  type ReasonProvider,
 } from './lab/requestCounters';
 
 /** Structured log for Workers Observability (JSON parseable). */
@@ -65,6 +71,25 @@ interface Env {
   OPENAI_API_KEY?: string;
   ENVIRONMENT?: string;
   AGI_CACHE?: KVNamespace;
+}
+
+function recordReasonProviderForMetrics(
+  env: Env,
+  ctx: ExecutionContext,
+  provider: ReasonProvider
+): void {
+  recordReasonProvider(provider);
+  if (env.AGI_CACHE) {
+    ctx.waitUntil(recordLlmRoutingInKv(env.AGI_CACHE, provider));
+  }
+}
+
+async function getLlmRoutingForMetrics(env: Env) {
+  if (env.AGI_CACHE) {
+    const counts = await readLlmRoutingFromKv(env.AGI_CACHE);
+    return buildLlmRoutingPayload(counts, 'global');
+  }
+  return getLlmProviderCounters();
 }
 
 // Helper function to validate and sanitize input
@@ -332,7 +357,7 @@ export default {
             counters,
             llmIntegration ? llmIntegration.isAvailable() : false,
             goalSummary,
-            getLlmProviderCounters()
+            await getLlmRoutingForMetrics(env)
           ),
         });
         return new Response(metricsBody, { headers: corsHeaders });
@@ -485,15 +510,15 @@ export default {
         }
         incrementReasoning();
         if (localArithmetic) {
-          recordReasonProvider('local');
+          recordReasonProviderForMetrics(env, ctx, 'local');
         } else if (llmEnhancement?.provider === 'bleujs') {
-          recordReasonProvider('bleujs');
+          recordReasonProviderForMetrics(env, ctx, 'bleujs');
         } else if (llmEnhancement?.provider === 'anthropic') {
-          recordReasonProvider('anthropic');
+          recordReasonProviderForMetrics(env, ctx, 'anthropic');
         } else if (llmEnhancement?.provider === 'openai') {
-          recordReasonProvider('openai');
+          recordReasonProviderForMetrics(env, ctx, 'openai');
         } else {
-          recordReasonProvider('none');
+          recordReasonProviderForMetrics(env, ctx, 'none');
         }
 
         const honestData = buildHonestReasonResponse({

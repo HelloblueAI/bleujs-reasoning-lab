@@ -1,6 +1,7 @@
 /** Process-scoped request counters for honest history metrics on Workers. */
 
 import type { LLMProvider } from '../core/RealLLMIntegration';
+import { buildLlmRoutingPayload } from './llmRoutingMetrics';
 
 let reasoningCount = 0;
 let learningCount = 0;
@@ -38,19 +39,7 @@ export function getRequestCounters(): { reasoning: number; learning: number; cre
 
 export function getLlmProviderCounters() {
   const { bleujs, anthropic, openai, local, none } = llmProviderCounts;
-  const llmTotal = bleujs + anthropic + openai;
-  const fallbackTotal = anthropic + openai;
-
-  return {
-    bleujs,
-    anthropic,
-    openai,
-    local,
-    none,
-    llmTotal,
-    /** Share of LLM-backed /reason calls that used Anthropic or OpenAI instead of BleuJS. */
-    fallbackRate: llmTotal > 0 ? fallbackTotal / llmTotal : 0,
-  };
+  return buildLlmRoutingPayload({ bleujs, anthropic, openai, local, none }, 'isolate');
 }
 
 /** @internal Test helper */

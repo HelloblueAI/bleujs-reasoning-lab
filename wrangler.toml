@@ -31,12 +31,11 @@ routes = []
 [env.development.vars]
 ENVIRONMENT = "development"
 
-# Optional: KV for response cache (create with: wrangler kv namespace create AGI_CACHE)
-# Uncomment and set id/preview_id after creating the namespace
-# [[kv_namespaces]]
-# binding = "AGI_CACHE"
-# id = "<YOUR_KV_NAMESPACE_ID>"
-# preview_id = "<YOUR_PREVIEW_NAMESPACE_ID>"
+# Optional KV: response cache + global llmRouting metrics (shared across isolates)
+[[env.production.kv_namespaces]]
+binding = "AGI_CACHE"
+id = "04cce616bc4e473d9b421051f1b97e51"
+preview_id = "4a12bd192b30481e8987bcef25f5f65f"
 
 # Observability: structured logs and tracing (Workers Observability)
 [observability]

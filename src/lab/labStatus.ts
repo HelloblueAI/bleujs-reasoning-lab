@@ -5,6 +5,7 @@
 import type { RealMetrics } from '@/core/RealMetricsCalculator';
 import type { CapabilityDisplayMetrics } from '@/core/CapabilityDisplayMetrics';
 import type { Goal } from '@/core/AutonomousGoalSystem';
+import { buildLlmRoutingPayload } from './llmRoutingMetrics';
 
 export const LAB_VERSION = '5.1.0';
 /** Public product name (API + dashboard) */
@@ -87,18 +88,10 @@ export function buildLabMetricsPayload(
       systemDepth: metrics.systemDepth,
     },
     history: buildHonestHistoryMetrics(mlStats, counters),
-    llmRouting: {
-      ...(llmRouting ?? {
-        bleujs: 0,
-        anthropic: 0,
-        openai: 0,
-        local: 0,
-        none: 0,
-        llmTotal: 0,
-        fallbackRate: 0,
-      }),
-      scope: 'isolate' as const,
-    },
+    llmRouting: llmRouting ?? buildLlmRoutingPayload(
+      { bleujs: 0, anthropic: 0, openai: 0, local: 0, none: 0 },
+      'isolate'
+    ),
     goals,
   };
 }
