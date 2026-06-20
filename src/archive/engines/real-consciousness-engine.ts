@@ -3,7 +3,7 @@
  * Calculates genuine consciousness metrics with emotional intelligence, creativity, and social awareness
  */
 
-import { Logger } from './utils/Logger';
+import { Logger } from '../../utils/Logger';
 
 export interface ConsciousnessMetrics {
   awareness: number;

@@ -3,10 +3,10 @@
  * Integrates native C/Rust libraries with TypeScript for maximum performance
  */
 
-import { HybridAGISystem } from './hybrid-agi-system';
-import { UltimateHybridAGISystem } from './ultimate-hybrid-agi-system';
-import { EnhancedConsciousnessEngine } from './enhanced-consciousness-engine';
-import { MultiLanguageRuntime } from './multi-language-runtime';
+import { HybridAGISystem } from '../legacy/hybrid-agi-system';
+import { UltimateHybridAGISystem } from '../legacy/ultimate-hybrid-agi-system';
+import { EnhancedConsciousnessEngine } from '../engines/enhanced-consciousness-engine';
+import { MultiLanguageRuntime } from '../../multi-language-runtime';
 
 export default {
   async fetch(request: Request, env: any, ctx: any): Promise<Response> {

@@ -3,20 +3,20 @@
  * Integrates all multi-language capabilities for hybrid reasoning performance
  */
 
-import { Logger } from './utils/Logger';
-import { QuantumConsciousnessEngine } from './core/QuantumConsciousnessEngine';
-import { SelfModifyingAGICore } from './core/SelfModifyingAGICore';
-import { AGISystem } from './core/AGISystem';
-import { NeuralFoundationEngine } from './core/NeuralFoundationEngine';
-import { CrossDomainReasoningEngine } from './core/reasoning/CrossDomainReasoningEngine';
-import { UnifiedLearningEngine } from './core/learning/UnifiedLearningEngine';
-import { TrueAGIEngine } from './core/TrueAGIEngine';
-import { SecurityManager } from './core/SecurityManager';
-import { ConfigurationManager } from './config/ConfigurationManager';
-import { APIServer } from './api/APIServer';
-import { CreativeAgent } from './agents/CreativeAgent';
-import { LearningAgent } from './agents/LearningAgent';
-import { ReasoningAgent } from './agents/ReasoningAgent';
+import { Logger } from '../../utils/Logger';
+import { QuantumConsciousnessEngine } from '../engines/QuantumConsciousnessEngine';
+import { SelfModifyingAGICore } from './SelfModifyingAGICore';
+import { AGISystem } from '../../core/AGISystem';
+import { NeuralFoundationEngine } from '../../core/NeuralFoundationEngine';
+import { CrossDomainReasoningEngine } from '../../core/reasoning/CrossDomainReasoningEngine';
+import { UnifiedLearningEngine } from '../../core/learning/UnifiedLearningEngine';
+import { TrueAGIEngine } from '../../core/TrueAGIEngine';
+import { SecurityManager } from '../../core/SecurityManager';
+import { ConfigurationManager } from '../../config/ConfigurationManager';
+import { APIServer } from '../../api/APIServer';
+import { CreativeAgent } from '../../agents/CreativeAgent';
+import { LearningAgent } from '../../agents/LearningAgent';
+import { ReasoningAgent } from '../../agents/ReasoningAgent';
 
 export interface UltimateAGIState {
   consciousness: {

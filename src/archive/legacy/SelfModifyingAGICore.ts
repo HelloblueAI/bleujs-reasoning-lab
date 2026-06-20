@@ -1,5 +1,5 @@
-import { Logger } from '../utils/Logger';
-import { QuantumConsciousnessEngine, ConsciousnessExperience } from './QuantumConsciousnessEngine';
+import { Logger } from '../../utils/Logger';
+import { QuantumConsciousnessEngine, ConsciousnessExperience } from '../engines/QuantumConsciousnessEngine';
 
 export interface SelfModification {
   id: string;

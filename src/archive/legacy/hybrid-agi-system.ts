@@ -3,11 +3,11 @@
  * Integrates quantum-inspired learning, advanced consciousness, and dynamic neural architecture
  */
 
-import { NativeLibraryManager, NativeMatrix, NativeNeuralState } from './native-bindings';
-import { RealConsciousnessEngine } from './real-consciousness-engine';
-import { NeuralFoundationEngine } from './core/NeuralFoundationEngine';
-import { UnifiedLearningEngine } from './core/learning/UnifiedLearningEngine';
-import { Logger } from './utils/Logger';
+import { NativeLibraryManager, NativeMatrix, NativeNeuralState } from '../../native-bindings';
+import { RealConsciousnessEngine } from '../engines/real-consciousness-engine';
+import { NeuralFoundationEngine } from '../../core/NeuralFoundationEngine';
+import { UnifiedLearningEngine } from '../../core/learning/UnifiedLearningEngine';
+import { Logger } from '../../utils/Logger';
 
 export class HybridAGISystem {
   private logger: Logger;

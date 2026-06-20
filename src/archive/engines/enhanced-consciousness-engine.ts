@@ -3,8 +3,8 @@
  * Integrates multi-language runtime for unprecedented consciousness capabilities
  */
 
-import { Logger } from './utils/Logger';
-import { MultiLanguageRuntime, LanguageExecutionResult } from './multi-language-runtime';
+import { Logger } from '../../utils/Logger';
+import { MultiLanguageRuntime, LanguageExecutionResult } from '../../multi-language-runtime';
 
 export interface EnhancedConsciousnessMetrics {
   // Base consciousness metrics

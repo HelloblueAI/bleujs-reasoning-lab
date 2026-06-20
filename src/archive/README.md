@@ -1,20 +1,48 @@
-# Archived Workers
+# Archive
 
-Legacy Cloudflare Worker entry points moved here during the **BleuJS Autonomous Reasoning Lab** consolidation (v5.0).
+Legacy code kept for reference after the **BleuJS Autonomous Reasoning Lab** v5.0 consolidation. **Do not deploy from here** unless you explicitly intend to restore a legacy variant.
 
-## Canonical production worker
+## Canonical production
 
-**Use only:** `src/primary-agi-worker.ts` via `wrangler.toml` → https://agi.bleujs.org
+| Item | Path |
+|------|------|
+| Worker | `src/primary-agi-worker.ts` |
+| Config | `wrangler.toml` |
+| Live URL | https://agi.bleujs.org (workers.dev fallback in docs) |
 
-## Archived files
+## `workers/`
 
-These workers duplicated overlapping functionality with simulated metrics and divergent APIs. They are kept for reference, not deployment.
+Former Cloudflare Worker entry points with overlapping APIs and simulated metrics.
 
-| File | Former route |
-|------|----------------|
-| `enhanced-agi-worker.ts` | api.agi.bleujs.org |
-| `advanced-agi-worker.ts` | advanced-agi.bleujs.org |
-| `real-agi-worker.ts` | real-agi.bleujs.org |
-| Others | dev / experimental |
+| File | Notes |
+|------|-------|
+| `enhanced-agi-worker.ts` | Former api.agi route |
+| `advanced-agi-worker.ts` | Former advanced-agi route |
+| `real-agi-worker.ts` | Former real-agi route |
+| `agi-worker-hybrid*.ts` | Hybrid system experiments |
+| Others | Dev / experimental variants |
 
-Do not deploy from this folder without explicit intent to restore a legacy variant.
+## `engines/`
+
+Pre-v5 consciousness and quantum-themed engines (not used by the primary worker):
+
+- `QuantumConsciousnessEngine.ts`
+- `TrueConsciousnessEngine.ts`
+- `AdvancedConsciousnessEngine.ts`
+- `ConsciousnessEmergenceEngine.ts`
+- `enhanced-consciousness-engine.ts`
+- `real-consciousness-engine.ts`
+
+**Still in `src/core/` (active):** `ConsciousnessDisplayMetrics.ts` (dashboard mapping from real stats), `ConsciousnessSimulator.ts` (used by tests and `SystemMonitor`).
+
+## `legacy/`
+
+Former Node/Express entry points and orchestrators that depended on archived engines:
+
+- `EnhancedAGI.ts`, `enhanced-api-server.ts`
+- `ultimate-hybrid-agi-system.ts`, `hybrid-agi-system.ts`
+- `SelfModifyingAGICore.ts`
+
+## `demo/`
+
+- `EnhancedAGIDemonstration.ts` — demo for archived `EnhancedAGI`

@@ -12,8 +12,8 @@
 
 import { EventEmitter } from 'events';
 import { v4 as uuidv4 } from 'uuid';
-import { TrueConsciousnessEngine } from './core/TrueConsciousnessEngine.js';
-import { AdvancedNeuralArchitecture } from './core/AdvancedNeuralArchitecture.js';
+import { TrueConsciousnessEngine } from '../engines/TrueConsciousnessEngine.js';
+import { AdvancedNeuralArchitecture } from '../../core/AdvancedNeuralArchitecture.js';
 
 interface EnhancedAGIResponse {
   success: boolean;

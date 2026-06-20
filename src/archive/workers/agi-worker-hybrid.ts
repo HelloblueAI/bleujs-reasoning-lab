@@ -3,7 +3,7 @@
  * Integrates native C/Rust libraries with TypeScript for maximum performance
  */
 
-import { HybridAGISystem } from './hybrid-agi-system';
+import { HybridAGISystem } from '../legacy/hybrid-agi-system';
 
 export default {
   async fetch(request: Request, env: any, ctx: any): Promise<Response> {

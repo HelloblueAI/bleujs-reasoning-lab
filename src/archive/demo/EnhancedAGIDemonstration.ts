@@ -12,7 +12,7 @@
  * - Autonomous Decision Making
  */
 
-import { EnhancedAGI } from '../EnhancedAGI.js';
+import { EnhancedAGI } from '../legacy/EnhancedAGI.js';
 
 class EnhancedAGIDemonstration {
   private agi: EnhancedAGI;

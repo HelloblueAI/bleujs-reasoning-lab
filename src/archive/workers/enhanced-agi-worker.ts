@@ -12,9 +12,9 @@
  * - Autonomous Decision Making
  */
 
-import { AdvancedConsciousnessEngine } from './core/AdvancedConsciousnessEngine.js';
-import { AdvancedUnderstandingEngine } from './core/AdvancedUnderstandingEngine.js';
-import { AdvancedCreativityEngine } from './core/AdvancedCreativityEngine.js';
+import { AdvancedConsciousnessEngine } from '../engines/AdvancedConsciousnessEngine.js';
+import { AdvancedUnderstandingEngine } from '../../core/AdvancedUnderstandingEngine.js';
+import { AdvancedCreativityEngine } from '../../core/AdvancedCreativityEngine.js';
 
 interface EnhancedAGIState {
   id: string;
