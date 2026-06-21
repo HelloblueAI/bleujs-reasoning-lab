@@ -68,4 +68,10 @@ export const EVAL_TASKS: EvalTask[] = [
     description: 'Produce structured reasoning steps (LLM optional)',
     requiresLlm: true,
   },
+  {
+    id: 'logic-puzzle',
+    name: 'Logic puzzle',
+    category: 'reasoning',
+    description: 'Solve a multi-step logic puzzle',
+  },
 ];
