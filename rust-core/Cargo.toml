@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["AGI Team <agi@bleujs.org>"]
 description = "High-performance Rust core for multi-language AGI system"
 license = "MIT"
-repository = "https://github.com/HelloblueAI/neural-quantum-consciousness-framework"
+repository = "https://github.com/HelloblueAI/bleujs-reasoning-lab"
 
 [dependencies]
 # Async runtime

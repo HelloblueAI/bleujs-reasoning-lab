@@ -9,9 +9,11 @@ import { buildLlmRoutingPayload } from './llmRoutingMetrics';
 
 export const LAB_VERSION = '5.1.0';
 /** Public product name (API + dashboard) */
-export const LAB_NAME = 'BleuJS Reasoning';
+export const LAB_NAME = 'BleuJS Reasoning Lab';
 /** Internal project name — used in docs and repo */
-export const LAB_PROJECT_NAME = 'BleuJS Autonomous Reasoning Lab';
+export const LAB_PROJECT_NAME = 'BleuJS Reasoning Lab';
+/** GitHub repository */
+export const GITHUB_REPO = 'https://github.com/HelloblueAI/bleujs-reasoning-lab';
 
 export type MlStats = {
   tasksLearned: number;

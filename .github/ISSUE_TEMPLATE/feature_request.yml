@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        See [docs/AGI_LAB_PLAN.md](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/blob/main/docs/AGI_LAB_PLAN.md) and [docs/GOOD_FIRST_ISSUES.md](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/blob/main/docs/GOOD_FIRST_ISSUES.md).
+        See [docs/AGI_LAB_PLAN.md](https://github.com/HelloblueAI/bleujs-reasoning-lab/blob/main/docs/AGI_LAB_PLAN.md) and [docs/GOOD_FIRST_ISSUES.md](https://github.com/HelloblueAI/bleujs-reasoning-lab/blob/main/docs/GOOD_FIRST_ISSUES.md).
 
   - type: textarea
     id: problem

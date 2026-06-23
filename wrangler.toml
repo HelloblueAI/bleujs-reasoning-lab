@@ -1,4 +1,4 @@
-# AGI Primary Worker - production entrypoint at agi.bleujs.org
+# BleuJS Reasoning Lab — primary worker at agi.bleujs.org
 # Run: pnpm run worker:dev | pnpm run deploy:worker:prod
 name = "agi-primary"
 main = "src/primary-agi-worker.ts"

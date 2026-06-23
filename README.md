@@ -1,7 +1,7 @@
-### BleuJS Reasoning
+### BleuJS Reasoning Lab
 
-> **Product:** BleuJS Reasoning — live at https://agi.bleujs.org  
-> **Project (research lab):** BleuJS Autonomous Reasoning Lab — see [docs/AGI_LAB_PLAN.md](docs/AGI_LAB_PLAN.md)  
+> **Product:** BleuJS Reasoning Lab — live at https://agi.bleujs.org  
+> **Repository:** https://github.com/HelloblueAI/bleujs-reasoning-lab  
 > **API (workers.dev):** https://agi-primary.morning-star-e026.workers.dev  
 > **Mission:** Measurable reasoning—not simulated AGI theater.
 
@@ -50,7 +50,7 @@ Example response (BleuJS primary path):
 {
   "success": true,
   "data": {
-    "system": "BleuJS Reasoning",
+    "system": "BleuJS Reasoning Lab",
     "answer": "Tehran is the capital city of Iran...",
     "llmUsed": true,
     "llmProvider": "bleujs"
@@ -98,7 +98,7 @@ primary-agi-worker.ts
 | `pnpm run test:unit` | Unit tests |
 | `pnpm run type-check` | TypeScript check |
 
-Legacy `enhanced-agi` scripts now point at the primary worker (`worker:dev`). Old Express server and consciousness engines are archived.
+Legacy `enhanced-agi`, `neuralcore`, `sentientcore`, and multi-worker deploy scripts were removed in v5.2 — use `worker:dev` and `deploy:worker:prod` only. Archived workers live under `src/archive/`.
 
 ---
 
@@ -121,7 +121,7 @@ Production deploy is maintainer-only; you do not need Cloudflare access to contr
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange.svg)](https://workers.cloudflare.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[![Contributors](https://img.shields.io/github/contributors/HelloblueAI/neural-quantum-consciousness-framework?style=flat-square)](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/graphs/contributors)
-[![Issues](https://img.shields.io/github/issues/HelloblueAI/neural-quantum-consciousness-framework?style=flat-square)](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/issues)
+[![Contributors](https://img.shields.io/github/contributors/HelloblueAI/bleujs-reasoning-lab?style=flat-square)](https://github.com/HelloblueAI/bleujs-reasoning-lab/graphs/contributors)
+[![Issues](https://img.shields.io/github/issues/HelloblueAI/bleujs-reasoning-lab?style=flat-square)](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues)
 
 </div>

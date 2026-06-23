@@ -323,5 +323,5 @@ rust-core/
 
 **Maintained by:** Development Team  
 **Contact:** [your-email]  
-**Repository:** https://github.com/HelloblueAI/neural-quantum-consciousness-framework
+**Repository:** https://github.com/HelloblueAI/bleujs-reasoning-lab
 

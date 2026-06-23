@@ -1,5 +1,5 @@
 /**
- * Hybrid Reasoning Worker — BleuJS Reasoning (production dashboard + API)
+ * BleuJS Reasoning Lab — production worker (dashboard + API)
  */
 
 import { RealLearningEngine } from './core/RealLearningEngine';
@@ -23,6 +23,8 @@ import {
 } from './lab/endpointResponses';
 import {
   buildLabMetricsPayload,
+  buildHonestHistoryMetrics,
+  GITHUB_REPO,
   LAB_NAME,
   LAB_VERSION,
 } from './lab/labStatus';
@@ -890,15 +892,30 @@ export default {
         );
       }
       
-      // Root endpoint - return the exact same HTML as deployed
+      // Root endpoint — dashboard with server-rendered live metrics
       if (path === '/' && request.method === 'GET') {
+        const history = buildHonestHistoryMetrics(mlStats, counters);
+        const totalRequests =
+          history.reasoningHistorySize +
+          history.learningHistorySize +
+          history.creativeHistorySize;
+        const capReasoningPct = (capabilityDisplay.reasoningQuality * 100).toFixed(1);
+        const capUnderstandingPct = (capabilityDisplay.understandingDepth * 100).toFixed(1);
+        const capAvgPct = (
+          (capabilityDisplay.reasoningQuality +
+            capabilityDisplay.systemDepth +
+            capabilityDisplay.understandingDepth +
+            capabilityDisplay.adaptability) /
+          4 *
+          100
+        ).toFixed(1);
         const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BleuJS Reasoning</title>
+    <title>BleuJS Reasoning Lab</title>
     <style>
         * {
             margin: 0;
@@ -965,6 +982,77 @@ export default {
             font-size: 0.7rem;
             letter-spacing: 0.3px;
             display: inline-block;
+        }
+
+        .hero-tagline {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            max-width: 720px;
+            margin: 0 auto 24px;
+            line-height: 1.6;
+        }
+
+        .hero-disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .live-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .live-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 28px 24px;
+            text-align: center;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .live-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 8px 24px rgba(0, 212, 255, 0.08);
+        }
+
+        .live-card h3 {
+            color: var(--accent);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .live-card .live-value {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--success);
+            line-height: 1.2;
+        }
+
+        .live-card .live-detail {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        .live-card .live-endpoint {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: ui-monospace, monospace;
+        }
+
+        .live-card.loading .live-value {
+            color: var(--text-muted);
+            font-size: 1rem;
         }
 
         .header-links {
@@ -1620,6 +1708,12 @@ export default {
 
         /* Enhanced Mobile Responsiveness */
         @media (max-width: 768px) {
+            .live-cards {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-bottom: 32px;
+            }
+
             .header-links {
                 position: static;
                 justify-content: center;
@@ -2127,43 +2221,39 @@ export default {
     <div class="container">
         <div class="header">
             <div class="header-links">
-                <a class="github-link" href="https://github.com/HelloblueAI/neural-quantum-consciousness-framework" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository" title="View on GitHub">
+                <a class="github-link" href="${GITHUB_REPO}" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository" title="View on GitHub">
                     <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
                 </a>
             </div>
-            <h1>BleuJS Reasoning</h1>
-            <p>Measured reasoning · LLM when configured · No simulated metrics</p>
-            <div class="status-indicator">Online · v5.1</div>
+            <h1>BleuJS Reasoning Lab</h1>
+            <p class="hero-tagline">A measured reasoning API with evals, LLM routing, and transparent capability metrics.</p>
+            <p class="hero-disclaimer">Not AGI. Not consciousness. Just measurable progress.</p>
+            <div class="status-indicator">Online · v${LAB_VERSION}</div>
+        </div>
+
+        <div class="live-cards">
+            <div class="live-card loading" id="evalCard">
+                <h3>Eval Pass Rate</h3>
+                <div class="live-value" id="evalPassRate">Running eval suite…</div>
+                <div class="live-detail" id="evalDetail">Benchmark tasks run on demand</div>
+                <div class="live-endpoint">GET /eval</div>
+            </div>
+            <div class="live-card">
+                <h3>Request Activity</h3>
+                <div class="live-value">${totalRequests}</div>
+                <div class="live-detail">${history.reasoningHistorySize} reason · ${history.learningHistorySize} learn · ${history.creativeHistorySize} create</div>
+                <div class="live-endpoint">GET /metrics</div>
+            </div>
+            <div class="live-card">
+                <h3>Capabilities</h3>
+                <div class="live-value">${capAvgPct}%</div>
+                <div class="live-detail">Reasoning ${capReasoningPct}% · Understanding ${capUnderstandingPct}%</div>
+                <div class="live-endpoint">GET /capabilities</div>
+            </div>
         </div>
         
         <div class="dashboard">
-            <div class="consciousness-panel">
-                <h2>Capabilities</h2>
-                <div class="consciousness-grid" id="consciousnessGrid">
-                    <div class="consciousness-item">
-                        <h3>Reasoning</h3>
-                        <div class="consciousness-value">Loading...</div>
-                        <div class="consciousness-label">Loading...</div>
-                    </div>
-                    <div class="consciousness-item">
-                        <h3>System Depth</h3>
-                        <div class="consciousness-value">Loading...</div>
-                        <div class="consciousness-label">Loading...</div>
-                    </div>
-                    <div class="consciousness-item">
-                        <h3>Understanding</h3>
-                        <div class="consciousness-value">Loading...</div>
-                        <div class="consciousness-label">Loading...</div>
-                    </div>
-                    <div class="consciousness-item">
-                        <h3>Adaptability</h3>
-                        <div class="consciousness-value">Loading...</div>
-                        <div class="consciousness-label">Loading...</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="interaction-panel">
+            <div class="interaction-panel" style="grid-column: 1 / -1;">
                 <h2>Reasoning Interaction</h2>
                 <div class="form-group">
                     <label for="hrsEndpoint">Function:</label>
@@ -2190,122 +2280,6 @@ export default {
             <div class="result-content" id="hrsResult"></div>
         </div>
         
-        <div class="metrics-panel">
-            <h2>System Metrics</h2>
-            <div class="metrics-grid" id="metricsGrid">
-                <div class="metric-item">
-                    <div class="metric-value">Loading...</div>
-                    <div class="metric-label">Knowledge Base</div>
-                    <div class="metric-status">ACTIVE</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-value">Loading...</div>
-                    <div class="metric-label">Reasoning History</div>
-                    <div class="metric-status">ACTIVE</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-value">Loading...</div>
-                    <div class="metric-label">Learning History</div>
-                    <div class="metric-status">ACTIVE</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-value">Loading...</div>
-                    <div class="metric-label">Creative History</div>
-                    <div class="metric-status">ACTIVE</div>
-                </div>
-            </div>
-            
-            <div class="advanced-metrics">
-                <div class="metrics-row">
-                    <div class="metric-category">
-                        <h3>Learning Stats</h3>
-                        <div class="metric-details">
-                            <div class="metric-detail-item">
-                                <span class="metric-label">Tasks Learned:</span>
-                                <span class="metric-value" id="activeNeurons">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                            <div class="metric-detail-item">
-                                <span class="metric-label">Concepts Acquired:</span>
-                                <span class="metric-value" id="synapticConnections">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                            <div class="metric-detail-item">
-                                <span class="metric-label">Adaptability:</span>
-                                <span class="metric-value" id="neuralPlasticity">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="metric-category">
-                        <h3>System Performance</h3>
-                        <div class="metric-details">
-                            <div class="metric-detail-item">
-                                <span class="metric-label">Reasoning Quality:</span>
-                                <span class="metric-value" id="cpuUsage">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                            <div class="metric-detail-item">
-                                <span class="metric-label">Learning Efficiency:</span>
-                                <span class="metric-value" id="memoryUsage">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                            <div class="metric-detail-item">
-                                <span class="metric-label">Model Accuracy:</span>
-                                <span class="metric-value" id="processingSpeed">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="metrics-row">
-                    <div class="metric-category">
-                        <h3>Learning Engine</h3>
-                        <div class="metric-details">
-                            <div class="metric-detail-item">
-                                <span class="metric-label">Tasks Learned:</span>
-                                <span class="metric-value" id="quantumCoherence">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                            <div class="metric-detail-item">
-                                <span class="metric-label">Concepts Acquired:</span>
-                                <span class="metric-value" id="superpositionStates">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                            <div class="metric-detail-item">
-                                <span class="metric-label">Average Accuracy:</span>
-                                <span class="metric-value" id="entanglementPairs">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="metric-category">
-                        <h3>Capability Scores</h3>
-                        <div class="metric-details">
-                            <div class="metric-detail-item">
-                                <span class="metric-label">System Depth:</span>
-                                <span class="metric-value" id="selfAwareness">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                            <div class="metric-detail-item">
-                                <span class="metric-label">Cross-Domain:</span>
-                                <span class="metric-value" id="understandingLevel">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                            <div class="metric-detail-item">
-                                <span class="metric-label">Adaptability:</span>
-                                <span class="metric-value" id="creativeSynthesis">Loading...</span>
-                                <span class="metric-status">ACTIVE</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
         <div class="documentation-section">
             <h2>System Documentation</h2>
             <div class="documentation-tabs">
@@ -2316,8 +2290,8 @@ export default {
             
             <div class="documentation-content">
                 <div id="overview" class="documentation-tab-content active">
-                    <h3>BleuJS Reasoning v5.1</h3>
-                    <p>A measured reasoning API on Cloudflare Workers — multi-agent orchestration, optional LLM integration, and an eval harness. Not a claim of AGI.</p>
+                    <h3>BleuJS Reasoning Lab v${LAB_VERSION}</h3>
+                    <p>A measured reasoning API on Cloudflare Workers — multi-agent orchestration, optional LLM integration, and an eval harness. Not a claim of AGI or consciousness.</p>
                     
                     <h4>What it does</h4>
                     <ul>
@@ -2359,7 +2333,7 @@ export default {
         
         <div class="endpoints">
             <h2>API Endpoints</h2>
-            <p>REST API for BleuJS Reasoning:</p>
+            <p>REST API for BleuJS Reasoning Lab:</p>
             
             <div class="endpoint-list">
                 <div class="endpoint-item">
@@ -2418,157 +2392,32 @@ export default {
     </div>
     
     <script>
-        // Load system status on page load
-        window.onload = function() {
-            console.log('Page loaded, calling loadSystemStatus...');
-            setTimeout(loadSystemStatus, 100); // Small delay to ensure DOM is ready
-        };
-        
-        // Also try to load when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM content loaded, calling loadSystemStatus...');
-            loadSystemStatus();
-        });
-        
-        async function loadSystemStatus() {
-            const consciousnessGrid = document.getElementById('consciousnessGrid');
-            if (!consciousnessGrid) return;
+        document.addEventListener('DOMContentLoaded', loadEvalCard);
 
-            function renderCapabilities(caps, sources) {
-                consciousnessGrid.innerHTML = \`
-                    <div class="consciousness-item">
-                        <h3>Reasoning</h3>
-                        <div class="consciousness-value">\${(caps.reasoningQuality * 100).toFixed(1)}%</div>
-                        <div class="consciousness-label">\${sources.reasoningQuality || sources.awareness || 'Measured'}</div>
-                    </div>
-                    <div class="consciousness-item">
-                        <h3>System Depth</h3>
-                        <div class="consciousness-value">\${(caps.systemDepth * 100).toFixed(1)}%</div>
-                        <div class="consciousness-label">\${sources.systemDepth || sources.selfAwareness || 'Measured'}</div>
-                    </div>
-                    <div class="consciousness-item">
-                        <h3>Understanding</h3>
-                        <div class="consciousness-value">\${(caps.understandingDepth * 100).toFixed(1)}%</div>
-                        <div class="consciousness-label">\${sources.understandingDepth || sources.understanding || 'Measured'}</div>
-                    </div>
-                    <div class="consciousness-item">
-                        <h3>Adaptability</h3>
-                        <div class="consciousness-value">\${(caps.adaptability * 100).toFixed(1)}%</div>
-                        <div class="consciousness-label">\${sources.adaptability || sources.creativity || 'Measured'}</div>
-                    </div>
-                \`;
-            }
-
-            function normalizeCapabilities(data) {
-                const d = data.data || {};
-                if (d.capabilities) {
-                    return { caps: d.capabilities, sources: d.capabilities.sources || {} };
-                }
-                if (d.consciousnessMetrics) {
-                    const m = d.consciousnessMetrics;
-                    const s = d.consciousnessSources || {};
-                    return {
-                        caps: {
-                            reasoningQuality: m.awareness,
-                            systemDepth: m.selfAwareness,
-                            understandingDepth: m.understanding,
-                            adaptability: m.creativity,
-                        },
-                        sources: {
-                            reasoningQuality: s.awareness,
-                            systemDepth: s.selfAwareness,
-                            understandingDepth: s.understanding,
-                            adaptability: s.creativity,
-                        },
-                    };
-                }
-                return null;
-            }
+        async function loadEvalCard() {
+            const card = document.getElementById('evalCard');
+            const valueEl = document.getElementById('evalPassRate');
+            const detailEl = document.getElementById('evalDetail');
+            if (!card || !valueEl || !detailEl) return;
 
             try {
-                let capResponse = await fetch('/capabilities');
-                if (!capResponse.ok) {
-                    capResponse = await fetch('/consciousness');
-                }
-                if (!capResponse.ok) {
-                    throw new Error('HTTP ' + capResponse.status);
-                }
-                const capData = await capResponse.json();
-                const normalized = normalizeCapabilities(capData);
-                if (!capData.success || !normalized || normalized.caps.reasoningQuality == null) {
-                    throw new Error('Invalid capabilities response');
-                }
-                renderCapabilities(normalized.caps, normalized.sources);
+                const response = await fetch('/eval');
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+                const json = await response.json();
+                const data = json.data;
+                if (!json.success || !data) throw new Error('Invalid eval response');
+
+                const rate = (data.passRate * 100).toFixed(1);
+                valueEl.textContent = rate + '%';
+                detailEl.textContent = data.passed + ' / ' + data.total + ' tasks passed' +
+                    (data.skipped ? ' (' + data.skipped + ' skipped)' : '');
+                card.classList.remove('loading');
             } catch (error) {
-                console.error('Failed to load capabilities:', error);
-                consciousnessGrid.innerHTML = \`
-                    <div class="consciousness-item">
-                        <h3>Error</h3>
-                        <div class="consciousness-value">Failed to load</div>
-                        <div class="consciousness-label">Hard refresh (Ctrl+Shift+R) or try workers.dev URL</div>
-                    </div>
-                \`;
-                return;
+                console.error('Failed to load eval:', error);
+                valueEl.textContent = 'Unavailable';
+                detailEl.textContent = 'Could not run eval suite — try GET /eval directly';
+                card.classList.remove('loading');
             }
-
-            try {
-                const metricsResponse = await fetch('/status');
-                if (!metricsResponse.ok) return;
-                const metricsData = await metricsResponse.json();
-                if (!metricsData.success) return;
-
-                const metrics = metricsData.data.history || metricsData.data.metrics;
-                const performance = metricsData.data.performance || {};
-                const ml = metricsData.data.ml || metricsData.data.realML || {};
-                const metricsGrid = document.getElementById('metricsGrid');
-                if (metrics && metricsGrid) {
-                    metricsGrid.innerHTML = \`
-                        <div class="metric-item">
-                            <div class="metric-value">\${metrics.knowledgeBaseSize ?? 0}</div>
-                            <div class="metric-label">Knowledge Base</div>
-                            <div class="metric-status">ACTIVE</div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="metric-value">\${metrics.reasoningHistorySize ?? 0}</div>
-                            <div class="metric-label">Reasoning History</div>
-                            <div class="metric-status">ACTIVE</div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="metric-value">\${metrics.learningHistorySize ?? 0}</div>
-                            <div class="metric-label">Learning History</div>
-                            <div class="metric-status">ACTIVE</div>
-                        </div>
-                        <div class="metric-item">
-                            <div class="metric-value">\${metrics.creativeHistorySize ?? 0}</div>
-                            <div class="metric-label">Creative History</div>
-                            <div class="metric-status">ACTIVE</div>
-                        </div>
-                    \`;
-                }
-                updateAdvancedMetrics(performance, ml);
-            } catch (error) {
-                console.error('Failed to load status metrics:', error);
-            }
-        }
-        
-        function setMetricText(id, value) {
-            const el = document.getElementById(id);
-            if (el) el.textContent = value;
-        }
-
-        function updateAdvancedMetrics(performance, ml) {
-            setMetricText('activeNeurons', String(ml.tasksLearned ?? 0));
-            setMetricText('synapticConnections', String(ml.conceptsAcquired ?? 0));
-            setMetricText('neuralPlasticity', ((performance.adaptability || 0) * 100).toFixed(1) + '%');
-            setMetricText('cpuUsage', ((performance.reasoningQuality || 0) * 100).toFixed(1) + '%');
-            setMetricText('memoryUsage', ((performance.learningEfficiency || 0) * 100).toFixed(1) + '%');
-            setMetricText('processingSpeed', ((ml.averageAccuracy || 0) * 100).toFixed(1) + '% acc');
-            setMetricText('quantumCoherence', String(ml.tasksLearned ?? 0));
-            setMetricText('superpositionStates', String(ml.conceptsAcquired ?? 0));
-            setMetricText('entanglementPairs', ((ml.averageAccuracy || 0) * 100).toFixed(1) + '%');
-            setMetricText('selfAwareness', ((performance.systemDepth || 0) * 100).toFixed(1) + '%');
-            setMetricText('understandingLevel', ((performance.crossDomainIntegration || 0) * 100).toFixed(1) + '%');
-            setMetricText('creativeSynthesis', ((performance.adaptability || 0) * 100).toFixed(1) + '%');
         }
         
         function escapeHtml(text) {

@@ -1,12 +1,12 @@
 name: Bug report
-description: Something broken in BleuJS Reasoning (worker, API, eval, dashboard)
+description: Something broken in BleuJS Reasoning Lab (worker, API, eval, dashboard)
 title: "[bug]: "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting. Please check [API_ACCESS.md](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/blob/main/docs/deployment/API_ACCESS.md) if the custom domain returns a Cloudflare challenge.
+        Thanks for reporting. Please check [API_ACCESS.md](https://github.com/HelloblueAI/bleujs-reasoning-lab/blob/main/docs/deployment/API_ACCESS.md) if the custom domain returns a Cloudflare challenge.
 
   - type: textarea
     id: description

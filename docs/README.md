@@ -625,8 +625,8 @@ We welcome contributions from researchers, developers, and visionaries:
 4. Submit a pull request
 
 **Community:**
-- [Discussions](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/discussions)
-- [Issues](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/issues)
+- [Discussions](https://github.com/HelloblueAI/bleujs-reasoning-lab/discussions)
+- [Issues](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues)
 
 ---
 
@@ -662,11 +662,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Build](https://img.shields.io/github/workflow/status/HelloblueAI/neural-quantum-consciousness-framework/CI)](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/actions)
-[![Hybrid Reasoning System](https://img.shields.io/badge/Hybrid%20Reasoning%20System-Superintelligence-red.svg)](https://github.com/HelloblueAI/neural-quantum-consciousness-framework)
-[![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)](https://github.com/HelloblueAI/neural-quantum-consciousness-framework)
-[![Contributors](https://img.shields.io/github/contributors/HelloblueAI/neural-quantum-consciousness-framework?style=flat-square)](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/graphs/contributors)
-[![Issues](https://img.shields.io/github/issues/HelloblueAI/neural-quantum-consciousness-framework?style=flat-square)](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/issues)
-[![Pull Requests](https://img.shields.io/github/issues-pr/HelloblueAI/neural-quantum-consciousness-framework?style=flat-square)](https://github.com/HelloblueAI/neural-quantum-consciousness-framework/pulls)
+[![Build](https://img.shields.io/github/workflow/status/HelloblueAI/bleujs-reasoning-lab/Lab%20CI)](https://github.com/HelloblueAI/bleujs-reasoning-lab/actions)
+[![BleuJS Reasoning Lab](https://img.shields.io/badge/BleuJS-Reasoning%20Lab-blue.svg)](https://github.com/HelloblueAI/bleujs-reasoning-lab)
+[![Version](https://img.shields.io/badge/Version-5.1.0-blue.svg)](https://github.com/HelloblueAI/bleujs-reasoning-lab)
+[![Contributors](https://img.shields.io/github/contributors/HelloblueAI/bleujs-reasoning-lab?style=flat-square)](https://github.com/HelloblueAI/bleujs-reasoning-lab/graphs/contributors)
+[![Issues](https://img.shields.io/github/issues/HelloblueAI/bleujs-reasoning-lab?style=flat-square)](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/HelloblueAI/bleujs-reasoning-lab?style=flat-square)](https://github.com/HelloblueAI/bleujs-reasoning-lab/pulls)
 
 </div> 

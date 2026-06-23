@@ -1,8 +1,8 @@
-# Contributing to BleuJS Reasoning
+# Contributing to BleuJS Reasoning Lab
 
-Thank you for helping improve this project. BleuJS Reasoning is an **MIT-licensed research lab** for measurable reasoning—not a claim of AGI or machine consciousness.
+Thank you for helping improve this project. BleuJS Reasoning Lab is an **MIT-licensed research lab** for measurable reasoning—not a claim of AGI or machine consciousness.
 
-**Repository:** https://github.com/HelloblueAI/neural-quantum-consciousness-framework
+**Repository:** https://github.com/HelloblueAI/bleujs-reasoning-lab
 
 ---
 
@@ -31,8 +31,8 @@ Thank you for helping improve this project. BleuJS Reasoning is an **MIT-license
 **Requirements:** Node.js 20+, [pnpm](https://pnpm.io/) 8+
 
 ```bash
-git clone https://github.com/HelloblueAI/neural-quantum-consciousness-framework.git
-cd neural-quantum-consciousness-framework
+git clone https://github.com/HelloblueAI/bleujs-reasoning-lab.git
+cd bleujs-reasoning-lab
 pnpm install
 ```
 

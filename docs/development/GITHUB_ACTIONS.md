@@ -1,10 +1,29 @@
-# 🚀 GitHub Actions for NeuralCore Hybrid Reasoning System
+# GitHub Actions — BleuJS Reasoning Lab
 
-This repository includes comprehensive GitHub Actions workflows for automated testing, building, and deployment of the NeuralCore True Hybrid Reasoning System system.
+**Active workflow:** [`.github/workflows/lab-ci.yml`](../../.github/workflows/lab-ci.yml) — runs `pnpm run test:eval` and `pnpm run test:unit` on push/PR to `main`.
 
-## 📋 Available Workflows
+Legacy Docker/DigitalOcean workflows (`deploy.yml`, `ci-cd.yml`, `test-build.yml`) are disabled under `.github/workflows/*.disabled`. See `deploy/` for archived infrastructure.
 
-### 1. 🧪 Test & Build (`test-build.yml`)
+**Repository:** https://github.com/HelloblueAI/bleujs-reasoning-lab
+
+---
+
+## Lab CI (`lab-ci.yml`)
+
+**Triggers:** Push to `main`, pull requests targeting `main`
+
+**Steps:**
+- Install dependencies (`pnpm install --frozen-lockfile`)
+- Run eval harness (`pnpm run test:eval`)
+- Run unit tests (`pnpm run test:unit -- --run`)
+
+---
+
+## Archived workflows (reference only)
+
+The sections below describe disabled legacy workflows. They are not run in CI today.
+
+### 1. Test & Build (`test-build.yml.disabled`)
 **Triggers:** Push to main/develop, Pull Requests, Manual dispatch
 
 **What it does:**
@@ -56,7 +75,7 @@ To use these workflows, you need to set up the following secrets in your GitHub 
 ## 🐳 Docker Images
 
 The workflows automatically build and push Docker images to:
-- **GitHub Container Registry**: `ghcr.io/your-username/neural-quantum-consciousness-framework`
+- **GitHub Container Registry**: `ghcr.io/HelloblueAI/bleujs-reasoning-lab`
 - **DigitalOcean Container Registry**: `registry.digitalocean.com/neuralcore-agi/agi`
 
 ## 🧪 Testing
@@ -162,7 +181,7 @@ curl -X POST http://localhost:8080/reason -H "Content-Type: application/json" -d
 
 # Test deployment manually
 ssh root@your-droplet-ip
-cd /root/neural-quantum-consciousness-framework
+cd /root/bleujs-reasoning-lab
 docker-compose -f deploy/cloud-deployment.yml logs
 
 # Check AGI status
