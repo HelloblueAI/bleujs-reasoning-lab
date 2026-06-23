@@ -72,6 +72,7 @@ export const EVAL_TASKS: EvalTask[] = [
     id: 'logic-puzzle',
     name: 'Logic puzzle',
     category: 'reasoning',
-    description: 'Solve a multi-step logic puzzle',
+    description:
+      'Solve the Bleu Lab wing assignment (agents → pipeline modules) from clues',
   },
 ];

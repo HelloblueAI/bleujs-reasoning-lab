@@ -8,6 +8,7 @@ import { RealReasoningEngine } from '@/core/RealReasoningEngine';
 import { AutonomousGoalSystem } from '@/core/AutonomousGoalSystem';
 import { MemorySystem } from '@/core/MemorySystem';
 import { ToolSystem } from '@/core/ToolSystem';
+import { solveBleuLabPuzzle } from './logicPuzzle';
 import { EVAL_TASKS, type EvalTask } from './tasks';
 
 export interface EvalTaskResult {
@@ -187,6 +188,32 @@ async function runTask(
             : 'Requires LLM keys',
           durationMs: Date.now() - start,
           skipped: !llmAvailable,
+        };
+      }
+
+      case 'logic-puzzle': {
+        const puzzle = solveBleuLabPuzzle();
+        const expected: Record<string, string> = {
+          Alpha: 'Orchestration',
+          Beta: 'Reasoning',
+          Gamma: 'Understanding',
+        };
+        const passed =
+          puzzle.solved &&
+          Object.entries(expected).every(
+            ([agent, mod]) => puzzle.assignment[agent] === mod
+          );
+        const summary = passed
+          ? `Alpha→Orchestration, Beta→Reasoning, Gamma→Understanding (${puzzle.steps.length} deduction steps)`
+          : puzzle.steps.at(-1) ?? 'Logic puzzle unsolved';
+        return {
+          id: task.id,
+          name: task.name,
+          category: task.category,
+          passed,
+          score: passed ? 1 : 0,
+          message: summary,
+          durationMs: Date.now() - start,
         };
       }
 
