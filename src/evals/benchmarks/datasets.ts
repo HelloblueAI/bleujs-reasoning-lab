@@ -79,6 +79,16 @@ export const RETRIEVAL_QUERIES: ReadonlyArray<{
     expectedTop:
       "HTTP status code 404 means the requested resource was not found.",
   },
+  {
+    id: "largest-planet",
+    query: "Which planet is the largest in our solar system?",
+    passages: [
+      "Earth is the third planet from the Sun and the only known planet with life.",
+      "Jupiter is the largest planet in our solar system.",
+      "Mars is known as the Red Planet because of its iron-rich surface.",
+    ],
+    expectedTop: "Jupiter is the largest planet in our solar system.",
+  },
 ];
 
 /** Tool selection: labeled query -> expected tool id from ToolSystem.detectTool. */
