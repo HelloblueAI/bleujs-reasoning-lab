@@ -1,11 +1,11 @@
 {
   "labVersion": "5.1.0",
-  "gitSha": "50c4745a",
-  "generatedAt": "2026-09-08T19:52:33.109Z",
+  "gitSha": "101a3a8",
+  "generatedAt": "2026-09-11T18:19:42.509Z",
   "smoke": {
     "suite": "smoke",
     "labVersion": "5.1.0",
-    "timestamp": 1788897153102,
+    "timestamp": 1789150782454,
     "total": 10,
     "passed": 9,
     "failed": 0,
@@ -15,13 +15,13 @@
   "benchmark": {
     "suite": "benchmark",
     "labVersion": "5.1.0",
-    "gitSha": "50c4745a",
-    "timestamp": 1788897153109,
+    "gitSha": "101a3a8",
+    "timestamp": 1789150782509,
     "total": 6,
     "passed": 6,
     "failed": 0,
     "passRate": 1,
-    "durationMs": 7,
+    "durationMs": 54,
     "benchmarks": [
       {
         "id": "arithmetic",
@@ -33,7 +33,7 @@
         "passed": true,
         "runs": 1,
         "deterministic": true,
-        "durationMs": 7,
+        "durationMs": 53,
         "model": null,
         "costUsd": null,
         "items": [
@@ -191,13 +191,13 @@
         "id": "retrieval",
         "name": "Retrieval (top-1)",
         "metric": "top-1 accuracy",
-        "total": 3,
-        "correct": 3,
+        "total": 4,
+        "correct": 4,
         "score": 1,
         "passed": true,
         "runs": 1,
         "deterministic": true,
-        "durationMs": 0,
+        "durationMs": 1,
         "model": null,
         "costUsd": null,
         "items": [
@@ -218,6 +218,12 @@
             "passed": true,
             "got": "HTTP status code 404 means the requested resource was not found.",
             "expected": "HTTP status code 404 means the requested resource was not found."
+          },
+          {
+            "id": "largest-planet",
+            "passed": true,
+            "got": "Jupiter is the largest planet in our solar system.",
+            "expected": "Jupiter is the largest planet in our solar system."
           }
         ]
       },
