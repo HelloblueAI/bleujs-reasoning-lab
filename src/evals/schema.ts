@@ -71,8 +71,10 @@ export interface ModelAttemptResult {
   got: string;
   latencyMs: number;
   truncated: boolean;
-  /** Endpoint never answered (rate limit / overload); not scored. */
+  /** Endpoint never answered (rate limit, overload, or stall); not scored. */
   inconclusive: boolean;
+  /** The request exceeded its timeout, as opposed to being throttled. */
+  timedOut: boolean;
   completionTokens: number | null;
   /** Size of the discarded reasoning trace; never graded. */
   reasoningChars: number;
@@ -115,8 +117,10 @@ export interface ModelBenchmarkResult {
   truncations: number;
   /** Attempts the model answered unusably (bad format/truncation). */
   errors: number;
-  /** Attempts lost to rate limiting or overload; excluded from scoring. */
+  /** Attempts lost to 429/503 throttling; excluded from scoring. */
   rateLimited: number;
+  /** Attempts that exceeded the request timeout; excluded from scoring. */
+  timedOut: number;
   latencyMs: LatencyStats;
   durationMs: number;
   items: ModelBenchmarkItemResult[];
@@ -152,6 +156,7 @@ export interface ModelBenchmarkSuiteResult {
   /** Items excluded because the endpoint never answered. */
   inconclusiveItems: number;
   rateLimited: number;
+  timedOut: number;
   latencyMs: LatencyStats;
   completionTokens: number;
   durationMs: number;

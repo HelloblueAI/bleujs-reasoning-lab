@@ -56,12 +56,12 @@ export function extractFinalAnswer(content: string): string | null {
 }
 
 /** The free hosted endpoint is shared, so rate limits are expected, not failures. */
-const MAX_RATE_LIMIT_ATTEMPTS = 7;
+const MAX_RATE_LIMIT_RETRIES = 6;
 /**
  * A stalled request already cost a full timeout, and an endpoint that stops
  * responding rarely recovers mid-run, so retry it once rather than six times.
  */
-const MAX_TIMEOUT_ATTEMPTS = 2;
+const MAX_TIMEOUT_RETRIES = 1;
 const BASE_BACKOFF_MS = 1500;
 
 interface TransportFailure {
@@ -173,14 +173,22 @@ export async function askEvalModel(
   prompt: { system: string; user: string },
 ): Promise<ModelAttempt> {
   let attempt = await askOnce(model, prompt);
+  // Counted separately: a run that hits a rate limit and then stalls must still
+  // get its timeout retry, rather than inheriting the exhausted 429 budget.
+  let timeoutRetries = 0;
+  let rateLimitRetries = 0;
 
-  for (let retry = 1; ; retry++) {
-    if (!attempt.inconclusive) break;
-    const maxAttempts = attempt.timedOut
-      ? MAX_TIMEOUT_ATTEMPTS
-      : MAX_RATE_LIMIT_ATTEMPTS;
-    if (retry >= maxAttempts) break;
-    await sleep(backoffMs(retry, attempt.retryAfterMs));
+  while (attempt.inconclusive) {
+    if (attempt.timedOut) {
+      if (timeoutRetries >= MAX_TIMEOUT_RETRIES) break;
+      timeoutRetries++;
+    } else {
+      if (rateLimitRetries >= MAX_RATE_LIMIT_RETRIES) break;
+      rateLimitRetries++;
+    }
+    await sleep(
+      backoffMs(timeoutRetries + rateLimitRetries, attempt.retryAfterMs),
+    );
     attempt = await askOnce(model, prompt);
   }
 

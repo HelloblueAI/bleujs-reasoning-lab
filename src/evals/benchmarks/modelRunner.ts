@@ -256,6 +256,7 @@ function toAttemptResult(
     latencyMs: attempt.latencyMs,
     truncated: attempt.truncated,
     inconclusive: attempt.inconclusive,
+    timedOut: attempt.timedOut,
     completionTokens: attempt.completionTokens,
     reasoningChars: attempt.reasoningChars,
     error: attempt.error,
@@ -370,7 +371,8 @@ async function runSpec(
     inconclusiveItems: results.length - gradeable.length,
     truncations: attempts.filter((a) => a.truncated).length,
     errors: attempts.filter((a) => a.error !== null && !a.inconclusive).length,
-    rateLimited: attempts.filter((a) => a.inconclusive).length,
+    rateLimited: attempts.filter((a) => a.inconclusive && !a.timedOut).length,
+    timedOut: attempts.filter((a) => a.timedOut).length,
     // Failed requests return in milliseconds and would skew the percentiles.
     latencyMs: latencyStats(
       attempts.filter((a) => !a.inconclusive).map((a) => a.latencyMs),
@@ -424,6 +426,7 @@ export async function runModelBenchmarkSuite(
       0,
     ),
     rateLimited: benchmarks.reduce((sum, b) => sum + b.rateLimited, 0),
+    timedOut: benchmarks.reduce((sum, b) => sum + b.timedOut, 0),
     latencyMs: latencyStats(
       attempts.filter((a) => !a.inconclusive).map((a) => a.latencyMs),
     ),

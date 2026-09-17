@@ -1,10 +1,11 @@
 {
   "provider": "nvidia",
   "model": "nvidia/nemotron-3-super-120b-a12b",
-  "generatedAt": "2026-09-17T06:53:29.192Z",
+  "generatedAt": "2026-09-17T11:12:24.126Z",
   "note": "Same fixed items, same graders, majority vote over repeated runs; only the reasoning setting differs.",
   "caveats": [
     "Latency is shared free-endpoint latency, not a dedicated deployment.",
+    "Latency is only comparable between variants recorded at the same concurrency (config.concurrency): the endpoint queues under load, and requests that hit config.timeoutMs are dropped as inconclusive.",
     "Cost columns (completionTokens, latency) are measured over hundreds of requests and are reliable. Accuracy differences of one or two items are NOT: thinking-on already saturates this dataset, so at three runs per item a 36/39 vs 38/39 gap is within sampling noise at temperature 1.0. Harder items or more runs are needed to separate configurations that differ by a couple of points."
   ],
   "variants": [
@@ -29,6 +30,7 @@
       "completionTokens": 72654,
       "durationMs": 594240,
       "rateLimited": 0,
+      "timedOut": 0,
       "benchmarkScores": {
         "arithmetic": 0.9473684210526315,
         "logic-puzzle": 1,
@@ -58,6 +60,7 @@
       "completionTokens": 10781,
       "durationMs": 249122,
       "rateLimited": 0,
+      "timedOut": 0,
       "benchmarkScores": {
         "arithmetic": 0.9473684210526315,
         "logic-puzzle": 1,
@@ -87,6 +90,7 @@
       "completionTokens": 1794,
       "durationMs": 295675,
       "rateLimited": 2,
+      "timedOut": 0,
       "benchmarkScores": {
         "arithmetic": 0.7894736842105263,
         "logic-puzzle": 1,

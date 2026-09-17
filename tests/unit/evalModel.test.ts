@@ -82,6 +82,35 @@ describe("eval model config", () => {
     expect(attempt.error).toMatch(/timed out/);
   });
 
+  it("still retries a stall that follows a rate limit", async () => {
+    const rateLimited = () =>
+      new Response('{"status":429}', {
+        status: 429,
+        headers: { "retry-after": "0" },
+      });
+    const stall = () => {
+      const error = new Error("aborted due to timeout");
+      error.name = "TimeoutError";
+      throw error;
+    };
+    // Exhaust the 429 budget, then stall: the timeout must still get its retry.
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(rateLimited())
+      .mockResolvedValueOnce(rateLimited())
+      .mockImplementationOnce(stall)
+      .mockResolvedValueOnce(nvidiaResponse({ content: "FINAL: 4" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const attempt = await askEvalModel(
+      resolveEvalModel(EVAL_ENV, { timeoutMs: 50 }),
+      { system: "grade me", user: "2 + 2" },
+    );
+
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(attempt.answer).toBe("4");
+  });
+
   it("rejects a non-positive run count", () => {
     expect(() => resolveEvalModel(EVAL_ENV, { runs: 0 })).toThrow(
       /positive integer/,

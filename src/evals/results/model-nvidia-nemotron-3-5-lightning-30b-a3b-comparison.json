@@ -1,7 +1,7 @@
 {
   "provider": "nvidia",
   "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-  "generatedAt": "2026-09-17T11:02:36.391Z",
+  "generatedAt": "2026-09-17T11:12:23.926Z",
   "note": "Same fixed items, same graders, majority vote over repeated runs; only the reasoning setting differs.",
   "caveats": [
     "Latency is shared free-endpoint latency, not a dedicated deployment.",
@@ -29,7 +29,8 @@
       },
       "completionTokens": 90475,
       "durationMs": 3471009,
-      "rateLimited": 7,
+      "rateLimited": 0,
+      "timedOut": 7,
       "benchmarkScores": {
         "arithmetic": 0.9473684210526315,
         "logic-puzzle": 1,
@@ -59,6 +60,7 @@
       "completionTokens": 2719,
       "durationMs": 438261,
       "rateLimited": 0,
+      "timedOut": 0,
       "benchmarkScores": {
         "arithmetic": 0.7894736842105263,
         "logic-puzzle": 0.6666666666666666,
