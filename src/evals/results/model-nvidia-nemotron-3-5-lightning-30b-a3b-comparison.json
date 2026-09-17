@@ -1,0 +1,71 @@
+{
+  "provider": "nvidia",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "generatedAt": "2026-09-17T11:02:36.391Z",
+  "note": "Same fixed items, same graders, majority vote over repeated runs; only the reasoning setting differs.",
+  "caveats": [
+    "Latency is shared free-endpoint latency, not a dedicated deployment.",
+    "Latency is only comparable between variants recorded at the same concurrency (config.concurrency): the endpoint queues under load, and requests that hit config.timeoutMs are dropped as inconclusive.",
+    "Cost columns (completionTokens, latency) are measured over hundreds of requests and are reliable. Accuracy differences of one or two items are NOT: thinking-on already saturates this dataset, so at three runs per item a 36/39 vs 38/39 gap is within sampling noise at temperature 1.0. Harder items or more runs are needed to separate configurations that differ by a couple of points."
+  ],
+  "variants": [
+    {
+      "reasoning": "on",
+      "recordedAt": "2026-09-17T10:54:27.339Z",
+      "gitSha": "d843351d",
+      "config": {
+        "temperature": 1,
+        "topP": 0.95,
+        "maxTokens": 16000,
+        "runs": 3
+      },
+      "benchmarksPassed": 4,
+      "benchmarksTotal": 5,
+      "itemScore": 0.9230769230769231,
+      "latencyMs": {
+        "p50": 23327,
+        "p95": 141432,
+        "max": 225820
+      },
+      "completionTokens": 90475,
+      "durationMs": 3471009,
+      "rateLimited": 7,
+      "benchmarkScores": {
+        "arithmetic": 0.9473684210526315,
+        "logic-puzzle": 1,
+        "retrieval": 1,
+        "tool-selection": 0.75,
+        "abstention": 1
+      }
+    },
+    {
+      "reasoning": "off",
+      "recordedAt": "2026-09-17T11:01:45.601Z",
+      "gitSha": "d843351d",
+      "config": {
+        "temperature": 1,
+        "topP": 0.95,
+        "maxTokens": 16000,
+        "runs": 3
+      },
+      "benchmarksPassed": 1,
+      "benchmarksTotal": 5,
+      "itemScore": 0.717948717948718,
+      "latencyMs": {
+        "p50": 1402,
+        "p95": 62231,
+        "max": 122488
+      },
+      "completionTokens": 2719,
+      "durationMs": 438261,
+      "rateLimited": 0,
+      "benchmarkScores": {
+        "arithmetic": 0.7894736842105263,
+        "logic-puzzle": 0.6666666666666666,
+        "retrieval": 1,
+        "tool-selection": 0.625,
+        "abstention": 0.4
+      }
+    }
+  ]
+}

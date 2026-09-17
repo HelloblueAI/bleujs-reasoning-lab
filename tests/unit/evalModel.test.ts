@@ -5,6 +5,7 @@ import {
 } from "@/evals/model/evalModelClient";
 import {
   DEFAULT_EVAL_MAX_TOKENS,
+  DEFAULT_EVAL_TIMEOUT_MS,
   EVAL_ENV_API_KEY,
   NVIDIA_REASONING_TEMPERATURE,
   NVIDIA_REASONING_TOP_P,
@@ -47,6 +48,38 @@ describe("eval model config", () => {
         NVIDIA_CHAT_MODEL: "nvidia/nemotron-3.5-lightning-30b-a3b",
       }),
     ).toThrow(/NVIDIA_EVAL_API_KEY is not set/);
+  });
+
+  it("bounds every request with a timeout", async () => {
+    const fetchMock = vi.fn(async () =>
+      nvidiaResponse({ content: "FINAL: 4" }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const model = resolveEvalModel(EVAL_ENV);
+    expect(model.config.timeoutMs).toBe(DEFAULT_EVAL_TIMEOUT_MS);
+
+    await askEvalModel(model, { system: "grade me", user: "2 + 2" });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it("records an exhausted timeout as inconclusive", async () => {
+    const fetchMock = vi.fn(async () => {
+      const error = new Error("The operation was aborted due to timeout");
+      error.name = "TimeoutError";
+      throw error;
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const attempt = await askEvalModel(
+      resolveEvalModel(EVAL_ENV, { timeoutMs: 10 }),
+      { system: "grade me", user: "2 + 2" },
+    );
+
+    expect(attempt.inconclusive).toBe(true);
+    expect(attempt.error).toMatch(/timed out/);
   });
 
   it("rejects a non-positive run count", () => {

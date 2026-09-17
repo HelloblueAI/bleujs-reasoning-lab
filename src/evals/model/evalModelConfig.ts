@@ -24,6 +24,13 @@ export const NVIDIA_REASONING_TOP_P = 0.95;
 export const DEFAULT_EVAL_MAX_TOKENS = 16000;
 
 /**
+ * Per-request ceiling. A reasoning trace on a hard item can legitimately take
+ * ~90s on the shared endpoint, so this is generous — it exists only so a
+ * connection that stops responding cannot stall an entire run indefinitely.
+ */
+export const DEFAULT_EVAL_TIMEOUT_MS = 240_000;
+
+/**
  * "low" keeps reasoning enabled and adds NVIDIA's low-effort instruction, so it
  * sits between "on" and "off" rather than disabling the reasoning channel.
  */
@@ -41,6 +48,7 @@ export interface EvalModelConfig {
   reasoning: ReasoningMode;
   /** Repeats per item; sampled decoding is not deterministic. */
   runs: number;
+  timeoutMs: number;
 }
 
 export interface ResolvedEvalModel {
@@ -55,6 +63,7 @@ export interface EvalModelOverrides {
   runs?: number | undefined;
   temperature?: number | undefined;
   topP?: number | undefined;
+  timeoutMs?: number | undefined;
 }
 
 /** Human-readable label for reports, e.g. "…-super-120b-a12b (thinking on)". */
@@ -93,6 +102,7 @@ export function resolveEvalModel(
       maxTokens: overrides.maxTokens ?? DEFAULT_EVAL_MAX_TOKENS,
       reasoning: overrides.reasoning ?? "on",
       runs,
+      timeoutMs: overrides.timeoutMs ?? DEFAULT_EVAL_TIMEOUT_MS,
     },
   };
 }

@@ -124,6 +124,9 @@ function writeComparison(model: string): string | null {
           "only the reasoning setting differs.",
         caveats: [
           "Latency is shared free-endpoint latency, not a dedicated deployment.",
+          "Latency is only comparable between variants recorded at the same " +
+            "concurrency (config.concurrency): the endpoint queues under load, " +
+            "and requests that hit config.timeoutMs are dropped as inconclusive.",
           "Cost columns (completionTokens, latency) are measured over hundreds " +
             "of requests and are reliable. Accuracy differences of one or two " +
             "items are NOT: thinking-on already saturates this dataset, so at " +
@@ -218,6 +221,9 @@ async function main(): Promise<void> {
     ...(numberFlag("max-tokens")
       ? { maxTokens: numberFlag("max-tokens") }
       : {}),
+    ...(numberFlag("timeout")
+      ? { timeoutMs: (numberFlag("timeout") as number) * 1000 }
+      : {}),
   };
 
   console.log("BleuJS Reasoning Lab — model-in-the-loop benchmarks");
@@ -236,6 +242,14 @@ async function main(): Promise<void> {
       ...(numberFlag("concurrency")
         ? { concurrency: numberFlag("concurrency") }
         : {}),
+      // Reasoning runs take minutes; without this the CLI looks hung.
+      onProgress: ({ benchmark, itemId, passed, done, total, latencyMs }) => {
+        const icon = passed === null ? "○" : passed ? "✓" : "✗";
+        console.log(
+          `  ${icon} ${benchmark} ${done}/${total} — ${itemId} ` +
+            `[${(latencyMs / 1000).toFixed(1)}s]`,
+        );
+      },
     });
 
     report(suite);

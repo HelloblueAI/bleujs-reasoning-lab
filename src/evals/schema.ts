@@ -136,6 +136,12 @@ export interface ModelBenchmarkSuiteResult {
     topP: number;
     maxTokens: number;
     runs: number;
+    timeoutMs?: number;
+    /**
+     * Request parallelism. Latency is only comparable between runs at equal
+     * concurrency — the shared endpoint queues under load.
+     */
+    concurrency?: number;
   };
   total: number;
   passed: number;
