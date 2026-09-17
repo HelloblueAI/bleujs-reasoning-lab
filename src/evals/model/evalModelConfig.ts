@@ -23,7 +23,13 @@ export const NVIDIA_REASONING_TEMPERATURE = 1.0;
 export const NVIDIA_REASONING_TOP_P = 0.95;
 export const DEFAULT_EVAL_MAX_TOKENS = 16000;
 
-export type ReasoningMode = "on" | "off";
+/**
+ * "low" keeps reasoning enabled and adds NVIDIA's low-effort instruction, so it
+ * sits between "on" and "off" rather than disabling the reasoning channel.
+ */
+export type ReasoningMode = "on" | "low" | "off";
+
+export const REASONING_MODES: readonly ReasoningMode[] = ["on", "low", "off"];
 
 export interface EvalModelConfig {
   provider: "nvidia";
