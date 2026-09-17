@@ -10,6 +10,7 @@ import {
   NVIDIA_REASONING_TOP_P,
   resolveEvalModel,
 } from "@/evals/model/evalModelConfig";
+import { numbersMatch } from "@/evals/benchmarks/modelRunner";
 import { RealLLMIntegration } from "@/routing/RealLLMIntegration";
 
 const EVAL_ENV = {
@@ -81,6 +82,22 @@ describe("production routing isolation", () => {
     expect(llm.getAvailableModels()).not.toContain(
       "nvidia/nemotron-3-super-120b-a12b",
     );
+  });
+});
+
+describe("arithmetic grading", () => {
+  it("requires exact equality for integers regardless of magnitude", () => {
+    expect(numbersMatch(49696562936559, 49696562936559)).toBe(true);
+    // A near miss on a 14-digit product must not pass as an exact match.
+    expect(numbersMatch(49696562936560, 49696562936559)).toBe(false);
+    expect(numbersMatch(49696512936559, 49696562936559)).toBe(false);
+    expect(numbersMatch(-18914003885551, -18914003885552)).toBe(false);
+  });
+
+  it("absorbs only floating-point rounding on decimal items", () => {
+    expect(numbersMatch(10004511.184645, 10004511.184645)).toBe(true);
+    expect(numbersMatch(0.1 + 0.2, 0.3)).toBe(true);
+    expect(numbersMatch(90.0000009, 90.0000081)).toBe(false);
   });
 });
 

@@ -35,8 +35,12 @@ import {
 /** Same bar as the offline suite so scores read on one scale. */
 const PASS_THRESHOLD = 0.9;
 
-/** Relative tolerance for decimal arithmetic items. */
-const NUMERIC_TOLERANCE = 1e-9;
+/**
+ * Integer items are matched exactly, like the offline arithmetic suite. Decimal
+ * items get a few ulps of slack purely to absorb IEEE-754 rounding when the
+ * model prints a correctly computed value — never enough to accept a near miss.
+ */
+const DECIMAL_TOLERANCE = 1e-12;
 
 const TOOL_LABELS = [
   "calculator",
@@ -72,10 +76,13 @@ function parseNumber(raw: string): number | null {
   return Number.isFinite(value) ? value : null;
 }
 
-function numbersMatch(got: number, expected: number): boolean {
+export function numbersMatch(got: number, expected: number): boolean {
   if (got === expected) return true;
-  const scale = Math.max(Math.abs(expected), 1);
-  return Math.abs(got - expected) <= NUMERIC_TOLERANCE * scale;
+  if (Number.isInteger(expected)) return false;
+  return (
+    Math.abs(got - expected) <=
+    DECIMAL_TOLERANCE * Math.max(Math.abs(expected), 1)
+  );
 }
 
 function arithmeticSpec(): BenchmarkSpec {
