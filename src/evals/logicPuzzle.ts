@@ -48,6 +48,13 @@ const CLUES: Clue[] = [
   },
 ];
 
+/** Puzzle statement shared with the model-in-the-loop benchmark. */
+export const PUZZLE_AGENTS: readonly string[] = AGENTS;
+export const PUZZLE_MODULES: readonly string[] = MODULES;
+export const PUZZLE_CLUES: readonly string[] = CLUES.map(
+  (clue) => `Clue ${clue.id}: ${clue.text}`,
+);
+
 function usedModules(assignment: PartialAssignment): Set<Module> {
   const used = new Set<Module>();
   for (const mod of assignment.values()) {

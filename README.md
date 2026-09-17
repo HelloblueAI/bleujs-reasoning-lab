@@ -85,6 +85,15 @@ The lab separates two very different things:
 pnpm run eval   # prints both suites and refreshes results/latest.json
 ```
 
+- **Model-in-the-loop benchmarks** ([`src/evals/benchmarks/modelRunner.ts`](src/evals/benchmarks/modelRunner.ts)) send the *same* fixed datasets to a hosted model so its score is directly comparable to the offline baseline. Decoding is sampled, so every item runs `--runs` times and is scored by majority vote; rate-limited attempts are excluded from scoring rather than counted as wrong answers.
+
+```bash
+pnpm run eval:model -- --smoke                  # 1 item per benchmark
+pnpm run eval:model -- --thinking both --runs 3  # reasoning on vs off
+```
+
+This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_CHAT_MODEL`, which the Worker never reads, so an eval model can never be served by production `/reason` (that chain uses `NVIDIA_API_KEY` / `NVIDIA_CHAT_MODEL`). Per-variant results land in `src/evals/results/model-<model>-thinking-<mode>.json`.
+
 Neither suite is presented as evidence of general intelligence.
 
 ---
@@ -95,6 +104,7 @@ Neither suite is presented as evidence of general intelligence.
 |--------|---------|
 | `pnpm run worker:dev` | Wrangler dev server for the Worker |
 | `pnpm run eval` | Smoke evaluations + benchmarks (CLI) |
+| `pnpm run eval:model` | Model-in-the-loop benchmarks (needs `NVIDIA_EVAL_API_KEY`) |
 | `pnpm run test:unit` | Unit tests (Vitest) |
 | `pnpm run test:eval` | Eval + benchmark tests (Vitest) |
 | `pnpm run lint` / `format` | ESLint / Prettier |
