@@ -108,7 +108,8 @@ async function askOnce(
       maxTokens: config.maxTokens,
       temperature: config.temperature,
       topP: config.topP,
-      enableThinking: config.reasoning === "on",
+      enableThinking: config.reasoning !== "off",
+      ...(config.reasoning === "low" ? { lowEffort: true } : {}),
     });
 
     const answer = extractFinalAnswer(result.content);

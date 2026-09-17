@@ -19,6 +19,7 @@ import { fileURLToPath } from "node:url";
 import { runModelBenchmarkSuite } from "./benchmarks/modelRunner";
 import {
   describeEvalModel,
+  REASONING_MODES,
   resolveEvalModel,
   type EvalModelOverrides,
   type ReasoningMode,
@@ -69,13 +70,74 @@ function getGitSha(): string | null {
   }
 }
 
-function resultPath(suite: ModelBenchmarkSuiteResult): string {
-  const slug = suite.model.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
-  return resolve(
+function variantPath(model: string, reasoning: string): string {
+  const slug = model.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+  return resolve(here, "results", `model-${slug}-thinking-${reasoning}.json`);
+}
+
+/**
+ * Collects whichever reasoning variants exist on disk for this model into one
+ * comparison file. Each variant keeps its own timestamp and gitSha, since they
+ * are recorded in separate runs.
+ */
+function writeComparison(model: string): string | null {
+  const variants = REASONING_MODES.map((reasoning) => {
+    const path = variantPath(model, reasoning);
+    if (!existsSync(path)) return null;
+    const suite = JSON.parse(
+      readFileSync(path, "utf8"),
+    ) as ModelBenchmarkSuiteResult;
+    return {
+      reasoning: suite.reasoning,
+      recordedAt: new Date(suite.timestamp).toISOString(),
+      gitSha: suite.gitSha,
+      config: suite.config,
+      benchmarksPassed: suite.passed,
+      benchmarksTotal: suite.total,
+      itemScore: suite.itemScore,
+      latencyMs: suite.latencyMs,
+      completionTokens: suite.completionTokens,
+      durationMs: suite.durationMs,
+      rateLimited: suite.rateLimited,
+      benchmarkScores: Object.fromEntries(
+        suite.benchmarks.map((b) => [b.id, b.score]),
+      ),
+    };
+  }).filter((v) => v !== null);
+
+  if (variants.length < 2) return null;
+
+  const outPath = resolve(
     here,
     "results",
-    `model-${slug}-thinking-${suite.reasoning}.json`,
+    `model-${model.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-comparison.json`,
   );
+  writeFileSync(
+    outPath,
+    JSON.stringify(
+      {
+        provider: "nvidia",
+        model,
+        generatedAt: new Date().toISOString(),
+        note:
+          "Same fixed items, same graders, majority vote over repeated runs; " +
+          "only the reasoning setting differs.",
+        caveats: [
+          "Latency is shared free-endpoint latency, not a dedicated deployment.",
+          "Cost columns (completionTokens, latency) are measured over hundreds " +
+            "of requests and are reliable. Accuracy differences of one or two " +
+            "items are NOT: thinking-on already saturates this dataset, so at " +
+            "three runs per item a 36/39 vs 38/39 gap is within sampling noise " +
+            "at temperature 1.0. Harder items or more runs are needed to " +
+            "separate configurations that differ by a couple of points.",
+        ],
+        variants,
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+  return outPath;
 }
 
 function report(suite: ModelBenchmarkSuiteResult): void {
@@ -119,12 +181,32 @@ function report(suite: ModelBenchmarkSuiteResult): void {
 async function main(): Promise<void> {
   loadDevVars();
 
-  const thinking = (flag("thinking") ?? "on") as ReasoningMode | "both";
-  if (!["on", "off", "both"].includes(thinking)) {
-    throw new Error(`--thinking expects on | off | both, got "${thinking}"`);
+  const thinking = flag("thinking") ?? "on";
+  if (!["on", "low", "off", "both", "all"].includes(thinking)) {
+    throw new Error(
+      `--thinking expects on | low | off | both | all, got "${thinking}"`,
+    );
   }
   const modes: ReasoningMode[] =
-    thinking === "both" ? ["on", "off"] : [thinking];
+    thinking === "all"
+      ? [...REASONING_MODES]
+      : thinking === "both"
+        ? ["on", "off"]
+        : [thinking as ReasoningMode];
+
+  // Rebuild the comparison from recorded variants without spending API calls.
+  if (process.argv.includes("--summary-only")) {
+    const { config } = resolveEvalModel(process.env, {
+      ...(flag("model") ? { model: flag("model") } : {}),
+    });
+    const path = writeComparison(config.model);
+    console.log(
+      path
+        ? `Combined comparison → ${path}`
+        : `Need at least two recorded variants for ${config.model}`,
+    );
+    return;
+  }
 
   const smoke = process.argv.includes("--smoke");
   const limitPerBenchmark = smoke ? 1 : numberFlag("limit");
@@ -157,7 +239,7 @@ async function main(): Promise<void> {
     });
 
     report(suite);
-    const outPath = resultPath(suite);
+    const outPath = variantPath(suite.model, suite.reasoning);
     mkdirSync(dirname(outPath), { recursive: true });
     writeFileSync(outPath, JSON.stringify(suite, null, 2) + "\n");
     console.log(`  results → ${outPath}`);
@@ -166,15 +248,11 @@ async function main(): Promise<void> {
     failed += suite.failed;
   }
 
-  if (suites.length > 1) {
-    console.log("\nReasoning on vs off:");
-    for (const suite of suites) {
-      console.log(
-        `  thinking ${suite.reasoning}: item accuracy ` +
-          `${(suite.itemScore * 100).toFixed(1)}%, ` +
-          `p50 ${suite.latencyMs.p50}ms, ${suite.completionTokens} tokens`,
-      );
-    }
+  const comparisonPath = writeComparison(
+    suites[0]?.model ?? resolveEvalModel(process.env, overrides).config.model,
+  );
+  if (comparisonPath) {
+    console.log(`\nCombined comparison → ${comparisonPath}`);
   }
 
   process.exit(failed > 0 ? 1 : 0);

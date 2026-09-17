@@ -165,6 +165,42 @@ describe("askEvalModel", () => {
     });
   });
 
+  it("keeps reasoning enabled and adds low_effort for the low variant", async () => {
+    const fetchMock = vi.fn(async () =>
+      nvidiaResponse({ content: "FINAL: 4" }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await askEvalModel(resolveEvalModel(EVAL_ENV, { reasoning: "low" }), {
+      system: "grade me",
+      user: "2 + 2",
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    // low_effort is a nudge on top of reasoning, not a way to disable it.
+    expect(JSON.parse(String(init.body))).toMatchObject({
+      chat_template_kwargs: { enable_thinking: true, low_effort: true },
+    });
+  });
+
+  it("omits low_effort outside the low variant", async () => {
+    const fetchMock = vi.fn(async () =>
+      nvidiaResponse({ content: "FINAL: 4" }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await askEvalModel(resolveEvalModel(EVAL_ENV), {
+      system: "grade me",
+      user: "2 + 2",
+    });
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(init.body)) as {
+      chat_template_kwargs: Record<string, unknown>;
+    };
+    expect(body.chat_template_kwargs).not.toHaveProperty("low_effort");
+  });
+
   it("keeps the reasoning trace out of the graded answer", async () => {
     const fetchMock = vi.fn(async () =>
       nvidiaResponse({
