@@ -87,6 +87,16 @@ function writeComparison(model: string): string | null {
     const suite = JSON.parse(
       readFileSync(path, "utf8"),
     ) as ModelBenchmarkSuiteResult;
+    // Recount from the per-attempt records rather than trusting the stored
+    // totals: runs recorded before timeouts were tracked separately lumped
+    // stalls in with throttling. `timedOut` is absent on those, so fall back to
+    // the attempt's own error text.
+    const lost = suite.benchmarks
+      .flatMap((b) => b.items.flatMap((i) => i.attempts))
+      .filter((a) => a.inconclusive);
+    const timedOut = lost.filter(
+      (a) => a.timedOut ?? /timed out/i.test(a.error ?? ""),
+    ).length;
     return {
       reasoning: suite.reasoning,
       recordedAt: new Date(suite.timestamp).toISOString(),
@@ -98,7 +108,8 @@ function writeComparison(model: string): string | null {
       latencyMs: suite.latencyMs,
       completionTokens: suite.completionTokens,
       durationMs: suite.durationMs,
-      rateLimited: suite.rateLimited,
+      rateLimited: lost.length - timedOut,
+      timedOut,
       benchmarkScores: Object.fromEntries(
         suite.benchmarks.map((b) => [b.id, b.score]),
       ),
@@ -124,6 +135,9 @@ function writeComparison(model: string): string | null {
           "only the reasoning setting differs.",
         caveats: [
           "Latency is shared free-endpoint latency, not a dedicated deployment.",
+          "Latency is only comparable between variants recorded at the same " +
+            "concurrency (config.concurrency): the endpoint queues under load, " +
+            "and requests that hit config.timeoutMs are dropped as inconclusive.",
           "Cost columns (completionTokens, latency) are measured over hundreds " +
             "of requests and are reliable. Accuracy differences of one or two " +
             "items are NOT: thinking-on already saturates this dataset, so at " +
@@ -170,10 +184,16 @@ function report(suite: ModelBenchmarkSuiteResult): void {
       `${suite.completionTokens} completion tokens, ` +
       `${(suite.durationMs / 1000).toFixed(1)}s total`,
   );
-  if (suite.rateLimited > 0) {
+  const lost = [
+    suite.rateLimited ? `${suite.rateLimited} to 429/503 throttling` : "",
+    suite.timedOut
+      ? `${suite.timedOut} to the ${suite.config.timeoutMs ?? "?"}ms timeout`
+      : "",
+  ].filter(Boolean);
+  if (lost.length > 0) {
     console.log(
-      `  note: ${suite.rateLimited} attempt(s) lost to 429/503 on the free ` +
-        `endpoint after retries; excluded from scores and latency`,
+      `  note: lost ${lost.join(" and ")} after retries; ` +
+        `excluded from scores and latency`,
     );
   }
 }
@@ -218,6 +238,9 @@ async function main(): Promise<void> {
     ...(numberFlag("max-tokens")
       ? { maxTokens: numberFlag("max-tokens") }
       : {}),
+    ...(numberFlag("timeout")
+      ? { timeoutMs: (numberFlag("timeout") as number) * 1000 }
+      : {}),
   };
 
   console.log("BleuJS Reasoning Lab — model-in-the-loop benchmarks");
@@ -236,6 +259,14 @@ async function main(): Promise<void> {
       ...(numberFlag("concurrency")
         ? { concurrency: numberFlag("concurrency") }
         : {}),
+      // Reasoning runs take minutes; without this the CLI looks hung.
+      onProgress: ({ benchmark, itemId, passed, done, total, latencyMs }) => {
+        const icon = passed === null ? "○" : passed ? "✓" : "✗";
+        console.log(
+          `  ${icon} ${benchmark} ${done}/${total} — ${itemId} ` +
+            `[${(latencyMs / 1000).toFixed(1)}s]`,
+        );
+      },
     });
 
     report(suite);

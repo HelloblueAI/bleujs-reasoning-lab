@@ -1,7 +1,7 @@
 {
   "provider": "nvidia",
-  "model": "nvidia/nemotron-3-super-120b-a12b",
-  "generatedAt": "2026-09-17T11:12:24.126Z",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+  "generatedAt": "2026-09-17T11:12:23.926Z",
   "note": "Same fixed items, same graders, majority vote over repeated runs; only the reasoning setting differs.",
   "caveats": [
     "Latency is shared free-endpoint latency, not a dedicated deployment.",
@@ -11,92 +11,62 @@
   "variants": [
     {
       "reasoning": "on",
-      "recordedAt": "2026-09-17T06:24:37.667Z",
-      "gitSha": "cc5f1ab0",
+      "recordedAt": "2026-09-17T10:54:27.339Z",
+      "gitSha": "d843351d",
       "config": {
         "temperature": 1,
         "topP": 0.95,
         "maxTokens": 16000,
         "runs": 3
       },
-      "benchmarksPassed": 5,
+      "benchmarksPassed": 4,
       "benchmarksTotal": 5,
-      "itemScore": 0.9743589743589743,
+      "itemScore": 0.9230769230769231,
       "latencyMs": {
-        "p50": 3295,
-        "p95": 27518,
-        "max": 142091
+        "p50": 23327,
+        "p95": 141432,
+        "max": 225820
       },
-      "completionTokens": 72654,
-      "durationMs": 594240,
+      "completionTokens": 90475,
+      "durationMs": 3471009,
       "rateLimited": 0,
-      "timedOut": 0,
+      "timedOut": 7,
       "benchmarkScores": {
         "arithmetic": 0.9473684210526315,
         "logic-puzzle": 1,
         "retrieval": 1,
-        "tool-selection": 1,
+        "tool-selection": 0.75,
         "abstention": 1
       }
     },
     {
-      "reasoning": "low",
-      "recordedAt": "2026-09-17T06:52:51.339Z",
-      "gitSha": "750102c2",
+      "reasoning": "off",
+      "recordedAt": "2026-09-17T11:01:45.601Z",
+      "gitSha": "d843351d",
       "config": {
         "temperature": 1,
         "topP": 0.95,
         "maxTokens": 16000,
         "runs": 3
       },
-      "benchmarksPassed": 3,
+      "benchmarksPassed": 1,
       "benchmarksTotal": 5,
-      "itemScore": 0.9230769230769231,
+      "itemScore": 0.717948717948718,
       "latencyMs": {
-        "p50": 965,
-        "p95": 8370,
-        "max": 27449
+        "p50": 1402,
+        "p95": 62231,
+        "max": 122488
       },
-      "completionTokens": 10781,
-      "durationMs": 249122,
+      "completionTokens": 2719,
+      "durationMs": 438261,
       "rateLimited": 0,
       "timedOut": 0,
       "benchmarkScores": {
-        "arithmetic": 0.9473684210526315,
-        "logic-puzzle": 1,
-        "retrieval": 1,
-        "tool-selection": 0.875,
-        "abstention": 0.8
-      }
-    },
-    {
-      "reasoning": "off",
-      "recordedAt": "2026-09-17T06:29:33.343Z",
-      "gitSha": "cc5f1ab0",
-      "config": {
-        "temperature": 1,
-        "topP": 0.95,
-        "maxTokens": 16000,
-        "runs": 3
-      },
-      "benchmarksPassed": 2,
-      "benchmarksTotal": 5,
-      "itemScore": 0.8461538461538461,
-      "latencyMs": {
-        "p50": 548,
-        "p95": 2043,
-        "max": 10659
-      },
-      "completionTokens": 1794,
-      "durationMs": 295675,
-      "rateLimited": 2,
-      "timedOut": 0,
-      "benchmarkScores": {
         "arithmetic": 0.7894736842105263,
-        "logic-puzzle": 1,
+        "logic-puzzle": 0.6666666666666666,
         "retrieval": 1,
-        "tool-selection": 0.875,
-        "abstention": 0.8
+        "tool-selection": 0.625,
+        "abstention": 0.4
       }
     }
   ]

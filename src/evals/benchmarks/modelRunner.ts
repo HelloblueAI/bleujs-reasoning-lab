@@ -256,6 +256,7 @@ function toAttemptResult(
     latencyMs: attempt.latencyMs,
     truncated: attempt.truncated,
     inconclusive: attempt.inconclusive,
+    timedOut: attempt.timedOut,
     completionTokens: attempt.completionTokens,
     reasoningChars: attempt.reasoningChars,
     error: attempt.error,
@@ -296,6 +297,10 @@ export interface ModelBenchmarkOptions {
     benchmark: string;
     itemId: string;
     passed: boolean | null;
+    /** Items finished in this benchmark, out of its total. */
+    done: number;
+    total: number;
+    latencyMs: number;
   }) => void;
 }
 
@@ -310,6 +315,7 @@ async function runSpec(
     ? spec.items.slice(0, options.limitPerBenchmark)
     : spec.items;
 
+  let done = 0;
   const results = await mapWithConcurrency(
     items,
     options.concurrency ?? DEFAULT_CONCURRENCY,
@@ -328,6 +334,9 @@ async function runSpec(
         benchmark: spec.name,
         itemId: item.id,
         passed,
+        done: ++done,
+        total: items.length,
+        latencyMs: Math.max(...attempts.map((a) => a.latencyMs)),
       });
       return {
         id: item.id,
@@ -362,7 +371,8 @@ async function runSpec(
     inconclusiveItems: results.length - gradeable.length,
     truncations: attempts.filter((a) => a.truncated).length,
     errors: attempts.filter((a) => a.error !== null && !a.inconclusive).length,
-    rateLimited: attempts.filter((a) => a.inconclusive).length,
+    rateLimited: attempts.filter((a) => a.inconclusive && !a.timedOut).length,
+    timedOut: attempts.filter((a) => a.timedOut).length,
     // Failed requests return in milliseconds and would skew the percentiles.
     latencyMs: latencyStats(
       attempts.filter((a) => !a.inconclusive).map((a) => a.latencyMs),
@@ -403,6 +413,8 @@ export async function runModelBenchmarkSuite(
       topP: model.config.topP,
       maxTokens: model.config.maxTokens,
       runs: model.config.runs,
+      timeoutMs: model.config.timeoutMs,
+      concurrency: options.concurrency ?? DEFAULT_CONCURRENCY,
     },
     total: benchmarks.length,
     passed,
@@ -414,6 +426,7 @@ export async function runModelBenchmarkSuite(
       0,
     ),
     rateLimited: benchmarks.reduce((sum, b) => sum + b.rateLimited, 0),
+    timedOut: benchmarks.reduce((sum, b) => sum + b.timedOut, 0),
     latencyMs: latencyStats(
       attempts.filter((a) => !a.inconclusive).map((a) => a.latencyMs),
     ),
