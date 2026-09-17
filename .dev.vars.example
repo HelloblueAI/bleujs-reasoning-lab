@@ -14,5 +14,12 @@ OPENAI_API_KEY=
 NVIDIA_API_KEY=
 # NVIDIA_CHAT_URL=https://integrate.api.nvidia.com/v1/chat/completions
 # NVIDIA_CHAT_MODEL=nvidia/nemotron-3.5-lightning-30b-a3b
+
+# Reasoning Lab evaluation only (pnpm run eval:model). Never read by the Worker,
+# so an eval model can never be served by production /reason. Use a separate key.
+NVIDIA_EVAL_API_KEY=
+# NVIDIA_EVAL_CHAT_MODEL=nvidia/nemotron-3-super-120b-a12b
+# NVIDIA_EVAL_CHAT_URL=https://integrate.api.nvidia.com/v1/chat/completions
+
 # Set to "true" to allow NVIDIA/Anthropic/OpenAI when BleuJS fails or returns a non-answer.
 ALLOW_LLM_FALLBACK=false

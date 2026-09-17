@@ -4,6 +4,11 @@
  */
 
 import { isClarificationOnlyResponse } from "./reasonPrompt";
+import {
+  DEFAULT_NVIDIA_CHAT_URL as NVIDIA_CHAT_URL,
+  nvidiaChatCompletion,
+  type NvidiaChatMessage,
+} from "./nvidiaChat";
 
 export type LLMProvider = "bleujs" | "nvidia" | "anthropic" | "openai";
 
@@ -38,8 +43,7 @@ export type RealLLMIntegrationOptions = {
 const DEFAULT_CLAUDE_MODEL = "claude-sonnet-4-6";
 const DEFAULT_OPENAI_MODEL = "gpt-4o";
 const DEFAULT_BLEUJS_CHAT_URL = "https://api.bleujs.org/api/v1/chat";
-export const DEFAULT_NVIDIA_CHAT_URL =
-  "https://integrate.api.nvidia.com/v1/chat/completions";
+export const DEFAULT_NVIDIA_CHAT_URL = NVIDIA_CHAT_URL;
 export const DEFAULT_NVIDIA_CHAT_MODEL =
   "nvidia/nemotron-3.5-lightning-30b-a3b";
 const BLEUJS_MAX_ATTEMPTS = 5;
@@ -314,48 +318,26 @@ export class RealLLMIntegration {
       throw new Error("NVIDIA API key not configured");
     }
 
-    const messages: Array<{ role: string; content: string }> = [];
+    const messages: NvidiaChatMessage[] = [];
     if (systemPrompt) {
       messages.push({ role: "system", content: systemPrompt });
     }
     messages.push({ role: "user", content: prompt });
 
     try {
-      const response = await fetch(this.nvidiaChatUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${this.nvidiaKey}`,
-        },
-        body: JSON.stringify({
-          model: this.nvidiaModel,
-          messages,
-          max_tokens: maxTokens,
-          temperature: 0.6,
-          top_p: 0.95,
-          stream: false,
-          chat_template_kwargs: { enable_thinking: false },
-        }),
+      const result = await nvidiaChatCompletion({
+        apiKey: this.nvidiaKey,
+        chatUrl: this.nvidiaChatUrl,
+        model: this.nvidiaModel,
+        messages,
+        maxTokens,
+        temperature: 0.6,
+        topP: 0.95,
+        enableThinking: false,
       });
 
-      if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`NVIDIA API error: ${response.status} - ${error}`);
-      }
-
-      const data = (await response.json()) as {
-        choices?: Array<{
-          message?: { content?: string; reasoning_content?: string };
-        }>;
-      };
-      const message = data.choices?.[0]?.message;
-      const content =
-        message?.content?.trim() ||
-        message?.reasoning_content?.trim() ||
-        "No response";
-
       return {
-        answer: content,
+        answer: result.content || result.reasoning || "No response",
         confidence: 0.88,
         provider: "nvidia",
         model: this.nvidiaModel,

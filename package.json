@@ -12,6 +12,7 @@
     "test:watch": "vitest --watch",
     "test:ci": "vitest --run --reporter=verbose",
     "eval": "tsx src/evals/cli.ts",
+    "eval:model": "tsx src/evals/modelCli.ts",
     "lint": "eslint src tests --ext .ts --max-warnings 0",
     "lint:fix": "eslint src tests --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
