@@ -44,6 +44,12 @@ export interface NvidiaChatRequest {
   topP: number;
   /** Nemotron chat-template flag; reasoning is on by default server-side. */
   enableThinking: boolean;
+  /**
+   * Appends NVIDIA's low reasoning-effort instruction. Per NVIDIA's docs this
+   * nudges toward shorter traces — it does not turn reasoning off, and is only
+   * meaningful while `enableThinking` is true.
+   */
+  lowEffort?: boolean;
   signal?: AbortSignal;
 }
 
@@ -98,7 +104,10 @@ export async function nvidiaChatCompletion(
       temperature: request.temperature,
       top_p: request.topP,
       stream: false,
-      chat_template_kwargs: { enable_thinking: request.enableThinking },
+      chat_template_kwargs: {
+        enable_thinking: request.enableThinking,
+        ...(request.lowEffort ? { low_effort: true } : {}),
+      },
     }),
     ...(request.signal ? { signal: request.signal } : {}),
   });

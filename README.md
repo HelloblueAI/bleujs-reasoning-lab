@@ -88,9 +88,13 @@ pnpm run eval   # prints both suites and refreshes results/latest.json
 - **Model-in-the-loop benchmarks** ([`src/evals/benchmarks/modelRunner.ts`](src/evals/benchmarks/modelRunner.ts)) send the *same* fixed datasets to a hosted model so its score is directly comparable to the offline baseline. Decoding is sampled, so every item runs `--runs` times and is scored by majority vote; rate-limited attempts are excluded from scoring rather than counted as wrong answers.
 
 ```bash
-pnpm run eval:model -- --smoke                  # 1 item per benchmark
-pnpm run eval:model -- --thinking both --runs 3  # reasoning on vs off
+pnpm run eval:model -- --smoke                   # 1 item per benchmark
+pnpm run eval:model -- --thinking all --runs 3   # reasoning on / low / off
+pnpm run eval:model -- --summary-only            # rebuild the comparison file
 ```
+
+`--thinking low` uses NVIDIA's low reasoning-effort instruction, which keeps the
+reasoning channel active rather than disabling it.
 
 This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_CHAT_MODEL`, which the Worker never reads, so an eval model can never be served by production `/reason` (that chain uses `NVIDIA_API_KEY` / `NVIDIA_CHAT_MODEL`). Per-variant results land in `src/evals/results/model-<model>-thinking-<mode>.json`.
 
