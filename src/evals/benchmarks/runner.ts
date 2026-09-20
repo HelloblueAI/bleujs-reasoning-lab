@@ -2,19 +2,30 @@
  * Reproducible benchmark suite (offline, deterministic, exact scoring).
  *
  * These are real benchmarks over fixed datasets — not smoke tests. Each returns
- * per-item results so regressions between releases are diffable. None of these
- * require API keys; an optional live-LLM benchmark can be added separately and
- * would populate the `model`/`costUsd` fields.
+ * per-item results so regressions between releases are diffable. None require
+ * API keys.
+ *
+ * Scope: this suite scores the **core tier only**. Core items are what these
+ * deterministic baselines are built to handle — two-operand arithmetic, lexically
+ * obvious retrieval, literal tool keywords — so the suite is a clean regression
+ * test that should hold at 100%. The hard tier exists to separate *models* from
+ * each other and is expected to defeat a regex or a bag-of-words ranker, so
+ * including it here would only measure a known limitation. `pnpm run eval:model`
+ * runs both tiers and reports them separately.
+ *
+ * The logic puzzle is the exception: the CSP solver genuinely solves both
+ * puzzles, so both are scored here.
  */
 
 import { tryArithmeticReason } from "@/routing/arithmeticReason";
 import { rankTextsByOverlap } from "@/retrieval/semanticRetrieval";
 import { ToolSystem } from "@/tools/ToolSystem";
-import { solveBleuLabPuzzle } from "@/evals/logicPuzzle";
+import { LOGIC_PUZZLES, solvePuzzle } from "@/evals/logicPuzzle";
 import { LAB_VERSION } from "@/metrics/labStatus";
 import {
   ABSTENTION_ITEMS,
   ARITHMETIC_ITEMS,
+  ofTier,
   RETRIEVAL_QUERIES,
   ROUTING_EXPECTED,
   ROUTING_FIXTURES,
@@ -64,16 +75,18 @@ function finalize(
 
 function runArithmetic(): BenchmarkResult {
   const start = Date.now();
-  const items: BenchmarkItemResult[] = ARITHMETIC_ITEMS.map((item) => {
-    const result = tryArithmeticReason(item.input);
-    const got = result ? parseAnswerNumber(result.answer) : null;
-    return {
-      id: item.id,
-      passed: got === item.expected,
-      got: got === null ? "abstained" : String(got),
-      expected: String(item.expected),
-    };
-  });
+  const items: BenchmarkItemResult[] = ofTier(ARITHMETIC_ITEMS, "core").map(
+    (item) => {
+      const result = tryArithmeticReason(item.input);
+      const got = result ? parseAnswerNumber(result.answer) : null;
+      return {
+        id: item.id,
+        passed: got === item.expected,
+        got: got === null ? "abstained" : String(got),
+        expected: String(item.expected),
+      };
+    },
+  );
   return finalize(
     "arithmetic",
     "Arithmetic (exact)",
@@ -85,16 +98,18 @@ function runArithmetic(): BenchmarkResult {
 
 function runRetrieval(): BenchmarkResult {
   const start = Date.now();
-  const items: BenchmarkItemResult[] = RETRIEVAL_QUERIES.map((q) => {
-    const ranked = rankTextsByOverlap(q.query, q.passages);
-    const top = ranked[0];
-    return {
-      id: q.id,
-      passed: top?.text === q.expectedTop && (top?.score ?? 0) > 0,
-      got: top?.text ?? "none",
-      expected: q.expectedTop,
-    };
-  });
+  const items: BenchmarkItemResult[] = ofTier(RETRIEVAL_QUERIES, "core").map(
+    (q) => {
+      const ranked = rankTextsByOverlap(q.query, q.passages);
+      const top = ranked[0];
+      return {
+        id: q.id,
+        passed: top?.text === q.expectedTop && (top?.score ?? 0) > 0,
+        got: top?.text ?? "none",
+        expected: q.expectedTop,
+      };
+    },
+  );
   return finalize(
     "retrieval",
     "Retrieval (top-1)",
@@ -107,15 +122,17 @@ function runRetrieval(): BenchmarkResult {
 function runToolSelection(): BenchmarkResult {
   const start = Date.now();
   const tools = new ToolSystem();
-  const items: BenchmarkItemResult[] = TOOL_SELECTION_ITEMS.map((item) => {
-    const detected = tools.detectTool(item.query);
-    return {
-      id: item.id,
-      passed: detected === item.expected,
-      got: detected,
-      expected: item.expected,
-    };
-  });
+  const items: BenchmarkItemResult[] = ofTier(TOOL_SELECTION_ITEMS, "core").map(
+    (item) => {
+      const detected = tools.detectTool(item.query);
+      return {
+        id: item.id,
+        passed: detected === item.expected,
+        got: detected,
+        expected: item.expected,
+      };
+    },
+  );
   return finalize(
     "tool-selection",
     "Tool selection",
@@ -164,15 +181,17 @@ function runRouting(): BenchmarkResult {
 
 function runAbstention(): BenchmarkResult {
   const start = Date.now();
-  const items: BenchmarkItemResult[] = ABSTENTION_ITEMS.map((item) => {
-    const result = tryArithmeticReason(item.input);
-    return {
-      id: item.id,
-      passed: result === null,
-      got: result === null ? "abstained" : result.answer,
-      expected: "abstained",
-    };
-  });
+  const items: BenchmarkItemResult[] = ofTier(ABSTENTION_ITEMS, "core").map(
+    (item) => {
+      const result = tryArithmeticReason(item.input);
+      return {
+        id: item.id,
+        passed: result === null,
+        got: result === null ? "abstained" : result.answer,
+        expected: "abstained",
+      };
+    },
+  );
   return finalize(
     "abstention",
     "Abstention (no fabricated math)",
@@ -184,20 +203,24 @@ function runAbstention(): BenchmarkResult {
 
 function runLogicPuzzle(): BenchmarkResult {
   const start = Date.now();
-  const puzzle = solveBleuLabPuzzle();
-  const expected: Record<string, string> = {
-    Alpha: "Orchestration",
-    Beta: "Reasoning",
-    Gamma: "Understanding",
-  };
-  const items: BenchmarkItemResult[] = Object.entries(expected).map(
-    ([agent, mod]) => ({
-      id: `assign-${agent}`,
-      passed: puzzle.solved && puzzle.assignment[agent] === mod,
-      got: puzzle.assignment[agent] ?? "unassigned",
-      expected: mod,
-    }),
-  );
+  const items: BenchmarkItemResult[] = [];
+
+  for (const puzzle of LOGIC_PUZZLES) {
+    const solved = solvePuzzle(puzzle);
+    // Compared against the assignment the fixture declares, not against the
+    // solver's own output, so solver drift is caught. `solved` is false for an
+    // unsatisfiable or ambiguous puzzle, which fails every item rather than
+    // grading against a guess.
+    for (const agent of puzzle.agents) {
+      const expected = puzzle.expectedAssignment[agent]!;
+      items.push({
+        id: `${puzzle.id}-${agent}`,
+        passed: solved.solved && solved.assignment[agent] === expected,
+        got: solved.assignment[agent] ?? "unassigned",
+        expected,
+      });
+    }
+  }
   return finalize(
     "logic-puzzle",
     "Logic puzzle (constraint solve)",

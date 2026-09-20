@@ -1,8 +1,21 @@
 /**
- * Bleu Lab wing assignment — offline logic puzzle for the eval suite.
+ * Constraint-assignment puzzles for the eval suite.
  *
- * Three pipeline agents each own exactly one module. Clues constrain the
- * bijection; a small CSP solver verifies uniqueness and records deductions.
+ * Each puzzle assigns agents to modules as a bijection, constrained by clues. A
+ * small CSP solver verifies that exactly one assignment satisfies every clue, so
+ * a graded answer is never ambiguous.
+ *
+ * Two puzzles are defined:
+ *
+ * - `core` (3x3) is the regression fixture. The deterministic solver must keep
+ *   solving it, and it is small enough to be readable.
+ * - `hard` (5x5) exists because the 3x3 was saturated: every model variant
+ *   scored 1.000 on it, so it could not distinguish reasoning-on from
+ *   reasoning-off. It requires chained elimination plus two ordering
+ *   constraints, which a model cannot shortcut by guessing.
+ *
+ * Deduction steps are produced by actual constraint propagation rather than
+ * narrated after the fact, so the recorded reasoning matches the search.
  */
 
 export interface LogicPuzzleSolution {
@@ -11,89 +24,198 @@ export interface LogicPuzzleSolution {
   steps: string[];
 }
 
-const AGENTS = ["Alpha", "Beta", "Gamma"] as const;
-const MODULES = ["Understanding", "Reasoning", "Orchestration"] as const;
+export type PuzzleTier = "core" | "hard";
 
-type Agent = (typeof AGENTS)[number];
-type Module = (typeof MODULES)[number];
-
-type PartialAssignment = Map<Agent, Module | null>;
-
-interface Clue {
-  id: number;
-  text: string;
-  violated: (assignment: PartialAssignment) => boolean;
+export interface LogicPuzzle {
+  id: string;
+  tier: PuzzleTier;
+  agents: readonly string[];
+  modules: readonly string[];
+  /**
+   * Pipeline order used by "earlier/later" clues. Stated to the model so an
+   * ordering clue is decidable without guessing an implicit convention.
+   */
+  pipelineOrder: readonly string[];
+  clues: readonly PuzzleClue[];
+  /**
+   * The answer, declared by the fixture rather than taken from the solver, so
+   * the offline benchmark is a real regression test: if the solver drifts, the
+   * comparison fails instead of silently agreeing with itself.
+   */
+  expectedAssignment: Readonly<Record<string, string>>;
 }
 
-const CLUES: Clue[] = [
-  {
-    id: 1,
-    text: "Alpha is not assigned Understanding",
-    violated: (a) => a.get("Alpha") === "Understanding",
-  },
-  {
-    id: 2,
-    text: "Beta is assigned Reasoning",
-    violated: (a) => a.get("Beta") !== null && a.get("Beta") !== "Reasoning",
-  },
-  {
-    id: 3,
-    text: "Gamma is not assigned Orchestration",
-    violated: (a) => a.get("Gamma") === "Orchestration",
-  },
-  {
-    id: 4,
-    text: "Orchestration is not assigned to Beta",
-    violated: (a) => a.get("Beta") === "Orchestration",
-  },
-];
+export interface PuzzleClue {
+  id: number;
+  text: string;
+  /**
+   * Must return true only when the partial assignment *definitely* breaks the
+   * clue. Returning true on an undecided assignment would prune valid branches.
+   */
+  violated: (assignment: ReadonlyMap<string, string | null>) => boolean;
+}
 
-/** Puzzle statement shared with the model-in-the-loop benchmark. */
-export const PUZZLE_AGENTS: readonly string[] = AGENTS;
-export const PUZZLE_MODULES: readonly string[] = MODULES;
-export const PUZZLE_CLUES: readonly string[] = CLUES.map(
-  (clue) => `Clue ${clue.id}: ${clue.text}`,
-);
+/** Position of a module in the pipeline, or null when not yet assigned. */
+function position(
+  puzzle: LogicPuzzle,
+  assignment: ReadonlyMap<string, string | null>,
+  agent: string,
+): number | null {
+  const mod = assignment.get(agent);
+  if (!mod) return null;
+  const index = puzzle.pipelineOrder.indexOf(mod);
+  return index === -1 ? null : index;
+}
 
-function usedModules(assignment: PartialAssignment): Set<Module> {
-  const used = new Set<Module>();
+/** "`earlier`'s module comes before `later`'s in the pipeline." */
+function orderedClue(
+  puzzle: () => LogicPuzzle,
+  id: number,
+  earlier: string,
+  later: string,
+): PuzzleClue {
+  return {
+    id,
+    text: `${earlier}'s module comes earlier in the pipeline than ${later}'s`,
+    violated: (a) => {
+      const first = position(puzzle(), a, earlier);
+      const second = position(puzzle(), a, later);
+      if (first === null || second === null) return false;
+      return first >= second;
+    },
+  };
+}
+
+function isClue(id: number, agent: string, mod: string): PuzzleClue {
+  return {
+    id,
+    text: `${agent} is assigned ${mod}`,
+    violated: (a) => {
+      const assigned = a.get(agent);
+      return assigned !== null && assigned !== undefined && assigned !== mod;
+    },
+  };
+}
+
+function isNotClue(id: number, agent: string, mods: string[]): PuzzleClue {
+  return {
+    id,
+    text:
+      mods.length === 1
+        ? `${agent} is not assigned ${mods[0]}`
+        : `${agent} is assigned neither ${mods.slice(0, -1).join(", ")} nor ${mods.at(-1)}`,
+    violated: (a) => {
+      const assigned = a.get(agent);
+      return assigned != null && mods.includes(assigned);
+    },
+  };
+}
+
+const CORE_AGENTS = ["Alpha", "Beta", "Gamma"] as const;
+const CORE_MODULES = ["Understanding", "Reasoning", "Orchestration"] as const;
+
+/** The original 3x3 fixture, kept as a regression check. */
+export const CORE_PUZZLE: LogicPuzzle = {
+  id: "wing-assignment-3",
+  tier: "core",
+  agents: CORE_AGENTS,
+  modules: CORE_MODULES,
+  pipelineOrder: CORE_MODULES,
+  clues: [
+    isNotClue(1, "Alpha", ["Understanding"]),
+    isClue(2, "Beta", "Reasoning"),
+    isNotClue(3, "Gamma", ["Orchestration"]),
+    isNotClue(4, "Beta", ["Orchestration"]),
+  ],
+  expectedAssignment: {
+    Alpha: "Orchestration",
+    Beta: "Reasoning",
+    Gamma: "Understanding",
+  },
+};
+
+const HARD_AGENTS = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"] as const;
+/** Declared in pipeline order, which the ordering clues refer to. */
+const HARD_MODULES = [
+  "Understanding",
+  "Retrieval",
+  "Reasoning",
+  "Orchestration",
+  "Routing",
+] as const;
+
+/**
+ * 5x5 puzzle with a unique solution reachable only by chained elimination:
+ * Gamma is pinned by exclusion, which frees Alpha, which leaves an ordering
+ * constraint to separate Delta from Epsilon.
+ */
+export const HARD_PUZZLE: LogicPuzzle = {
+  id: "wing-assignment-5",
+  tier: "hard",
+  agents: HARD_AGENTS,
+  modules: HARD_MODULES,
+  pipelineOrder: HARD_MODULES,
+  clues: [
+    isClue(1, "Beta", "Reasoning"),
+    orderedClue(() => HARD_PUZZLE, 2, "Alpha", "Beta"),
+    isNotClue(3, "Gamma", ["Retrieval"]),
+    orderedClue(() => HARD_PUZZLE, 4, "Epsilon", "Delta"),
+    isNotClue(5, "Gamma", ["Orchestration", "Routing"]),
+  ],
+  expectedAssignment: {
+    Alpha: "Retrieval",
+    Beta: "Reasoning",
+    Gamma: "Understanding",
+    Delta: "Routing",
+    Epsilon: "Orchestration",
+  },
+};
+
+export const LOGIC_PUZZLES: readonly LogicPuzzle[] = [CORE_PUZZLE, HARD_PUZZLE];
+
+type PartialAssignment = Map<string, string | null>;
+
+function emptyAssignment(puzzle: LogicPuzzle): PartialAssignment {
+  return new Map(puzzle.agents.map((agent) => [agent, null]));
+}
+
+function violatesAnyClue(
+  puzzle: LogicPuzzle,
+  assignment: PartialAssignment,
+): boolean {
+  return puzzle.clues.some((clue) => clue.violated(assignment));
+}
+
+function availableModules(
+  puzzle: LogicPuzzle,
+  assignment: PartialAssignment,
+): string[] {
+  const used = new Set<string>();
   for (const mod of assignment.values()) {
     if (mod) used.add(mod);
   }
-  return used;
+  return puzzle.modules.filter((mod) => !used.has(mod));
 }
 
-function violatesAnyClue(assignment: PartialAssignment): boolean {
-  return CLUES.some((clue) => clue.violated(assignment));
-}
-
-function availableModules(assignment: PartialAssignment): Module[] {
-  const used = usedModules(assignment);
-  return MODULES.filter((mod) => !used.has(mod));
-}
-
-function nextUnassignedAgent(assignment: PartialAssignment): Agent | null {
-  return AGENTS.find((agent) => assignment.get(agent) === null) ?? null;
-}
-
-function enumerateSolutions(limit: number): Record<string, string>[] {
+function enumerateSolutions(
+  puzzle: LogicPuzzle,
+  limit: number,
+): Record<string, string>[] {
   const solutions: Record<string, string>[] = [];
-  const assignment: PartialAssignment = new Map(
-    AGENTS.map((agent) => [agent, null]),
-  );
+  const assignment = emptyAssignment(puzzle);
 
   function search(): void {
-    if (violatesAnyClue(assignment)) return;
+    if (violatesAnyClue(puzzle, assignment)) return;
 
-    const agent = nextUnassignedAgent(assignment);
+    const agent = puzzle.agents.find((a) => assignment.get(a) === null) ?? null;
     if (!agent) {
       solutions.push(
-        Object.fromEntries(AGENTS.map((a) => [a, assignment.get(a)!])),
+        Object.fromEntries(puzzle.agents.map((a) => [a, assignment.get(a)!])),
       );
       return;
     }
 
-    for (const mod of availableModules(assignment)) {
+    for (const mod of availableModules(puzzle, assignment)) {
       assignment.set(agent, mod);
       search();
       assignment.set(agent, null);
@@ -105,44 +227,109 @@ function enumerateSolutions(limit: number): Record<string, string>[] {
   return solutions;
 }
 
-function explainSolution(assignment: Record<string, string>): string[] {
-  const steps: string[] = [];
-
-  steps.push("Clue 2 fixes Beta on Reasoning (only valid module for Beta).");
-
-  const remainingForGamma = MODULES.filter(
-    (mod) => mod !== assignment["Beta"] && mod !== "Orchestration",
-  );
-  steps.push(
-    `Clue 3 rules out Orchestration for Gamma; Reasoning is taken → Gamma must handle ${remainingForGamma[0]}.`,
-  );
-
-  const alphaModule = MODULES.find(
-    (mod) => mod !== assignment["Beta"] && mod !== assignment["Gamma"],
-  );
-  steps.push(`Only ${alphaModule} remains for Alpha.`);
-
-  if (assignment["Alpha"] !== "Understanding") {
-    steps.push("Clue 1 satisfied: Alpha is not on Understanding.");
+/**
+ * Candidate modules for an agent given what is already assigned: every module
+ * that does not immediately violate a clue and can still complete to a full
+ * solution.
+ */
+function candidatesFor(
+  puzzle: LogicPuzzle,
+  assignment: PartialAssignment,
+  agent: string,
+): string[] {
+  const candidates: string[] = [];
+  for (const mod of availableModules(puzzle, assignment)) {
+    assignment.set(agent, mod);
+    const feasible =
+      !violatesAnyClue(puzzle, assignment) && completable(puzzle, assignment);
+    assignment.set(agent, null);
+    if (feasible) candidates.push(mod);
   }
-  if (assignment["Beta"] !== "Orchestration") {
-    steps.push("Clue 4 satisfied: Orchestration is not assigned to Beta.");
+  return candidates;
+}
+
+/** Whether the partial assignment extends to at least one full solution. */
+function completable(
+  puzzle: LogicPuzzle,
+  assignment: PartialAssignment,
+): boolean {
+  if (violatesAnyClue(puzzle, assignment)) return false;
+  const agent = puzzle.agents.find((a) => assignment.get(a) === null) ?? null;
+  if (!agent) return true;
+
+  for (const mod of availableModules(puzzle, assignment)) {
+    assignment.set(agent, mod);
+    const ok = completable(puzzle, assignment);
+    assignment.set(agent, null);
+    if (ok) return true;
+  }
+  return false;
+}
+
+/**
+ * Real constraint propagation: repeatedly assign whichever agent has exactly
+ * one feasible module, recording why. Falls back to reporting the remaining
+ * candidates when no agent is forced.
+ */
+function deriveSteps(puzzle: LogicPuzzle): string[] {
+  const steps: string[] = [];
+  const assignment = emptyAssignment(puzzle);
+  const unassigned = new Set(puzzle.agents);
+
+  while (unassigned.size > 0) {
+    let forcedAgent: string | null = null;
+    let forcedModule: string | null = null;
+
+    for (const agent of unassigned) {
+      const candidates = candidatesFor(puzzle, assignment, agent);
+      if (candidates.length === 1) {
+        forcedAgent = agent;
+        forcedModule = candidates[0]!;
+        break;
+      }
+    }
+
+    if (!forcedAgent || !forcedModule) {
+      const remaining = [...unassigned]
+        .map(
+          (agent) =>
+            `${agent} ∈ {${candidatesFor(puzzle, assignment, agent).join(", ")}}`,
+        )
+        .join("; ");
+      steps.push(
+        `No further agent is forced; remaining options: ${remaining}.`,
+      );
+      break;
+    }
+
+    assignment.set(forcedAgent, forcedModule);
+    unassigned.delete(forcedAgent);
+    steps.push(
+      `${forcedAgent} must take ${forcedModule} — it is the only module left that satisfies every clue.`,
+    );
   }
 
   return steps;
 }
 
-/**
- * Solve the Bleu Lab wing-assignment puzzle offline.
- * Returns the unique satisfying assignment when exactly one exists.
- */
-export function solveBleuLabPuzzle(): LogicPuzzleSolution {
-  const preamble = [
-    "Bleu Lab puzzle: assign Alpha, Beta, Gamma to Understanding, Reasoning, Orchestration.",
-    ...CLUES.map((c) => `Clue ${c.id}: ${c.text}`),
-  ];
+/** Statement text shared with the model-in-the-loop benchmark. */
+export function puzzleStatement(puzzle: LogicPuzzle): string {
+  return [
+    `Assign each agent (${puzzle.agents.join(", ")}) exactly one module ` +
+      `(${puzzle.modules.join(", ")}). Each module is used exactly once.`,
+    `Pipeline order, earliest first: ${puzzle.pipelineOrder.join(" → ")}.`,
+    ...puzzle.clues.map((clue) => `Clue ${clue.id}: ${clue.text}`),
+  ].join("\n");
+}
 
-  const solutions = enumerateSolutions(2);
+/**
+ * Solve a puzzle offline. Returns the unique satisfying assignment when exactly
+ * one exists; `solved` is false for an unsatisfiable or ambiguous puzzle so a
+ * badly specified fixture fails loudly instead of grading against a guess.
+ */
+export function solvePuzzle(puzzle: LogicPuzzle): LogicPuzzleSolution {
+  const preamble = [puzzleStatement(puzzle)];
+  const solutions = enumerateSolutions(puzzle, 2);
 
   if (solutions.length === 0) {
     return {
@@ -164,14 +351,20 @@ export function solveBleuLabPuzzle(): LogicPuzzleSolution {
   }
 
   const assignment = solutions[0]!;
-
   return {
     solved: true,
     assignment,
     steps: [
       ...preamble,
-      ...explainSolution(assignment),
-      `Unique solution: ${AGENTS.map((a) => `${a}→${assignment[a]}`).join(", ")}.`,
+      ...deriveSteps(puzzle),
+      `Unique solution: ${puzzle.agents
+        .map((a) => `${a}→${assignment[a]}`)
+        .join(", ")}.`,
     ],
   };
+}
+
+/** Back-compat: the original 3x3 puzzle. */
+export function solveBleuLabPuzzle(): LogicPuzzleSolution {
+  return solvePuzzle(CORE_PUZZLE);
 }

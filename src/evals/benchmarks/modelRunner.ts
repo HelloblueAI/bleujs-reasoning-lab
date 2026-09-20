@@ -3,17 +3,21 @@
  *
  * The offline benchmarks in `./runner.ts` score the lab's own components and
  * never call a model. These run the identical items through an evaluation-only
- * provider so a model's score is directly comparable to the local baseline.
- * Decoding is sampled, so every item is repeated `runs` times and scored by
- * majority vote, with latency and truncations recorded per attempt.
+ * provider so a model's score is comparable to the local baseline on the core
+ * tier. Decoding is sampled, so every item is repeated `runs` times and scored
+ * by majority vote, with latency and truncations recorded per attempt.
+ *
+ * Unlike the offline suite, this runs **both tiers** and reports them
+ * separately. Strong models saturate the core tier, so a blended score cannot
+ * show whether a configuration change mattered; `tierScores.hard` is where the
+ * difference between reasoning-on and reasoning-off is visible.
  */
 
 import { LAB_VERSION } from "@/metrics/labStatus";
 import {
-  PUZZLE_AGENTS,
-  PUZZLE_CLUES,
-  PUZZLE_MODULES,
-  solveBleuLabPuzzle,
+  LOGIC_PUZZLES,
+  puzzleStatement,
+  solvePuzzle,
 } from "@/evals/logicPuzzle";
 import { askEvalModel, type ModelAttempt } from "@/evals/model/evalModelClient";
 import type { ResolvedEvalModel } from "@/evals/model/evalModelConfig";
@@ -24,11 +28,13 @@ import type {
   ModelBenchmarkItemResult,
   ModelBenchmarkResult,
   ModelBenchmarkSuiteResult,
+  TierScores,
 } from "@/evals/schema";
 import {
   ABSTENTION_ITEMS,
   ARITHMETIC_ITEMS,
   RETRIEVAL_QUERIES,
+  type Tier,
   TOOL_SELECTION_ITEMS,
 } from "./datasets";
 
@@ -57,6 +63,7 @@ const BASE_SYSTEM =
 
 interface GradedItem {
   id: string;
+  tier: Tier;
   expected: string;
   prompt: { system: string; user: string };
   /** Returns the normalized value that was graded, plus whether it matched. */
@@ -92,6 +99,7 @@ function arithmeticSpec(): BenchmarkSpec {
     metric: "exact match",
     items: ARITHMETIC_ITEMS.map((item) => ({
       id: item.id,
+      tier: item.tier,
       expected: String(item.expected),
       prompt: {
         system:
@@ -122,6 +130,7 @@ function retrievalSpec(): BenchmarkSpec {
         .join("\n");
       return {
         id: query.id,
+        tier: query.tier,
         expected: query.expectedTop,
         prompt: {
           system: `${BASE_SYSTEM} Answer with the number of the single best passage.`,
@@ -147,6 +156,7 @@ function toolSelectionSpec(): BenchmarkSpec {
     metric: "exact label accuracy",
     items: TOOL_SELECTION_ITEMS.map((item) => ({
       id: item.id,
+      tier: item.tier,
       expected: item.expected,
       prompt: {
         system:
@@ -169,6 +179,7 @@ function abstentionSpec(): BenchmarkSpec {
     metric: "abstention rate",
     items: ABSTENTION_ITEMS.map((item) => ({
       id: item.id,
+      tier: item.tier,
       expected: "UNSUPPORTED",
       prompt: {
         system:
@@ -186,31 +197,57 @@ function abstentionSpec(): BenchmarkSpec {
 }
 
 function logicPuzzleSpec(): BenchmarkSpec {
-  const solution = solveBleuLabPuzzle();
-  const statement =
-    `Assign each agent (${PUZZLE_AGENTS.join(", ")}) exactly one module ` +
-    `(${PUZZLE_MODULES.join(", ")}). Each module is used once.\n` +
-    PUZZLE_CLUES.join("\n");
+  const items: GradedItem[] = [];
+
+  for (const puzzle of LOGIC_PUZZLES) {
+    // Refuse to grade against a fixture whose clues do not pin exactly one
+    // assignment, or whose declared answer is not that assignment. Spending a
+    // paid eval run on an ambiguous puzzle would produce a meaningless score.
+    const solution = solvePuzzle(puzzle);
+    if (!solution.solved) {
+      throw new Error(
+        `Logic puzzle "${puzzle.id}" has no unique solution; fixture is broken.`,
+      );
+    }
+    for (const agent of puzzle.agents) {
+      if (solution.assignment[agent] !== puzzle.expectedAssignment[agent]) {
+        throw new Error(
+          `Logic puzzle "${puzzle.id}" declares ${agent}=${puzzle.expectedAssignment[agent]} ` +
+            `but the unique solution is ${agent}=${solution.assignment[agent]}.`,
+        );
+      }
+    }
+
+    const statement = puzzleStatement(puzzle);
+
+    for (const agent of puzzle.agents) {
+      // The fixture's declared answer, cross-checked by the solver in the
+      // offline suite, so a model is never graded against a solver guess.
+      const expected = puzzle.expectedAssignment[agent]!;
+      items.push({
+        id: `${puzzle.id}-${agent}`,
+        tier: puzzle.tier,
+        expected,
+        prompt: {
+          system: `${BASE_SYSTEM} Answer with one module name only.`,
+          user: `${statement}\n\nWhich module is assigned to ${agent}?`,
+        },
+        grade: (answer) => {
+          const normalized = answer.toLowerCase().replace(/[^a-z]/g, "");
+          const got =
+            puzzle.modules.find((mod) => mod.toLowerCase() === normalized) ??
+            answer;
+          return { passed: got === expected, got };
+        },
+      });
+    }
+  }
 
   return {
     id: "logic-puzzle",
     name: "Logic puzzle (constraint solve)",
     metric: "exact assignment",
-    items: PUZZLE_AGENTS.map((agent) => ({
-      id: `assign-${agent}`,
-      expected: solution.assignment[agent] ?? "unknown",
-      prompt: {
-        system: `${BASE_SYSTEM} Answer with one module name only.`,
-        user: `${statement}\n\nWhich module is assigned to ${agent}?`,
-      },
-      grade: (answer) => {
-        const normalized = answer.toLowerCase().replace(/[^a-z]/g, "");
-        const got =
-          PUZZLE_MODULES.find((mod) => mod.toLowerCase() === normalized) ??
-          answer;
-        return { passed: got === solution.assignment[agent], got };
-      },
-    })),
+    items,
   };
 }
 
@@ -229,6 +266,60 @@ function percentile(sorted: number[], fraction: number): number {
     Math.max(0, Math.ceil(fraction * sorted.length) - 1),
   );
   return sorted[index] ?? 0;
+}
+
+/**
+ * Take a capped sample that still covers both tiers.
+ *
+ * Items are declared core-first, so a plain `slice` would give a smoke run
+ * nothing but core items — exactly the saturated half that cannot distinguish
+ * configurations. Splitting the budget keeps `--smoke` and `--limit` honest.
+ */
+function limitAcrossTiers(items: GradedItem[], limit: number): GradedItem[] {
+  const core = items.filter((item) => item.tier === "core");
+  const hard = items.filter((item) => item.tier === "hard");
+  const coreBudget = Math.ceil(limit / 2);
+  const picked = [
+    ...core.slice(0, coreBudget),
+    ...hard.slice(0, limit - Math.min(coreBudget, core.length)),
+  ];
+  // Top up from whichever tier still has items if one was short.
+  if (picked.length < limit) {
+    for (const item of items) {
+      if (picked.length >= limit) break;
+      if (!picked.includes(item)) picked.push(item);
+    }
+  }
+  return picked;
+}
+
+/**
+ * Split accuracy by tier. Only items with a gradeable run count, so a tier that
+ * was entirely rate-limited reports a null score instead of a misleading 0.
+ */
+function tierScores(items: ModelBenchmarkItemResult[]): TierScores {
+  const summarize = (tier: Tier) => {
+    const gradeable = items.filter(
+      (item) => item.tier === tier && item.passed !== null,
+    );
+    const correct = gradeable.filter((item) => item.passed).length;
+    return {
+      total: gradeable.length,
+      correct,
+      score: gradeable.length > 0 ? correct / gradeable.length : null,
+    };
+  };
+  return { core: summarize("core"), hard: summarize("hard") };
+}
+
+/** Combine per-benchmark tier scores into one suite-level split. */
+function mergeTierScores(parts: TierScores[]): TierScores {
+  const merge = (tier: Tier) => {
+    const total = parts.reduce((sum, p) => sum + p[tier].total, 0);
+    const correct = parts.reduce((sum, p) => sum + p[tier].correct, 0);
+    return { total, correct, score: total > 0 ? correct / total : null };
+  };
+  return { core: merge("core"), hard: merge("hard") };
 }
 
 function latencyStats(samples: number[]): LatencyStats {
@@ -296,6 +387,7 @@ export interface ModelBenchmarkOptions {
   onProgress?: (event: {
     benchmark: string;
     itemId: string;
+    tier: Tier;
     passed: boolean | null;
     /** Items finished in this benchmark, out of its total. */
     done: number;
@@ -312,7 +404,7 @@ async function runSpec(
   const start = Date.now();
   const runs = model.config.runs;
   const items = options.limitPerBenchmark
-    ? spec.items.slice(0, options.limitPerBenchmark)
+    ? limitAcrossTiers(spec.items, options.limitPerBenchmark)
     : spec.items;
 
   let done = 0;
@@ -333,6 +425,7 @@ async function runSpec(
       options.onProgress?.({
         benchmark: spec.name,
         itemId: item.id,
+        tier: item.tier,
         passed,
         done: ++done,
         total: items.length,
@@ -340,6 +433,7 @@ async function runSpec(
       });
       return {
         id: item.id,
+        tier: item.tier,
         expected: item.expected,
         passed,
         passedRuns,
@@ -369,6 +463,7 @@ async function runSpec(
       (r) => r.passedRuns > 0 && r.passedRuns < r.scoredRuns,
     ).length,
     inconclusiveItems: results.length - gradeable.length,
+    tierScores: tierScores(results),
     truncations: attempts.filter((a) => a.truncated).length,
     errors: attempts.filter((a) => a.error !== null && !a.inconclusive).length,
     rateLimited: attempts.filter((a) => a.inconclusive && !a.timedOut).length,
@@ -421,6 +516,7 @@ export async function runModelBenchmarkSuite(
     failed: benchmarks.length - passed,
     passRate: benchmarks.length > 0 ? passed / benchmarks.length : 0,
     itemScore: totalItems > 0 ? correctItems / totalItems : 0,
+    tierScores: mergeTierScores(benchmarks.map((b) => b.tierScores)),
     inconclusiveItems: benchmarks.reduce(
       (sum, b) => sum + b.inconclusiveItems,
       0,

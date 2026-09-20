@@ -39,20 +39,29 @@ fails if any of it returns.
 
 ---
 
-## Phase 2: Make the datasets able to discriminate
+## Phase 2: Make the datasets able to discriminate (done)
 
-**Problem:** a strong model in thinking-on mode already saturates several
-benchmarks, so the harness currently cannot separate the configurations it exists
-to compare. This is the highest-value work available.
+**Problem:** every model variant scored 1.000 on retrieval and the 3x3 puzzle, so
+the harness could not separate the configurations it exists to compare.
 
-1. Add harder arithmetic (multi-step word problems, unit conversion, precision traps).
-2. Add logic puzzles with more constraints and larger search spaces.
-3. Add retrieval queries with near-miss distractors, not just clear top-1 answers.
-4. Add adversarial abstention items where the correct answer is "I don't know".
-5. Record per-item difficulty so scores can be reported by tier.
+- [x] Difficulty tiers (`core` / `hard`) on every item, reported as `tierScores`
+- [x] Hard arithmetic: order of operations, percentages, exponents, unit
+      conversion, multi-step word problems (20 items)
+- [x] A 5x5 logic puzzle requiring chained elimination plus ordering constraints
+- [x] Near-miss retrieval where the correct passage shares *fewer* words with the
+      query than the distractors do
+- [x] Adversarial abstention: arithmetic-shaped questions that are unanswerable
+      because they need an external fact, live data, or are undefined
+- [x] Dataset grew from 39 to 84 items; a test enforces that baselines pass every
+      core item and fail every hard one
 
-**Measure:** thinking-on and thinking-off separate by more than sampling noise on
-at least three benchmarks.
+**Result:** reasoning-off separates from reasoning-on by 16 points on the hard
+tier (80% vs 96%), concentrated in the 5x5 puzzle (40% vs 100%) and hard
+arithmetic (80% vs 100%). `low` matched `on` at 5x fewer completion tokens.
+
+**Still saturated:** hard retrieval and hard tool selection score 100% in every
+mode, so they discriminate between baselines but not between model
+configurations. Making those discriminate is open work.
 
 ---
 

@@ -1,102 +1,167 @@
 {
   "provider": "nvidia",
   "model": "nvidia/nemotron-3-super-120b-a12b",
-  "generatedAt": "2026-09-17T11:12:24.126Z",
+  "generatedAt": "2026-09-20T12:32:03.903Z",
   "note": "Same fixed items, same graders, majority vote over repeated runs; only the reasoning setting differs.",
   "caveats": [
+    "Read tierScores.hard, not itemScore. The core tier is saturated for strong models — every variant scored 1.000 on retrieval and the 3x3 puzzle — so a blended itemScore hides whether the reasoning setting mattered. The hard tier is where configurations separate.",
+    "Hard items are built so that pattern matching fails: the offline baselines score 0/20 on hard arithmetic, 0/5 on hard retrieval, and 0/9 on hard tool selection. A model beating those numbers is doing something a regex cannot.",
     "Latency is shared free-endpoint latency, not a dedicated deployment.",
     "Latency is only comparable between variants recorded at the same concurrency (config.concurrency): the endpoint queues under load, and requests that hit config.timeoutMs are dropped as inconclusive.",
-    "Cost columns (completionTokens, latency) are measured over hundreds of requests and are reliable. Accuracy differences of one or two items are NOT: thinking-on already saturates this dataset, so at three runs per item a 36/39 vs 38/39 gap is within sampling noise at temperature 1.0. Harder items or more runs are needed to separate configurations that differ by a couple of points."
+    "Cost columns (completionTokens, latency) are measured over hundreds of requests and are reliable. Small accuracy gaps still are not: there is no significance testing yet, so treat a one- or two-item difference within a tier as a tie until confidence intervals land."
   ],
   "variants": [
     {
       "reasoning": "on",
-      "recordedAt": "2026-09-17T06:24:37.667Z",
-      "gitSha": "cc5f1ab0",
+      "recordedAt": "2026-09-20T12:32:03.900Z",
+      "gitSha": "519a226a",
       "config": {
         "temperature": 1,
         "topP": 0.95,
         "maxTokens": 16000,
-        "runs": 3
+        "runs": 3,
+        "timeoutMs": 240000,
+        "concurrency": 3
       },
-      "benchmarksPassed": 5,
+      "benchmarksPassed": 4,
       "benchmarksTotal": 5,
-      "itemScore": 0.9743589743589743,
-      "latencyMs": {
-        "p50": 3295,
-        "p95": 27518,
-        "max": 142091
+      "itemScore": 0.9523809523809523,
+      "tierScores": {
+        "core": {
+          "total": 39,
+          "correct": 37,
+          "score": 0.9487179487179487
+        },
+        "hard": {
+          "total": 45,
+          "correct": 43,
+          "score": 0.9555555555555556
+        }
       },
-      "completionTokens": 72654,
-      "durationMs": 594240,
+      "latencyMs": {
+        "p50": 3799,
+        "p95": 18060,
+        "max": 226686
+      },
+      "completionTokens": 97125,
+      "durationMs": 779350,
       "rateLimited": 0,
       "timedOut": 0,
       "benchmarkScores": {
-        "arithmetic": 0.9473684210526315,
+        "arithmetic": 0.9743589743589743,
         "logic-puzzle": 1,
         "retrieval": 1,
-        "tool-selection": 1,
-        "abstention": 1
+        "tool-selection": 0.8823529411764706,
+        "abstention": 0.9090909090909091
+      },
+      "benchmarkHardScores": {
+        "arithmetic": 1,
+        "logic-puzzle": 1,
+        "retrieval": 1,
+        "tool-selection": 0.8888888888888888,
+        "abstention": 0.8333333333333334
       }
     },
     {
       "reasoning": "low",
-      "recordedAt": "2026-09-17T06:52:51.339Z",
-      "gitSha": "750102c2",
+      "recordedAt": "2026-09-20T11:32:39.309Z",
+      "gitSha": "519a226a",
       "config": {
         "temperature": 1,
         "topP": 0.95,
         "maxTokens": 16000,
-        "runs": 3
+        "runs": 3,
+        "timeoutMs": 240000,
+        "concurrency": 3
       },
-      "benchmarksPassed": 3,
+      "benchmarksPassed": 4,
       "benchmarksTotal": 5,
-      "itemScore": 0.9230769230769231,
-      "latencyMs": {
-        "p50": 965,
-        "p95": 8370,
-        "max": 27449
+      "itemScore": 0.9642857142857143,
+      "tierScores": {
+        "core": {
+          "total": 39,
+          "correct": 38,
+          "score": 0.9743589743589743
+        },
+        "hard": {
+          "total": 45,
+          "correct": 43,
+          "score": 0.9555555555555556
+        }
       },
-      "completionTokens": 10781,
-      "durationMs": 249122,
-      "rateLimited": 0,
+      "latencyMs": {
+        "p50": 1037,
+        "p95": 7150,
+        "max": 26267
+      },
+      "completionTokens": 19145,
+      "durationMs": 575403,
+      "rateLimited": 1,
       "timedOut": 0,
       "benchmarkScores": {
-        "arithmetic": 0.9473684210526315,
+        "arithmetic": 0.9743589743589743,
         "logic-puzzle": 1,
         "retrieval": 1,
-        "tool-selection": 0.875,
-        "abstention": 0.8
+        "tool-selection": 1,
+        "abstention": 0.8181818181818182
+      },
+      "benchmarkHardScores": {
+        "arithmetic": 1,
+        "logic-puzzle": 1,
+        "retrieval": 1,
+        "tool-selection": 1,
+        "abstention": 0.6666666666666666
       }
     },
     {
       "reasoning": "off",
-      "recordedAt": "2026-09-17T06:29:33.343Z",
-      "gitSha": "cc5f1ab0",
+      "recordedAt": "2026-09-20T11:03:28.173Z",
+      "gitSha": "519a226a",
       "config": {
         "temperature": 1,
         "topP": 0.95,
         "maxTokens": 16000,
-        "runs": 3
+        "runs": 3,
+        "timeoutMs": 240000,
+        "concurrency": 3
       },
       "benchmarksPassed": 2,
       "benchmarksTotal": 5,
-      "itemScore": 0.8461538461538461,
-      "latencyMs": {
-        "p50": 548,
-        "p95": 2043,
-        "max": 10659
+      "itemScore": 0.8214285714285714,
+      "tierScores": {
+        "core": {
+          "total": 39,
+          "correct": 33,
+          "score": 0.8461538461538461
+        },
+        "hard": {
+          "total": 45,
+          "correct": 36,
+          "score": 0.8
+        }
       },
-      "completionTokens": 1794,
-      "durationMs": 295675,
-      "rateLimited": 2,
+      "latencyMs": {
+        "p50": 500,
+        "p95": 3733,
+        "max": 51654
+      },
+      "completionTokens": 9287,
+      "durationMs": 563209,
+      "rateLimited": 0,
       "timedOut": 0,
       "benchmarkScores": {
-        "arithmetic": 0.7894736842105263,
-        "logic-puzzle": 1,
+        "arithmetic": 0.8205128205128205,
+        "logic-puzzle": 0.5,
         "retrieval": 1,
-        "tool-selection": 0.875,
-        "abstention": 0.8
+        "tool-selection": 0.9411764705882353,
+        "abstention": 0.7272727272727273
+      },
+      "benchmarkHardScores": {
+        "arithmetic": 0.8,
+        "logic-puzzle": 0.4,
+        "retrieval": 1,
+        "tool-selection": 0.8888888888888888,
+        "abstention": 0.8333333333333334
       }
     }
   ]

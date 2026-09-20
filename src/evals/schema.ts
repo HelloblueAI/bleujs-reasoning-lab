@@ -81,8 +81,28 @@ export interface ModelAttemptResult {
   error: string | null;
 }
 
+/**
+ * Score restricted to one difficulty tier. Reported per benchmark and per suite
+ * because the core tier is saturated for strong models — a single blended number
+ * hides whether a configuration difference showed up on the hard items.
+ */
+export interface TierScore {
+  /** Items with at least one gradeable run. */
+  total: number;
+  correct: number;
+  /** correct / total, or null when the tier had no gradeable item. */
+  score: number | null;
+}
+
+export type TierScores = {
+  core: TierScore;
+  hard: TierScore;
+};
+
 export interface ModelBenchmarkItemResult {
   id: string;
+  /** Difficulty tier this item belongs to. */
+  tier: "core" | "hard";
   expected: string;
   /** Majority of scored runs passed. Null when every run was inconclusive. */
   passed: boolean | null;
@@ -114,6 +134,8 @@ export interface ModelBenchmarkResult {
   unstableItems: number;
   /** Items dropped because the endpoint never answered. */
   inconclusiveItems: number;
+  /** Same score split by difficulty tier. */
+  tierScores: TierScores;
   truncations: number;
   /** Attempts the model answered unusably (bad format/truncation). */
   errors: number;
@@ -153,6 +175,8 @@ export interface ModelBenchmarkSuiteResult {
   passRate: number;
   /** Item-weighted accuracy across all gradeable items. */
   itemScore: number;
+  /** Item-weighted accuracy split by difficulty tier, across all benchmarks. */
+  tierScores: TierScores;
   /** Items excluded because the endpoint never answered. */
   inconclusiveItems: number;
   rateLimited: number;

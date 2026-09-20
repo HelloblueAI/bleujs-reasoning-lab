@@ -24,7 +24,8 @@ export function buildCapabilitiesEndpointPayload(
     datasets: "src/evals/benchmarks/datasets.ts",
     limitations: [
       "The offline suite scores deterministic baselines, not a hosted model. Model scores come from `pnpm run eval:model` and are committed per variant under src/evals/results/.",
-      "Datasets are small (tens of items per benchmark), so differences of one or two items are not statistically meaningful.",
+      "Datasets are split into a core tier (what these baselines are built to solve) and a hard tier (built so that pattern matching fails). This endpoint reports the core tier only; hard-tier scores come from `pnpm run eval:model`.",
+      "Datasets are small — 84 items across five benchmarks — so differences of one or two items are not statistically meaningful.",
     ],
   };
 }

@@ -80,13 +80,30 @@ function variantPath(model: string, reasoning: string): string {
  * comparison file. Each variant keeps its own timestamp and gitSha, since they
  * are recorded in separate runs.
  */
+/**
+ * A result file on disk, which may predate fields the current runner writes.
+ * Kept separate from `ModelBenchmarkSuiteResult` so fresh runs stay strictly
+ * typed while old recordings are still readable.
+ */
+type RecordedSuite = Omit<
+  ModelBenchmarkSuiteResult,
+  "tierScores" | "benchmarks"
+> & {
+  tierScores?: ModelBenchmarkSuiteResult["tierScores"];
+  benchmarks: Array<
+    Omit<ModelBenchmarkSuiteResult["benchmarks"][number], "tierScores"> & {
+      tierScores?: ModelBenchmarkSuiteResult["benchmarks"][number]["tierScores"];
+    }
+  >;
+};
+
 function writeComparison(model: string): string | null {
   const variants = REASONING_MODES.map((reasoning) => {
     const path = variantPath(model, reasoning);
     if (!existsSync(path)) return null;
-    const suite = JSON.parse(
-      readFileSync(path, "utf8"),
-    ) as ModelBenchmarkSuiteResult;
+    // Variants recorded before tiers existed have no `tierScores`, so the
+    // parsed shape is deliberately weaker than the current result type.
+    const suite = JSON.parse(readFileSync(path, "utf8")) as RecordedSuite;
     // Recount from the per-attempt records rather than trusting the stored
     // totals: runs recorded before timeouts were tracked separately lumped
     // stalls in with throttling. `timedOut` is absent on those, so fall back to
@@ -105,6 +122,10 @@ function writeComparison(model: string): string | null {
       benchmarksPassed: suite.passed,
       benchmarksTotal: suite.total,
       itemScore: suite.itemScore,
+      // Absent on runs recorded before tiers existed. Reported as null rather
+      // than zero so an old variant cannot look like a failure on the hard tier
+      // it was never scored against.
+      tierScores: suite.tierScores ?? null,
       latencyMs: suite.latencyMs,
       completionTokens: suite.completionTokens,
       durationMs: suite.durationMs,
@@ -112,6 +133,9 @@ function writeComparison(model: string): string | null {
       timedOut,
       benchmarkScores: Object.fromEntries(
         suite.benchmarks.map((b) => [b.id, b.score]),
+      ),
+      benchmarkHardScores: Object.fromEntries(
+        suite.benchmarks.map((b) => [b.id, b.tierScores?.hard.score ?? null]),
       ),
     };
   }).filter((v) => v !== null);
@@ -134,16 +158,22 @@ function writeComparison(model: string): string | null {
           "Same fixed items, same graders, majority vote over repeated runs; " +
           "only the reasoning setting differs.",
         caveats: [
+          "Read tierScores.hard, not itemScore. The core tier is saturated for " +
+            "strong models — every variant scored 1.000 on retrieval and the " +
+            "3x3 puzzle — so a blended itemScore hides whether the reasoning " +
+            "setting mattered. The hard tier is where configurations separate.",
+          "Hard items are built so that pattern matching fails: the offline " +
+            "baselines score 0/20 on hard arithmetic, 0/5 on hard retrieval, " +
+            "and 0/9 on hard tool selection. A model beating those numbers is " +
+            "doing something a regex cannot.",
           "Latency is shared free-endpoint latency, not a dedicated deployment.",
           "Latency is only comparable between variants recorded at the same " +
             "concurrency (config.concurrency): the endpoint queues under load, " +
             "and requests that hit config.timeoutMs are dropped as inconclusive.",
           "Cost columns (completionTokens, latency) are measured over hundreds " +
-            "of requests and are reliable. Accuracy differences of one or two " +
-            "items are NOT: thinking-on already saturates this dataset, so at " +
-            "three runs per item a 36/39 vs 38/39 gap is within sampling noise " +
-            "at temperature 1.0. Harder items or more runs are needed to " +
-            "separate configurations that differ by a couple of points.",
+            "of requests and are reliable. Small accuracy gaps still are not: " +
+            "there is no significance testing yet, so treat a one- or two-item " +
+            "difference within a tier as a tie until confidence intervals land.",
         ],
         variants,
       },
@@ -152,6 +182,21 @@ function writeComparison(model: string): string | null {
     ) + "\n",
   );
   return outPath;
+}
+
+/** "core 12/12 100% · hard 9/20 45%" — null score renders as "n/a". */
+function formatTiers(tiers: {
+  core: { total: number; correct: number; score: number | null };
+  hard: { total: number; correct: number; score: number | null };
+}): string {
+  const one = (
+    label: string,
+    t: { total: number; correct: number; score: number | null },
+  ) =>
+    t.total === 0
+      ? `${label} n/a`
+      : `${label} ${t.correct}/${t.total} ${((t.score ?? 0) * 100).toFixed(0)}%`;
+  return `${one("core", tiers.core)} · ${one("hard", tiers.hard)}`;
 }
 
 function report(suite: ModelBenchmarkSuiteResult): void {
@@ -173,13 +218,15 @@ function report(suite: ModelBenchmarkSuiteResult): void {
     console.log(
       `  ${icon} ${benchmark.name} — ${benchmark.correct}/${benchmark.total} ` +
         `${benchmark.metric} (${(benchmark.score * 100).toFixed(1)}%) ` +
+        `[${formatTiers(benchmark.tierScores)}] ` +
         `p50 ${benchmark.latencyMs.p50}ms p95 ${benchmark.latencyMs.p95}ms` +
         (notes.length ? ` [${notes.join(", ")}]` : ""),
     );
   }
   console.log(
     `  → ${suite.passed}/${suite.total} benchmarks passed, ` +
-      `item accuracy ${(suite.itemScore * 100).toFixed(1)}%, ` +
+      `item accuracy ${(suite.itemScore * 100).toFixed(1)}% ` +
+      `(${formatTiers(suite.tierScores)}), ` +
       `latency p50 ${suite.latencyMs.p50}ms / p95 ${suite.latencyMs.p95}ms, ` +
       `${suite.completionTokens} completion tokens, ` +
       `${(suite.durationMs / 1000).toFixed(1)}s total`,
@@ -260,10 +307,18 @@ async function main(): Promise<void> {
         ? { concurrency: numberFlag("concurrency") }
         : {}),
       // Reasoning runs take minutes; without this the CLI looks hung.
-      onProgress: ({ benchmark, itemId, passed, done, total, latencyMs }) => {
+      onProgress: ({
+        benchmark,
+        itemId,
+        tier,
+        passed,
+        done,
+        total,
+        latencyMs,
+      }) => {
         const icon = passed === null ? "○" : passed ? "✓" : "✗";
         console.log(
-          `  ${icon} ${benchmark} ${done}/${total} — ${itemId} ` +
+          `  ${icon} ${benchmark} ${done}/${total} — ${itemId} (${tier}) ` +
             `[${(latencyMs / 1000).toFixed(1)}s]`,
         );
       },
