@@ -1,17 +1,17 @@
 {
   "labVersion": "6.0.0",
-  "gitSha": "5547a2ea",
-  "generatedAt": "2026-09-20T10:20:24.715Z",
+  "gitSha": "9b002cbd",
+  "generatedAt": "2026-09-20T10:29:11.376Z",
   "benchmark": {
     "suite": "benchmark",
     "labVersion": "6.0.0",
-    "gitSha": "5547a2ea",
-    "timestamp": 1789899624715,
+    "gitSha": "9b002cbd",
+    "timestamp": 1789900151376,
     "total": 6,
     "passed": 6,
     "failed": 0,
     "passRate": 1,
-    "durationMs": 8,
+    "durationMs": 7,
     "benchmarks": [
       {
         "id": "arithmetic",
@@ -23,7 +23,7 @@
         "passed": true,
         "runs": 1,
         "deterministic": true,
-        "durationMs": 7,
+        "durationMs": 6,
         "model": null,
         "costUsd": null,
         "items": [
