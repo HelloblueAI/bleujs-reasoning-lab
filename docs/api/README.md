@@ -22,24 +22,26 @@ Liveness probe.
 
 ## `GET /metrics`
 
-Measured learning-engine state, request counters, and LLM routing counts
+Request counters, measured latency percentiles, and LLM routing counts
 (`bleujs` / `nvidia` / `anthropic` / `openai` / `local` / `none`) with a
 `fallbackRate`. Routing counts are global when the `AGI_CACHE` KV binding is set.
 
 ## `GET /capabilities`
 
-Capability scores derived from the learning engine, with a `sources` map that
-names where each score comes from. Scores are not claims of consciousness.
+Benchmark scores from the last committed offline run, with the dataset path, the
+git SHA to reproduce them, and a `limitations` list. These are not self-assessed
+capability scores: run `pnpm run eval` at the recorded SHA to get the same
+numbers.
+
+Heuristic scores (`understandingDepth`, `adaptability`, `systemDepth`) were
+removed in v6.0.0 — they were formulas over request counters that measured
+nothing.
 
 ## `GET /eval`
 
-Runs the component/smoke evaluation suite and returns the pass rate and per-task
-results. See `src/evals/` and, for scored fixed-dataset benchmarks,
-`src/evals/benchmarks/`.
-
-## `GET /goals`
-
-Active self-generated goals with priority and progress.
+Runs the offline benchmark suite and returns per-benchmark scores. The suite is
+deterministic, so the response matches the committed run at the same commit. For
+hosted-model scores on the same datasets, use `pnpm run eval:model`.
 
 ## `POST /reason`
 

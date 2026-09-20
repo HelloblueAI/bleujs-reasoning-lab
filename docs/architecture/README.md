@@ -14,30 +14,25 @@ src/worker/index.ts            # routing, validation, dashboard, CORS
    │
    ├── routing/RealLLMIntegration     # BleuJS → NVIDIA → Anthropic → OpenAI
    ├── routing/arithmeticReason       # local math, no LLM round-trip
-   ├── reasoning/ReasoningOrchestrator# coordinates the engines below
-   │      ├── RealLearningEngine / RealNeuralNetwork
-   │      ├── RealReasoningEngine
-   │      ├── ChainOfThoughtReasoning
-   │      ├── MultiAgentSystem
-   │      ├── ToolSystem
-   │      ├── MemorySystem
-   │      └── SelfImprovementLoop
-   ├── reasoning/RealUnderstandingEngine + CrossDomainReasoningEngine
-   ├── reasoning/AutonomousGoalSystem
+   ├── tools/ToolSystem               # keyword baseline for tool selection
    ├── retrieval/semanticRetrieval (+ embedding providers)
-   ├── metrics/* (capability + request metrics, status payloads)
-   └── evals/runner (GET /eval)
+   ├── metrics/* (counters, latency samples, status payloads)
+   └── evals/benchmarks/runner (GET /eval)
 ```
 
 ## Design principles
 
 - **One application path.** No alternate workers or entry points on `main`.
-- **Measured, not simulated.** Every metric in an API response is derived from
-  real learning-engine state or request counters — never `Math.random()`.
+- **Measured, not scored.** Every number in an API response is a counter this
+  Worker incremented, a duration it timed, or a benchmark score from a committed
+  run at a recorded git SHA. The lab never grades its own "understanding" —
+  heuristic capability scores were removed in v6.0.0 and are guarded by
+  `tests/unit/measuredMetrics.test.ts`.
 - **Offline-capable core.** Arithmetic, retrieval, tool selection, routing, and
   the benchmark suite run without any API keys. LLM calls are strictly optional.
-- **Process-scoped state.** Engines are instantiated per Worker isolate; durable
-  state (goals, concept graph) is a roadmap item backed by Cloudflare KV.
+- **Almost no request-time state.** The only per-isolate state is the provider
+  client, request counters, and a bounded ring buffer of latency samples.
+  Cross-isolate provider counts live in Cloudflare KV.
 
 ## Provider routing
 
@@ -53,8 +48,10 @@ Simple arithmetic short-circuits the chain entirely via `arithmeticReason`.
 
 ## Evaluations
 
-- **Component / smoke evaluations** (`src/evals/`) confirm each component runs.
-- **Reproducible benchmarks** (`src/evals/benchmarks/`) score fixed datasets with
-  exact scoring and write `src/evals/results/latest.json`.
+- **Offline benchmarks** (`src/evals/benchmarks/runner.ts`) score deterministic
+  baselines on fixed datasets and write `src/evals/results/latest.json`.
+- **Model-in-the-loop benchmarks** (`src/evals/benchmarks/modelRunner.ts`) send
+  the same datasets to a hosted model, repeating each item and scoring by
+  majority vote because decoding is sampled.
 
 See [PROJECT_STRUCTURE.md](../PROJECT_STRUCTURE.md) for the full file layout.

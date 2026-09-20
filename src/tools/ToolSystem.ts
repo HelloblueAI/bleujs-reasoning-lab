@@ -1,6 +1,12 @@
 /**
- * Tool System
- * Gives the reasoning orchestrator access to external tools and capabilities
+ * Deterministic keyword tool router, used as the *baseline* in the
+ * tool-selection benchmark.
+ *
+ * `detectTool` matches literal keywords — it has no model behind it, and it is
+ * not meant to. Its purpose is to give hosted models something reproducible to
+ * beat: a score here is the floor that keyword matching alone achieves on
+ * `TOOL_SELECTION_ITEMS`. The bundled calculator and sentiment helpers are
+ * likewise lexicon baselines, not production tools.
  */
 
 export interface ToolResult {

@@ -19,12 +19,14 @@ mature AGI framework.
 
 ## Evaluations
 
-The lab separates **component/smoke evaluations** (execution checks in
-`src/evals/`, served by `GET /eval`) from **reproducible benchmarks**
-(fixed datasets with exact scoring in `src/evals/benchmarks/`, saved to
-`src/evals/results/latest.json`). Neither is presented as evidence of general
-intelligence.
+The lab separates **offline benchmarks** (deterministic baselines on fixed
+datasets in `src/evals/benchmarks/runner.ts`, served by `GET /eval`, saved to
+`src/evals/results/latest.json`) from **model-in-the-loop benchmarks** (the same
+datasets sent to a hosted model in `modelRunner.ts`, scored by majority vote
+over repeated sampled runs). Neither is evidence of general intelligence, and
+the lab does not train models.
 
 ```bash
-pnpm run eval    # run both suites and refresh results/latest.json
+pnpm run eval          # offline benchmarks, refresh results/latest.json
+pnpm run eval:model    # hosted-model scores on the same datasets
 ```
