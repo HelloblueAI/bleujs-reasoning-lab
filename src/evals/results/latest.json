@@ -1,17 +1,17 @@
 {
   "labVersion": "6.0.0",
-  "gitSha": "519a226a",
-  "generatedAt": "2026-09-20T13:13:34.148Z",
+  "gitSha": "ef9ad96e",
+  "generatedAt": "2026-09-20T13:14:17.085Z",
   "benchmark": {
     "suite": "benchmark",
     "labVersion": "6.0.0",
-    "gitSha": "519a226a",
-    "timestamp": 1789910014148,
+    "gitSha": "ef9ad96e",
+    "timestamp": 1789910057085,
     "total": 6,
     "passed": 6,
     "failed": 0,
     "passRate": 1,
-    "durationMs": 7,
+    "durationMs": 8,
     "benchmarks": [
       {
         "id": "arithmetic",
@@ -23,7 +23,7 @@
         "passed": true,
         "runs": 1,
         "deterministic": true,
-        "durationMs": 6,
+        "durationMs": 7,
         "model": null,
         "costUsd": null,
         "items": [
@@ -153,7 +153,7 @@
         "passed": true,
         "runs": 1,
         "deterministic": true,
-        "durationMs": 1,
+        "durationMs": 0,
         "model": null,
         "costUsd": null,
         "items": [
@@ -217,7 +217,7 @@
         "passed": true,
         "runs": 1,
         "deterministic": true,
-        "durationMs": 0,
+        "durationMs": 1,
         "model": null,
         "costUsd": null,
         "items": [
