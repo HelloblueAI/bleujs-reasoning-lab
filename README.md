@@ -5,10 +5,12 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange.svg)](https://workers.cloudflare.com/)
 
-> **What it is:** an open-source TypeScript laboratory for evaluating LLM reasoning, provider routing, retrieval, tool selection, and agent orchestration.
+> **What it is:** an open-source TypeScript harness for *measuring* LLM reasoning — fixed datasets, exact graders, and reasoning-mode cost curves.
 > **Live:** https://agi.bleujs.org · **Repo:** https://github.com/HelloblueAI/bleujs-reasoning-lab · **Worker API:** https://agi-primary.morning-star-e026.workers.dev
 
-This is an emerging, measurable reasoning lab — **not** a mature AGI framework and not a claim of machine consciousness. Every capability number the API returns is derived from measured learning-engine state, never simulated telemetry.
+This lab **measures** reasoning; it does not produce it. The reasoning quality it reports belongs to the hosted model under test. Every number the API returns is either a counter this Worker incremented, a duration it timed, or a benchmark score from a committed run at a recorded git SHA — there are no heuristic "capability" scores.
+
+> **Removed in v6.0.0.** Earlier versions shipped a hand-rolled neural network, a regex concept extractor, an autonomous-goal system, and capability scores named `understandingDepth` / `adaptability` / `systemDepth`. Those scores were formulas over request counters, clamped to 0.95 so they could never resolve to a real value, and none of that code affected a single user-facing answer. It has all been deleted, along with the `POST /learn`, `POST /create`, and `GET /goals` endpoints that exposed it. [`tests/unit/measuredMetrics.test.ts`](tests/unit/measuredMetrics.test.ts) fails if any of it returns.
 
 > **Note on naming:** the project is the *reasoning lab*. The live infrastructure still uses legacy `agi.*` identifiers (custom domain `agi.bleujs.org`, Worker `agi-primary`, KV `AGI_CACHE`) that are intentionally left unchanged so production does not break. They are deployment names, not a product claim.
 
@@ -19,7 +21,7 @@ This is an emerging, measurable reasoning lab — **not** a mature AGI framework
 ```bash
 pnpm install
 pnpm run worker:dev   # local Cloudflare Worker at http://localhost:8787
-pnpm run eval         # component/smoke evaluations + reproducible benchmarks
+pnpm run eval         # offline benchmarks over fixed datasets
 pnpm run check        # format + lint + type-check + unit tests + eval harness
 ```
 
@@ -34,11 +36,11 @@ One application path, organized by responsibility:
 ```
 src/
 ├── worker/      # Cloudflare Worker entry point (HTTP API + dashboard)
-├── reasoning/   # ReasoningOrchestrator + learning/understanding/goal/tool/memory engines
+├── evals/       # benchmarks (offline + model-in-the-loop), datasets, committed results
 ├── routing/     # LLM provider integration, prompt shaping, arithmetic, routing metrics
 ├── retrieval/   # embedding providers + semantic ranking
-├── metrics/     # capability + request metrics, status/endpoint payloads
-├── evals/       # smoke evaluations, reproducible benchmarks, saved results
+├── tools/       # keyword tool router — the baseline for the tool-selection benchmark
+├── metrics/     # request counters, latency samples, status/endpoint payloads
 └── utils/       # logger, id helpers
 ```
 
@@ -51,17 +53,17 @@ See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for details.
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /health` | Liveness probe |
-| `GET /metrics` | Measured system state (no random telemetry); includes `llmRouting` provider counts |
-| `GET /capabilities` | Capability scores derived from the learning engine |
-| `GET /eval` | Run the smoke evaluation suite, return pass rate |
-| `GET /goals` | Active self-generated goals |
-| `POST /reason` | Answer-first reasoning via BleuJS API, with NVIDIA Nemotron Lightning → Anthropic → OpenAI fallback; simple arithmetic is answered locally |
+| `GET /metrics` | Request counters, measured latency percentiles, and `llmRouting` provider shares |
+| `GET /capabilities` | Benchmark scores from the last committed eval run, with dataset path and git SHA |
+| `GET /eval` | Run the offline benchmark suite live (deterministic — matches the committed run at the same commit) |
+| `POST /reason` | Answer-first reasoning via BleuJS API, with NVIDIA Nemotron → Anthropic → OpenAI fallback; simple arithmetic is answered locally |
 
 ```bash
-# Capability scores derived from the learning engine (no API key required)
+# Benchmark scores from the last committed run (no API key required)
 curl http://localhost:8787/capabilities
-# → {"success":true,"data":{"measured":true,"capabilities":{
-#      "reasoningQuality":0.7,"understandingDepth":0.6,"adaptability":0.65,...}}}
+# → {"success":true,"data":{"benchmarks":{"passed":6,"total":6,"passRate":1,
+#      "gitSha":"...","scores":{"arithmetic":1,"tool-selection":1,...}},
+#      "limitations":["Datasets are small (tens of items per benchmark)...]}}
 
 # Answer-first reasoning; simple arithmetic is answered locally, no LLM call
 curl -X POST http://localhost:8787/reason \
@@ -74,15 +76,14 @@ curl -X POST http://localhost:8787/reason \
 
 ---
 
-## Evaluations: smoke vs. benchmarks
+## Evaluations: offline baselines vs. model-in-the-loop
 
 The lab separates two very different things:
 
-- **Component / smoke evaluations** ([`src/evals/`](src/evals/), served by `GET /eval`) confirm that each component executes and returns sane output. They are execution checks, **not** evidence of intelligence.
-- **Reproducible benchmarks** ([`src/evals/benchmarks/`](src/evals/benchmarks/)) score the system against **fixed datasets** with **exact scoring**: arithmetic, a constraint logic puzzle, retrieval top-1, tool selection, provider routing rates, and abstention. They run offline (no API keys) and results are written to [`src/evals/results/latest.json`](src/evals/results/latest.json).
+- **Offline benchmarks** ([`src/evals/benchmarks/`](src/evals/benchmarks/), served by `GET /eval`) score **deterministic baselines** against **fixed datasets** with **exact grading**: arithmetic, a constraint logic puzzle, retrieval top-1, tool selection, provider routing rates, and abstention. No API keys, no sampling — the same commit always yields the same numbers, written to [`src/evals/results/latest.json`](src/evals/results/latest.json).
 
 ```bash
-pnpm run eval   # prints both suites and refreshes results/latest.json
+pnpm run eval   # refreshes results/latest.json
 ```
 
 - **Model-in-the-loop benchmarks** ([`src/evals/benchmarks/modelRunner.ts`](src/evals/benchmarks/modelRunner.ts)) send the *same* fixed datasets to a hosted model so its score is directly comparable to the offline baseline. Decoding is sampled, so every item runs `--runs` times and is scored by majority vote; rate-limited attempts are excluded from scoring rather than counted as wrong answers.
@@ -98,7 +99,17 @@ reasoning channel active rather than disabling it.
 
 This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_CHAT_MODEL`, which the Worker never reads, so an eval model can never be served by production `/reason` (that chain uses `NVIDIA_API_KEY` / `NVIDIA_CHAT_MODEL`). Per-variant results land in `src/evals/results/model-<model>-thinking-<mode>.json`.
 
-Neither suite is presented as evidence of general intelligence.
+### Scope and known limitations
+
+State these before citing any number from this repo:
+
+- **Datasets are small** — tens of items per benchmark, and a strong model in thinking-on mode already saturates several of them. A one- or two-item difference between configurations is sampling noise, not a result.
+- **No confidence intervals yet.** Differences are reported without significance testing, so treat close scores as ties.
+- **Latency is shared-endpoint latency**, not a dedicated deployment, and is only comparable between variants recorded at the same concurrency.
+- **Cost metrics are the reliable ones.** Completion-token counts and latency percentiles are measured over hundreds of requests; accuracy deltas on a saturated dataset are not.
+- **Single vendor so far.** Committed model results are all NVIDIA variants; cross-vendor baselines are not yet recorded.
+
+Nothing here is evidence of general intelligence, and the project does not train models.
 
 ---
 
@@ -107,10 +118,10 @@ Neither suite is presented as evidence of general intelligence.
 | Script | Purpose |
 |--------|---------|
 | `pnpm run worker:dev` | Wrangler dev server for the Worker |
-| `pnpm run eval` | Smoke evaluations + benchmarks (CLI) |
+| `pnpm run eval` | Offline benchmarks over fixed datasets (CLI) |
 | `pnpm run eval:model` | Model-in-the-loop benchmarks (needs `NVIDIA_EVAL_API_KEY`) |
 | `pnpm run test:unit` | Unit tests (Vitest) |
-| `pnpm run test:eval` | Eval + benchmark tests (Vitest) |
+| `pnpm run test:eval` | Benchmark tests (Vitest) |
 | `pnpm run lint` / `format` | ESLint / Prettier |
 | `pnpm run type-check` | TypeScript, no emit |
 | `pnpm run check` | All of the above in one command |

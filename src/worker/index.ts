@@ -2,26 +2,13 @@
  * BleuJS Reasoning Lab — production worker (dashboard + API)
  */
 
-import { RealLearningEngine } from "@/reasoning/RealLearningEngine";
 import { RealLLMIntegration } from "@/routing/RealLLMIntegration";
-import { RealReasoningEngine } from "@/reasoning/RealReasoningEngine";
-import { ReasoningOrchestrator } from "@/reasoning/ReasoningOrchestrator";
-import { RealMetricsCalculator } from "@/metrics/RealMetricsCalculator";
-import { buildCapabilityDisplayMetrics } from "@/metrics/CapabilityDisplayMetrics";
-import { RealUnderstandingEngine } from "@/reasoning/RealUnderstandingEngine";
-import { CrossDomainReasoningEngine } from "@/reasoning/CrossDomainReasoningEngine";
-import { AutonomousGoalSystem } from "@/reasoning/AutonomousGoalSystem";
-import { runEvalSuite } from "@/evals/runner";
-import {
-  buildCapabilitiesEndpointPayload,
-  buildHonestCreateResponse,
-  buildHonestLearnResponse,
-  buildLabStatusPayload,
-  withLegacyStatusShims,
-} from "@/metrics/endpointResponses";
+import { runBenchmarkSuite } from "@/evals/benchmarks/runner";
+import { getOfflineBenchmarkSummary } from "@/metrics/benchmarkSummary";
+import { buildCapabilitiesEndpointPayload } from "@/metrics/endpointResponses";
 import {
   buildLabMetricsPayload,
-  buildHonestHistoryMetrics,
+  buildLabStatusPayload,
   GITHUB_REPO,
   LAB_NAME,
   LAB_VERSION,
@@ -36,18 +23,18 @@ import {
   getReasonSystemPrompt,
   isSimpleFactualQuestion,
 } from "@/routing/reasonPrompt";
-import { rankTextsByOverlap } from "@/retrieval/semanticRetrieval";
 import {
   buildLlmRoutingPayload,
   readLlmRoutingFromKv,
   recordLlmRoutingInKv,
 } from "@/routing/llmRoutingMetrics";
 import {
+  getLatencySummary,
   getLlmProviderCounters,
   getRequestCounters,
-  incrementCreative,
-  incrementLearning,
+  incrementEval,
   incrementReasoning,
+  recordLatency,
   recordReasonProvider,
   type ReasonProvider,
 } from "@/metrics/requestCounters";
@@ -65,16 +52,9 @@ function logEvent(
   else console.log(out);
 }
 
-// Process-scoped stateless engines (no request data stored here)
-let learningEngine: RealLearningEngine | null = null;
+// Process-scoped provider client (no request data stored here)
 let llmIntegration: RealLLMIntegration | null = null;
 let llmConfigFingerprint: string | null = null;
-let reasoningEngine: RealReasoningEngine | null = null;
-let ultimateOrchestrator: ReasoningOrchestrator | null = null;
-let metricsCalculator: RealMetricsCalculator | null = null;
-let understandingEngine: RealUnderstandingEngine | null = null;
-let crossDomainEngine: CrossDomainReasoningEngine | null = null;
-let goalSystem: AutonomousGoalSystem | null = null;
 
 /** Env: secrets via wrangler secret put; optional AGI_CACHE KV binding for response cache. Run `wrangler types` to sync with config. */
 interface Env {
@@ -195,56 +175,9 @@ function ensureLlmIntegration(env: Env): RealLLMIntegration | null {
   return llmIntegration;
 }
 
-// Helper function to safely initialize systems with error handling
-async function safeInitializeSystems(
-  env: Env,
-): Promise<{ success: boolean; errors: string[] }> {
+/** Resolves the provider client. The lab has no other request-time state. */
+function safeInitializeSystems(env: Env): { errors: string[] } {
   const errors: string[] = [];
-
-  try {
-    // Initialize learning engine (no API keys required)
-    if (!learningEngine) {
-      learningEngine = new RealLearningEngine();
-      await learningEngine.learnTask("xor", [
-        { input: [0, 0], output: [1, 0] },
-        { input: [0, 1], output: [0, 1] },
-        { input: [1, 0], output: [0, 1] },
-        { input: [1, 1], output: [1, 0] },
-      ]);
-      console.log("✓ Real Learning Engine initialized");
-    }
-
-    // Initialize metrics calculator (depends on learning engine)
-    if (!metricsCalculator && learningEngine) {
-      metricsCalculator = new RealMetricsCalculator(learningEngine);
-      console.log("✓ Real Metrics Calculator initialized");
-    }
-
-    // Initialize understanding engine
-    if (!understandingEngine) {
-      understandingEngine = new RealUnderstandingEngine();
-      console.log("✓ Real Understanding Engine initialized");
-    }
-
-    // Initialize cross-domain reasoning engine (depends on understanding engine)
-    if (!crossDomainEngine && understandingEngine) {
-      crossDomainEngine = new CrossDomainReasoningEngine(understandingEngine);
-      console.log("✓ Cross-Domain Reasoning Engine initialized");
-    }
-
-    // Initialize autonomous goal system
-    if (!goalSystem) {
-      goalSystem = new AutonomousGoalSystem();
-      console.log("✓ Autonomous Goal System initialized");
-    }
-  } catch (error) {
-    errors.push(
-      `Learning engine initialization failed: ${(error as Error).message}`,
-    );
-    console.error("Learning engine initialization error:", error);
-  }
-
-  const hasLlmKey = hasAnyLlmKey(env);
 
   try {
     ensureLlmIntegration(env);
@@ -255,44 +188,11 @@ async function safeInitializeSystems(
     console.warn("LLM integration unavailable:", error);
   }
 
-  if (!hasLlmKey) {
+  if (!hasAnyLlmKey(env)) {
     console.warn("⚠ LLM integration disabled: API keys not configured");
   }
 
-  // Initialize reasoning engine (requires API keys)
-  if (!reasoningEngine && (env.ANTHROPIC_API_KEY || env.OPENAI_API_KEY)) {
-    try {
-      reasoningEngine = new RealReasoningEngine(
-        env.ANTHROPIC_API_KEY,
-        env.OPENAI_API_KEY,
-      );
-      console.log("✓ Real Reasoning Engine initialized");
-    } catch (error) {
-      errors.push(
-        `Reasoning engine initialization failed: ${(error as Error).message}`,
-      );
-      console.warn("Reasoning engine unavailable:", error);
-    }
-  }
-
-  // Initialize reasoning orchestrator (requires API keys)
-  if (!ultimateOrchestrator && (env.ANTHROPIC_API_KEY || env.OPENAI_API_KEY)) {
-    try {
-      ultimateOrchestrator = new ReasoningOrchestrator(
-        env.ANTHROPIC_API_KEY,
-        env.OPENAI_API_KEY,
-      );
-      await ultimateOrchestrator.initialize();
-      console.log("✓ Reasoning orchestrator initialized");
-    } catch (error) {
-      errors.push(
-        `Reasoning orchestrator initialization failed: ${(error as Error).message}`,
-      );
-      console.warn("Reasoning orchestrator unavailable:", error);
-    }
-  }
-
-  return { success: errors.length === 0, errors };
+  return { errors };
 }
 
 export default {
@@ -351,15 +251,10 @@ export default {
         logEvent("warn", "init_partial", { errors: initResult.errors, path });
       }
 
-      const mlStats = learningEngine!.getStatistics();
-      const realMetricsForDisplay = metricsCalculator
-        ? metricsCalculator.getAllMetrics()
-        : null;
-      const capabilityDisplay = buildCapabilityDisplayMetrics(
-        realMetricsForDisplay,
-        mlStats,
-      );
-      const counters = getRequestCounters();
+      const llmAvailable = llmIntegration
+        ? llmIntegration.isAvailable()
+        : false;
+      const benchmarks = getOfflineBenchmarkSummary();
 
       if (path === "/status" && request.method === "GET") {
         const cacheKey = "agi:status";
@@ -370,17 +265,12 @@ export default {
         }
         const statusBody = JSON.stringify({
           success: true,
-          data: withLegacyStatusShims(
-            buildLabStatusPayload(
-              mlStats,
-              realMetricsForDisplay,
-              capabilityDisplay,
-              counters,
-              llmIntegration ? llmIntegration.isAvailable() : false,
-              ultimateOrchestrator ? ultimateOrchestrator.getStatus() : null,
-              false,
-            ),
-          ),
+          data: buildLabStatusPayload({
+            llmAvailable,
+            counters: getRequestCounters(),
+            latency: getLatencySummary(),
+            benchmarks,
+          }),
         });
         if (env.AGI_CACHE) {
           ctx.waitUntil(
@@ -397,20 +287,9 @@ export default {
           logEvent("info", "cache_hit", { path: "/capabilities" });
           return new Response(cached, { headers: corsHeaders });
         }
-        const goalSummary = goalSystem
-          ? {
-              active: goalSystem.getStatistics().active,
-              completed: goalSystem.getStatistics().completed,
-              topPriorities: goalSystem.getStatistics().topPriorities,
-            }
-          : null;
         const body = JSON.stringify({
           success: true,
-          data: buildCapabilitiesEndpointPayload(
-            capabilityDisplay,
-            mlStats,
-            goalSummary,
-          ),
+          data: buildCapabilitiesEndpointPayload(benchmarks, llmAvailable),
         });
         if (env.AGI_CACHE) {
           ctx.waitUntil(
@@ -421,54 +300,33 @@ export default {
       }
 
       if (path === "/metrics" && request.method === "GET") {
-        const goalSummary = goalSystem
-          ? {
-              active: goalSystem.getStatistics().active,
-              completed: goalSystem.getStatistics().completed,
-              topPriorities: goalSystem.getStatistics().topPriorities,
-            }
-          : null;
         const metricsBody = JSON.stringify({
           success: true,
-          data: buildLabMetricsPayload(
-            mlStats,
-            realMetricsForDisplay,
-            capabilityDisplay,
-            counters,
-            llmIntegration ? llmIntegration.isAvailable() : false,
-            goalSummary,
-            await getLlmRoutingForMetrics(env),
-          ),
+          data: buildLabMetricsPayload({
+            llmAvailable,
+            counters: getRequestCounters(),
+            latency: getLatencySummary(),
+            benchmarks,
+            llmRouting: await getLlmRoutingForMetrics(env),
+          }),
         });
         return new Response(metricsBody, { headers: corsHeaders });
       }
 
+      // Runs the offline suite live. The Worker cannot know which commit it was
+      // built from, so `gitSha` is null rather than borrowing the SHA from the
+      // committed results — a deploy that did not refresh that file would
+      // otherwise attribute live scores to the wrong commit. Cite
+      // GET /capabilities, which reports a run that does have a SHA.
       if (path === "/eval" && request.method === "GET") {
-        const evalResult = await runEvalSuite(
-          llmIntegration ? llmIntegration.isAvailable() : false,
-        );
-        return new Response(
-          JSON.stringify({ success: true, data: evalResult }),
-          { headers: corsHeaders },
-        );
-      }
-
-      if (path === "/goals" && request.method === "GET") {
-        if (!goalSystem) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: "Goal system not initialized",
-            }),
-            { status: 503, headers: corsHeaders },
-          );
-        }
+        incrementEval();
+        const evalResult = await runBenchmarkSuite(null);
         return new Response(
           JSON.stringify({
             success: true,
             data: {
-              active: goalSystem.getActiveGoals(),
-              statistics: goalSystem.getStatistics(),
+              ...evalResult,
+              note: "Live run on the deployed Worker; not attributed to a commit. For a citable result see GET /capabilities.",
             },
           }),
           { headers: corsHeaders },
@@ -526,66 +384,22 @@ export default {
         const input = inputValidation.sanitized!;
         const startTime = Date.now();
 
-        // Use REAL understanding engine to extract genuine understanding
-        let understanding = null;
-        try {
-          understanding = understandingEngine
-            ? understandingEngine.understand(input)
-            : null;
-          if (understanding?.insights && understanding.insights.length > 1) {
-            understanding.insights = rankTextsByOverlap(
-              input,
-              understanding.insights,
-            ).map((item) => item.text);
-          }
-        } catch (e) {
-          console.error("Understanding engine error:", e);
-        }
-
-        let realMetrics = {
-          learningComplexity: 0.7,
-          systemDepth: 0.7,
-          adaptability: 0.7,
-          crossDomainIntegration: 0.5,
-          understandingDepth: 0.7,
-          reasoningQuality: 0.7,
-          learningEfficiency: 0.7,
-        };
-        try {
-          if (metricsCalculator) {
-            realMetrics = metricsCalculator.getAllMetrics(input);
-          }
-        } catch (e) {
-          console.error("Metrics calculator error:", e);
-        }
-
-        if (understanding && metricsCalculator) {
-          understanding.domains.forEach((domain) => {
-            metricsCalculator!.recordDomainInteraction(domain);
-          });
-          for (let i = 0; i < understanding.concepts.length; i++) {
-            for (let j = i + 1; j < understanding.concepts.length; j++) {
-              metricsCalculator!.recordConceptConnection(
-                understanding.concepts[i]!.name,
-                understanding.concepts[j]!.name,
-              );
-            }
-          }
-        }
-
         const localArithmetic = tryArithmeticReason(input);
 
-        let llmEnhancement: {
-          insight: string;
-          confidence: number;
-          provider?: "bleujs" | "nvidia" | "anthropic" | "openai";
-        } | null = null;
+        let answer: string | null = null;
+        /**
+         * Provider-reported confidence only. The local arithmetic path leaves
+         * this null on purpose: its solver returns a constant 1, which asserts
+         * correctness rather than measuring it.
+         */
+        let confidence: number | null = null;
+        let provider: ReasonProvider | null = null;
         let llmError: string | null = null;
+        let llmAnswered = false;
+
         if (localArithmetic) {
-          llmEnhancement = {
-            insight: localArithmetic.answer,
-            confidence: localArithmetic.confidence,
-          };
+          answer = localArithmetic.answer;
+          provider = "local";
         } else {
           const llm = ensureLlmIntegration(env);
           if (llm && llm.isAvailable()) {
@@ -595,13 +409,10 @@ export default {
                 systemPrompt: getReasonSystemPrompt(simpleFactual),
                 maxTokens: getReasonMaxTokens(simpleFactual),
               });
-              llmEnhancement = {
-                insight: stripMarkdownEmphasis(llmResponse.answer),
-                confidence: llmResponse.confidence,
-                ...(llmResponse.provider
-                  ? { provider: llmResponse.provider }
-                  : {}),
-              };
+              answer = stripMarkdownEmphasis(llmResponse.answer);
+              confidence = llmResponse.confidence;
+              provider = llmResponse.provider ?? null;
+              llmAnswered = true;
             } catch (error) {
               llmError = error instanceof Error ? error.message : String(error);
               console.error("LLM enhancement unavailable:", error);
@@ -613,47 +424,18 @@ export default {
         }
 
         const processingTimeMs = Date.now() - startTime;
-        if (metricsCalculator) {
-          try {
-            metricsCalculator.recordRequest(true, processingTimeMs);
-          } catch (e) {
-            console.error("Metrics recording error:", e);
-          }
-        }
+        recordLatency(processingTimeMs);
         incrementReasoning();
-        if (localArithmetic) {
-          recordReasonProviderForMetrics(env, ctx, "local");
-        } else if (llmEnhancement?.provider === "bleujs") {
-          recordReasonProviderForMetrics(env, ctx, "bleujs");
-        } else if (llmEnhancement?.provider === "nvidia") {
-          recordReasonProviderForMetrics(env, ctx, "nvidia");
-        } else if (llmEnhancement?.provider === "anthropic") {
-          recordReasonProviderForMetrics(env, ctx, "anthropic");
-        } else if (llmEnhancement?.provider === "openai") {
-          recordReasonProviderForMetrics(env, ctx, "openai");
-        } else {
-          recordReasonProviderForMetrics(env, ctx, "none");
-        }
+        recordReasonProviderForMetrics(env, ctx, provider ?? "none");
 
         const honestData = buildHonestReasonResponse({
           input,
-          answer: llmEnhancement?.insight ?? null,
-          confidence:
-            llmEnhancement?.confidence ?? realMetrics.reasoningQuality,
-          llmUsed: !localArithmetic && llmEnhancement !== null,
-          llmProvider: localArithmetic
-            ? null
-            : (llmEnhancement?.provider ?? null),
+          answer,
+          confidence,
+          llmUsed: llmAnswered,
+          llmProvider: provider,
           llmError,
           processingTimeMs,
-          understanding: understanding
-            ? {
-                concepts: understanding.concepts,
-                domains: understanding.domains,
-                relationships: understanding.relationships,
-                insights: understanding.insights,
-              }
-            : null,
         });
 
         return new Response(
@@ -664,273 +446,21 @@ export default {
         );
       }
 
-      if (path === "/learn" && request.method === "POST") {
-        // Validate request size
-        const contentLength = request.headers.get("content-length");
-        if (contentLength && parseInt(contentLength) > 1024 * 1024) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: "Request body too large. Maximum size is 1MB.",
-            }),
-            {
-              status: 413,
-              headers: corsHeaders,
-            },
-          );
-        }
-
-        let body: any;
-        try {
-          body = await request.json();
-        } catch (error) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: "Invalid JSON in request body",
-            }),
-            {
-              status: 400,
-              headers: corsHeaders,
-            },
-          );
-        }
-
-        const rawData = body.data || "";
-        const dataValidation = validateInput(rawData, 10000);
-
-        if (!dataValidation.valid) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: dataValidation.error || "Invalid input",
-            }),
-            {
-              status: 400,
-              headers: corsHeaders,
-            },
-          );
-        }
-
-        const data = dataValidation.sanitized!;
-        const startTime = Date.now();
-
-        const learningUnderstanding = understandingEngine
-          ? understandingEngine.understand(data)
-          : null;
-
-        let realLearning: {
-          taskName?: string;
-          accuracy?: number;
-          conceptName?: string;
-          examples?: number;
-        } | null = null;
-
-        if (
-          body.examples &&
-          Array.isArray(body.examples) &&
-          body.examples.length > 0 &&
-          learningEngine
-        ) {
-          try {
-            const taskName = body.taskName || `task_${Date.now()}`;
-            const result = await learningEngine.learnTask(
-              taskName,
-              body.examples,
-            );
-            realLearning = {
-              taskName,
-              accuracy: result.accuracy,
-            };
-          } catch (error) {
-            console.log("Real learning unavailable:", error);
-          }
-        } else if (learningEngine && data.length > 10) {
-          try {
-            const conceptName = `concept_${Date.now()}`;
-            const examples = data
-              .split(".")
-              .filter((s: string) => s.trim().length > 0);
-            await learningEngine.learnConcept(conceptName, examples);
-            realLearning = { conceptName, examples: examples.length };
-          } catch (error) {
-            console.log("Concept learning unavailable:", error);
-          }
-        }
-
-        if (learningUnderstanding && goalSystem) {
-          const knowledgeGaps = goalSystem.identifyKnowledgeGaps(
-            learningUnderstanding,
-            [
-              "mathematics",
-              "physics",
-              "computer_science",
-              "biology",
-              "psychology",
-            ],
-          );
-          goalSystem.generateGoals({
-            knowledgeGaps,
-            curiosityAreas: goalSystem.identifyCuriosityAreas(
-              learningUnderstanding.insights || [],
-            ),
-            performanceWeaknesses: [],
-            unexploredDomains: [],
-            recentInsights: learningUnderstanding.insights || [],
-          });
-        }
-
-        const processingTimeMs = Date.now() - startTime;
-        if (metricsCalculator) {
-          metricsCalculator.recordRequest(true, processingTimeMs);
-          if (learningUnderstanding) {
-            learningUnderstanding.domains.forEach((domain) => {
-              metricsCalculator!.recordDomainInteraction(domain);
-            });
-          }
-        }
-
-        incrementLearning();
-        const mlStatsAfter = learningEngine!.getStatistics();
-        return new Response(
-          JSON.stringify({
-            success: true,
-            data: buildHonestLearnResponse({
-              data,
-              processingTimeMs,
-              mlStats: mlStatsAfter,
-              realLearning,
-              understanding: learningUnderstanding
-                ? {
-                    concepts: learningUnderstanding.concepts.length,
-                    relationships: learningUnderstanding.relationships.length,
-                    domains: learningUnderstanding.domains,
-                  }
-                : null,
-            }),
-          }),
-          { headers: corsHeaders },
-        );
-      }
-
-      if (path === "/create" && request.method === "POST") {
-        // Validate request size
-        const contentLength = request.headers.get("content-length");
-        if (contentLength && parseInt(contentLength) > 1024 * 1024) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: "Request body too large. Maximum size is 1MB.",
-            }),
-            {
-              status: 413,
-              headers: corsHeaders,
-            },
-          );
-        }
-
-        let body: any;
-        try {
-          body = await request.json();
-        } catch (error) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: "Invalid JSON in request body",
-            }),
-            {
-              status: 400,
-              headers: corsHeaders,
-            },
-          );
-        }
-
-        const rawPrompt = body.prompt || "";
-        const promptValidation = validateInput(rawPrompt, 10000);
-
-        if (!promptValidation.valid) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              error: promptValidation.error || "Invalid input",
-            }),
-            {
-              status: 400,
-              headers: corsHeaders,
-            },
-          );
-        }
-
-        const prompt = promptValidation.sanitized!;
-        const startTime = Date.now();
-
-        const promptUnderstanding = understandingEngine
-          ? understandingEngine.understand(prompt)
-          : null;
-
-        let crossDomainCreativeInsights: {
-          insight: string;
-          novelty: number;
-          confidence: number;
-        }[] = [];
-        if (promptUnderstanding && crossDomainEngine) {
-          const insights =
-            crossDomainEngine.generateCrossDomainInsights(promptUnderstanding);
-          crossDomainCreativeInsights = insights.map((insight) => ({
-            insight: insight.insight,
-            novelty: insight.novelty,
-            confidence: insight.confidence,
-          }));
-        }
-
-        const processingTimeMs = Date.now() - startTime;
-        if (metricsCalculator) {
-          metricsCalculator.recordRequest(true, processingTimeMs);
-        }
-
-        incrementCreative();
-        return new Response(
-          JSON.stringify({
-            success: true,
-            data: buildHonestCreateResponse({
-              prompt,
-              processingTimeMs,
-              understanding: promptUnderstanding
-                ? {
-                    concepts: promptUnderstanding.concepts.length,
-                    relationships: promptUnderstanding.relationships.length,
-                    domains: promptUnderstanding.domains,
-                    confidence: promptUnderstanding.confidence,
-                  }
-                : null,
-              crossDomainInsights: crossDomainCreativeInsights,
-            }),
-          }),
-          { headers: corsHeaders },
-        );
-      }
-
       // Root endpoint — dashboard with server-rendered live metrics
       if (path === "/" && request.method === "GET") {
-        const history = buildHonestHistoryMetrics(mlStats, counters);
-        const totalRequests =
-          history.reasoningHistorySize +
-          history.learningHistorySize +
-          history.creativeHistorySize;
-        const capReasoningPct = (
-          capabilityDisplay.reasoningQuality * 100
-        ).toFixed(1);
-        const capUnderstandingPct = (
-          capabilityDisplay.understandingDepth * 100
-        ).toFixed(1);
-        const capAvgPct = (
-          ((capabilityDisplay.reasoningQuality +
-            capabilityDisplay.systemDepth +
-            capabilityDisplay.understandingDepth +
-            capabilityDisplay.adaptability) /
-            4) *
-          100
-        ).toFixed(1);
+        const dashCounters = getRequestCounters();
+        const dashLatency = getLatencySummary();
+        const totalRequests = dashCounters.reasoning + dashCounters.eval;
+        const benchPassPct = benchmarks
+          ? (benchmarks.passRate * 100).toFixed(1)
+          : "—";
+        const benchDetail = benchmarks
+          ? `${benchmarks.passed}/${benchmarks.total} benchmarks at ${benchmarks.gitSha ?? "unknown commit"}`
+          : "run pnpm run eval to generate";
+        const latencyDetail =
+          dashLatency.p50Ms === null
+            ? "no requests on this isolate yet"
+            : `p50 ${dashLatency.p50Ms}ms · p95 ${dashLatency.p95Ms}ms · n=${dashLatency.count}`;
         const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -2248,7 +1778,7 @@ export default {
                 </a>
             </div>
             <h1>BleuJS Reasoning Lab</h1>
-            <p class="hero-tagline">A measured reasoning API with evals, LLM routing, and transparent capability metrics.</p>
+            <p class="hero-tagline">Reproducible reasoning benchmarks over fixed datasets, with provider routing and per-variant cost.</p>
             <div class="status-indicator">Online · v${LAB_VERSION}</div>
         </div>
 
@@ -2262,13 +1792,13 @@ export default {
             <div class="live-card" id="activityCard">
                 <h3>Request Activity</h3>
                 <div class="live-value" id="activityValue">${totalRequests}</div>
-                <div class="live-detail" id="activityDetail">${history.reasoningHistorySize} reason · ${history.learningHistorySize} learn · ${history.creativeHistorySize} create</div>
+                <div class="live-detail" id="activityDetail">${dashCounters.reasoning} reason · ${dashCounters.eval} eval · ${latencyDetail}</div>
                 <div class="live-endpoint">GET /metrics</div>
             </div>
             <div class="live-card" id="capabilitiesCard">
-                <h3>Capabilities</h3>
-                <div class="live-value" id="capabilitiesValue">${capAvgPct}%</div>
-                <div class="live-detail" id="capabilitiesDetail">Reasoning ${capReasoningPct}% · Understanding ${capUnderstandingPct}%</div>
+                <h3>Benchmark Pass Rate</h3>
+                <div class="live-value" id="capabilitiesValue">${benchPassPct}%</div>
+                <div class="live-detail" id="capabilitiesDetail">${benchDetail}</div>
                 <div class="live-endpoint">GET /capabilities</div>
             </div>
         </div>
@@ -2280,14 +1810,12 @@ export default {
                     <label for="hrsEndpoint">Function:</label>
                     <select id="hrsEndpoint">
                         <option value="reason">Reason</option>
-                        <option value="learn">Learn</option>
-                        <option value="create">Create</option>
                         <option value="status">Status</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="hrsInput">Input:</label>
-                    <textarea id="hrsInput" placeholder="Enter your question, data to learn, or creative prompt..."></textarea>
+                    <textarea id="hrsInput" placeholder="Ask a question..."></textarea>
                 </div>
                 <div class="button-group">
                     <button class="btn btn-primary" onclick="interactWithSystem()">Process Request</button>
@@ -2312,40 +1840,45 @@ export default {
             <div class="documentation-content">
                 <div id="overview" class="documentation-tab-content active">
                     <h3>BleuJS Reasoning Lab v${LAB_VERSION}</h3>
-                    <p>A measured reasoning API on Cloudflare Workers — multi-agent orchestration, optional LLM integration, and an eval harness.</p>
+                    <p>An evaluation harness for LLM reasoning on Cloudflare Workers: fixed datasets, exact graders, and provider routing you can audit.</p>
                     
                     <h4>What it does</h4>
                     <ul>
-                        <li><strong>POST /reason:</strong> Answer-first responses via BleuJS API when <code>BLEUJS_API_KEY</code> is configured</li>
-                        <li><strong>GET /eval:</strong> Benchmark pass rate over a fixed task suite</li>
-                        <li><strong>GET /metrics:</strong> Learning-engine state and request counters — no random telemetry</li>
-                        <li><strong>GET /capabilities:</strong> Capability scores derived from real ML stats</li>
-                        <li><strong>POST /learn:</strong> Concept learning via the built-in neural engine</li>
+                        <li><strong>POST /reason:</strong> Answer-first responses, routed to the first configured provider</li>
+                        <li><strong>GET /eval:</strong> Runs the offline benchmark suite live — deterministic, so it matches the committed run at the same commit</li>
+                        <li><strong>GET /metrics:</strong> Request counters, measured latency percentiles, and provider routing shares</li>
+                        <li><strong>GET /capabilities:</strong> Benchmark scores from the last committed eval run, with the dataset and git SHA</li>
+                    </ul>
+
+                    <h4>What it does not do</h4>
+                    <ul>
+                        <li>It does not train models. Reasoning quality is the hosted model's, measured here — not produced here.</li>
+                        <li>It does not score its own "understanding" or "adaptability". Earlier versions published such numbers; they were formulas over request counters and have been removed.</li>
+                        <li>Datasets are small (tens of items per benchmark), so one- or two-item differences are not significant.</li>
                     </ul>
                 </div>
                 
                 <div id="architecture" class="documentation-tab-content">
                     <h3>Architecture</h3>
-                    <p>Single Cloudflare Worker (<code>src/worker/index.ts</code>) with process-scoped engines: learning, understanding, cross-domain reasoning, optional LLM, and autonomous goals.</p>
+                    <p>Single Cloudflare Worker (<code>src/worker/index.ts</code>). The only request-time state is the provider client and in-isolate counters.</p>
                     
                     <h4>Components</h4>
                     <ul>
-                        <li><strong>RealLLMIntegration:</strong> BleuJS API (<code>bleujs-chat</code>) primary; NVIDIA Nemotron Lightning as Inception fallback</li>
-                        <li><strong>RealLearningEngine:</strong> Backpropagation on small tasks (XOR baseline)</li>
-                        <li><strong>RealUnderstandingEngine:</strong> Concept and domain extraction from input</li>
-                        <li><strong>AutonomousGoalSystem:</strong> Goal tracking (execution loop planned)</li>
-                        <li><strong>Eval harness:</strong> <code>pnpm run eval</code> for local benchmarks</li>
+                        <li><strong>RealLLMIntegration:</strong> BleuJS API (<code>bleujs-chat</code>) primary; NVIDIA Nemotron as Inception fallback</li>
+                        <li><strong>Offline benchmarks:</strong> <code>src/evals/benchmarks/</code> — fixed datasets scored against deterministic baselines</li>
+                        <li><strong>Model-in-the-loop benchmarks:</strong> <code>pnpm run eval:model</code> — same datasets sent to a hosted model, majority vote over repeated sampled runs</li>
+                        <li><strong>ToolSystem:</strong> keyword baseline for the tool-selection benchmark — the floor a model should beat</li>
                     </ul>
                 </div>
                 
                 <div id="tech" class="documentation-tab-content">
                     <h3>Technology Stack</h3>
-                    <p>TypeScript on Cloudflare Workers. Legacy Rust/C/WASM modules exist in the repo but are not required for the live worker path.</p>
+                    <p>TypeScript on Cloudflare Workers. Note that reasoning <em>research</em> is a Python ecosystem; this project is an evaluation and routing layer, which is where TypeScript belongs.</p>
                     
                     <h4>Runtime</h4>
                     <ul>
                         <li><strong>Cloudflare Workers:</strong> Production deployment</li>
-                        <li><strong>TypeScript:</strong> Worker, orchestrator, and eval harness</li>
+                        <li><strong>TypeScript:</strong> Worker and eval harness</li>
                         <li><strong>Wrangler:</strong> Deploy via <code>pnpm run deploy:worker:prod</code></li>
                     </ul>
                 </div>
@@ -2360,13 +1893,13 @@ export default {
                 <div class="endpoint-item">
                     <div class="method">GET</div>
                     <div class="path">/capabilities</div>
-                    <div class="description">Measured capability scores from the learning engine</div>
+                    <div class="description">Benchmark scores from the last committed eval run, with dataset and git SHA</div>
                 </div>
                 
                 <div class="endpoint-item">
                     <div class="method">GET</div>
                     <div class="path">/metrics</div>
-                    <div class="description">Full metrics payload — ML stats, performance, history, goals</div>
+                    <div class="description">Request counters, measured latency percentiles, and provider routing shares</div>
                 </div>
                 
                 <div class="endpoint-item">
@@ -2378,33 +1911,23 @@ export default {
                 <div class="endpoint-item">
                     <div class="method">GET</div>
                     <div class="path">/eval</div>
-                    <div class="description">Run the eval suite and return pass rate</div>
+                    <div class="description">Run the offline benchmark suite and return per-benchmark scores</div>
                 </div>
                 
                 <div class="endpoint-item">
                     <div class="method">POST</div>
                     <div class="path">/reason</div>
-                    <div class="description">Reasoning via BleuJS API when configured; response includes <code>llmProvider</code> (<code>bleujs</code>, <code>nvidia</code>, <code>anthropic</code>, or <code>openai</code>)</div>
-                </div>
-                
-                <div class="endpoint-item">
-                    <div class="method">POST</div>
-                    <div class="path">/learn</div>
-                    <div class="description">Learn concepts or train on labeled examples</div>
-                </div>
-                
-                <div class="endpoint-item">
-                    <div class="method">POST</div>
-                    <div class="path">/create</div>
-                    <div class="description">Understanding analysis for a creative prompt (LLM creative output via /reason)</div>
+                    <div class="description">Reasoning via the first configured provider; response includes <code>llmProvider</code> (<code>bleujs</code>, <code>nvidia</code>, <code>anthropic</code>, <code>openai</code>, or <code>local</code>)</div>
                 </div>
             </div>
             
             <div class="api-details">
                 <h3>API Notes</h3>
                 <ul>
-                    <li><strong>Measured metrics:</strong> No random or simulated telemetry on live endpoints</li>
-                    <li><strong>LLM:</strong> <code>BLEUJS_API_KEY</code> primary. Optional <code>NVIDIA_API_KEY</code> (Nemotron Lightning fallback) plus Anthropic/OpenAI. Check <code>llmProvider</code> in <code>/reason</code> responses.</li>
+                    <li><strong>Every number is traceable:</strong> counters and latency are measured by this Worker; benchmark scores come from a committed run at a recorded git SHA. Nothing is simulated or heuristically scored.</li>
+                    <li><strong>Latency scope:</strong> percentiles describe recent requests on one Workers isolate, not a global SLO.</li>
+                    <li><strong>LLM:</strong> <code>BLEUJS_API_KEY</code> primary. Optional <code>NVIDIA_API_KEY</code> plus Anthropic/OpenAI. Check <code>llmProvider</code> in <code>/reason</code> responses.</li>
+                    <li><strong>Removed in v6:</strong> <code>POST /learn</code>, <code>POST /create</code>, and <code>GET /goals</code>. Nothing behind them affected an answer.</li>
                     <li><strong>CORS:</strong> Open for GET and POST from any origin</li>
                 </ul>
             </div>
@@ -2425,40 +1948,32 @@ export default {
                 const json = await response.json();
                 if (!json.success || !json.data) return;
 
-                const history = json.data.history;
-                if (history) {
-                    const total =
-                        history.reasoningHistorySize +
-                        history.learningHistorySize +
-                        history.creativeHistorySize;
+                const requests = json.data.requests;
+                const latency = json.data.latency;
+                if (requests) {
+                    const total = requests.reasoning + requests.eval;
                     const valueEl = document.getElementById('activityValue');
                     const detailEl = document.getElementById('activityDetail');
                     if (valueEl) valueEl.textContent = String(total);
                     if (detailEl) {
+                        const latencyText = latency && latency.p50Ms !== null
+                            ? 'p50 ' + latency.p50Ms + 'ms · p95 ' + latency.p95Ms + 'ms · n=' + latency.count
+                            : 'no requests on this isolate yet';
                         detailEl.textContent =
-                            history.reasoningHistorySize + ' reason · ' +
-                            history.learningHistorySize + ' learn · ' +
-                            history.creativeHistorySize + ' create';
+                            requests.reasoning + ' reason · ' +
+                            requests.eval + ' eval · ' + latencyText;
                     }
                 }
 
-                const caps = json.data.capabilities;
-                if (caps) {
-                    const avg = (
-                        (caps.reasoningQuality +
-                            caps.systemDepth +
-                            caps.understandingDepth +
-                            caps.adaptability) /
-                        4 *
-                        100
-                    ).toFixed(1);
+                const bench = json.data.benchmarks;
+                if (bench) {
                     const valueEl = document.getElementById('capabilitiesValue');
                     const detailEl = document.getElementById('capabilitiesDetail');
-                    if (valueEl) valueEl.textContent = avg + '%';
+                    if (valueEl) valueEl.textContent = (bench.passRate * 100).toFixed(1) + '%';
                     if (detailEl) {
                         detailEl.textContent =
-                            'Reasoning ' + (caps.reasoningQuality * 100).toFixed(1) + '% · Understanding ' +
-                            (caps.understandingDepth * 100).toFixed(1) + '%';
+                            bench.passed + '/' + bench.total + ' benchmarks at ' +
+                            (bench.gitSha || 'unknown commit');
                     }
                 }
             } catch (error) {
@@ -2481,13 +1996,13 @@ export default {
 
                 const rate = (data.passRate * 100).toFixed(1);
                 valueEl.textContent = rate + '%';
-                detailEl.textContent = data.passed + ' / ' + data.total + ' tasks passed' +
-                    (data.skipped ? ' (' + data.skipped + ' skipped)' : '');
+                detailEl.textContent = data.passed + ' / ' + data.total + ' benchmarks passed in ' +
+                    data.durationMs + 'ms';
                 card.classList.remove('loading');
             } catch (error) {
                 console.error('Failed to load eval:', error);
                 valueEl.textContent = 'Unavailable';
-                detailEl.textContent = 'Could not run eval suite — try GET /eval directly';
+                detailEl.textContent = 'Could not run benchmarks — try GET /eval directly';
                 card.classList.remove('loading');
             }
         }
@@ -2586,22 +2101,20 @@ export default {
             if (endpoint === 'reason' && answer != null) {
                 document.getElementById('resultPanelTitle').textContent = 'Answer';
                 const meta = [
-                    !payload.llmUsed
-                        ? (payload.confidence === 1 ? 'Local math' : 'Local reasoning')
-                        : (payload.llmProvider === 'bleujs' ? 'BleuJS API'
-                            : payload.llmProvider === 'nvidia' ? 'NVIDIA Nemotron'
-                            : payload.llmProvider === 'anthropic' ? 'Anthropic'
-                            : payload.llmProvider === 'openai' ? 'OpenAI'
-                            : 'LLM'),
-                    ((payload.confidence ?? 0) * 100).toFixed(0) + '% confidence',
+                    payload.llmProvider === 'local' ? 'Local math (no LLM call)'
+                        : payload.llmProvider === 'bleujs' ? 'BleuJS API'
+                        : payload.llmProvider === 'nvidia' ? 'NVIDIA Nemotron'
+                        : payload.llmProvider === 'anthropic' ? 'Anthropic'
+                        : payload.llmProvider === 'openai' ? 'OpenAI'
+                        : 'no provider',
+                    // Omitted rather than shown as 0% when no provider reported one.
+                    payload.confidence == null
+                        ? 'confidence not reported'
+                        : (payload.confidence * 100).toFixed(0) + '% provider confidence',
                     (payload.processingTimeMs ?? '—') + 'ms'
                 ].join(' · ');
                 let html = '<div class="lab-meta">' + escapeHtml(meta) + '</div>';
                 html += '<div class="lab-answer">' + renderMarkdown(answer) + '</div>';
-                if (payload.understanding) {
-                    html += '<div class="lab-meta">Domains: ' + escapeHtml((payload.understanding.domains || []).join(', ') || 'general') +
-                        ' · ' + (payload.understanding.conceptCount ?? 0) + ' concepts</div>';
-                }
                 html += '<details class="lab-details"><summary>Raw JSON</summary><pre>' +
                     escapeHtml(JSON.stringify(payload, null, 2)) + '</pre></details>';
                 return html;
@@ -2697,20 +2210,6 @@ export default {
 
                 let response;
                 switch (endpoint) {
-                    case 'learn':
-                        response = await fetch('/learn', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ data: input })
-                        });
-                        break;
-                    case 'create':
-                        response = await fetch('/create', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ prompt: input })
-                        });
-                        break;
                     case 'status':
                         response = await fetch('/status');
                         break;
@@ -2774,12 +2273,9 @@ export default {
             "/health",
             "/metrics",
             "/eval",
-            "/goals",
             "/status",
             "/capabilities",
             "/reason",
-            "/learn",
-            "/create",
             "/",
           ],
         }),

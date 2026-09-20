@@ -1,13 +1,19 @@
 /**
- * Honest status payloads for the BleuJS Autonomous Reasoning Lab.
+ * Status payloads for the BleuJS Reasoning Lab.
+ *
+ * Every field here is either a counter the Worker incremented, a duration it
+ * timed, or a benchmark score read from a committed eval result. Nothing is
+ * derived from a heuristic "capability" formula — if a number cannot be traced
+ * to a measurement, it does not belong in this file.
  */
 
-import type { RealMetrics } from "@/metrics/RealMetricsCalculator";
-import type { CapabilityDisplayMetrics } from "@/metrics/CapabilityDisplayMetrics";
-import type { Goal } from "@/reasoning/AutonomousGoalSystem";
+import type {
+  LatencySummary,
+  RequestCounters,
+} from "@/metrics/requestCounters";
 import { buildLlmRoutingPayload } from "@/routing/llmRoutingMetrics";
 
-export const LAB_VERSION = "5.1.0";
+export const LAB_VERSION = "6.0.0";
 /** Public product name (API + dashboard) */
 export const LAB_NAME = "BleuJS Reasoning Lab";
 /** Internal project name — used in docs and repo */
@@ -16,88 +22,66 @@ export const LAB_PROJECT_NAME = "BleuJS Reasoning Lab";
 export const GITHUB_REPO =
   "https://github.com/HelloblueAI/bleujs-reasoning-lab";
 
-export type MlStats = {
-  tasksLearned: number;
-  conceptsAcquired: number;
-  averageAccuracy: number;
+export type LlmRoutingSummary = ReturnType<typeof buildLlmRoutingPayload>;
+
+/**
+ * Benchmark scores are not computed at request time — they come from the last
+ * committed run of the offline suite, so the dashboard reports a reproducible
+ * number rather than a fresh guess.
+ */
+export type BenchmarkSummary = {
+  source: string;
+  recordedAt: string | null;
+  gitSha: string | null;
+  passed: number;
+  total: number;
+  passRate: number;
+  scores: Record<string, number>;
 };
 
-export function buildHonestHistoryMetrics(
-  mlStats: MlStats,
-  counters: { reasoning: number; learning: number; creative: number },
-) {
-  return {
-    knowledgeBaseSize: mlStats.conceptsAcquired,
-    reasoningHistorySize: counters.reasoning,
-    learningHistorySize: counters.learning + mlStats.tasksLearned,
-    creativeHistorySize: counters.creative,
-  };
-}
-
-export function buildLabMetricsPayload(
-  mlStats: MlStats,
-  realMetrics: RealMetrics | null,
-  capabilities: CapabilityDisplayMetrics,
-  counters: { reasoning: number; learning: number; creative: number },
-  llmAvailable: boolean,
-  goals: { active: number; completed: number; topPriorities: Goal[] } | null,
-  llmRouting?: {
-    bleujs: number;
-    nvidia: number;
-    anthropic: number;
-    openai: number;
-    local: number;
-    none: number;
-    llmTotal: number;
-    fallbackRate: number;
-  },
-) {
-  const metrics = realMetrics ?? {
-    learningComplexity: mlStats.averageAccuracy,
-    systemDepth: capabilities.systemDepth,
-    adaptability: capabilities.adaptability,
-    crossDomainIntegration: 0.5,
-    understandingDepth: capabilities.understandingDepth,
-    reasoningQuality: capabilities.reasoningQuality,
-    learningEfficiency: capabilities.confidence,
-  };
-
+export function buildLabStatusPayload(params: {
+  llmAvailable: boolean;
+  counters: RequestCounters;
+  latency: LatencySummary;
+  benchmarks: BenchmarkSummary | null;
+}) {
   return {
     system: LAB_NAME,
     version: LAB_VERSION,
-    measured: true,
-    disclaimer:
-      "Metrics are derived from learning engine state and request performance — not simulated values.",
+    status: "operational",
     timestamp: Date.now(),
-    ml: {
-      tasksLearned: mlStats.tasksLearned,
-      conceptsAcquired: mlStats.conceptsAcquired,
-      averageAccuracy: mlStats.averageAccuracy,
-      llmAvailable,
+    features: {
+      llmReasoning: params.llmAvailable,
+      offlineBenchmarks: true,
+      modelInTheLoopBenchmarks: true,
     },
-    capabilities: {
-      reasoningQuality: capabilities.reasoningQuality,
-      systemDepth: capabilities.systemDepth,
-      understandingDepth: capabilities.understandingDepth,
-      adaptability: capabilities.adaptability,
-      confidence: capabilities.confidence,
-      sources: capabilities.sources,
-    },
-    performance: {
-      reasoningQuality: metrics.reasoningQuality,
-      learningEfficiency: metrics.learningEfficiency,
-      crossDomainIntegration: metrics.crossDomainIntegration,
-      adaptability: metrics.adaptability,
-      learningComplexity: metrics.learningComplexity,
-      systemDepth: metrics.systemDepth,
-    },
-    history: buildHonestHistoryMetrics(mlStats, counters),
+    requests: params.counters,
+    latency: params.latency,
+    benchmarks: params.benchmarks,
+  };
+}
+
+export function buildLabMetricsPayload(params: {
+  llmAvailable: boolean;
+  counters: RequestCounters;
+  latency: LatencySummary;
+  benchmarks: BenchmarkSummary | null;
+  llmRouting?: LlmRoutingSummary;
+}) {
+  return {
+    system: LAB_NAME,
+    version: LAB_VERSION,
+    timestamp: Date.now(),
+    note: "Counters and latency are measured by this Worker since the last cold start. Benchmark scores come from the last committed offline run, not from live traffic.",
+    requests: params.counters,
+    latency: params.latency,
+    llmAvailable: params.llmAvailable,
     llmRouting:
-      llmRouting ??
+      params.llmRouting ??
       buildLlmRoutingPayload(
         { bleujs: 0, nvidia: 0, anthropic: 0, openai: 0, local: 0, none: 0 },
         "isolate",
       ),
-    goals,
+    benchmarks: params.benchmarks,
   };
 }

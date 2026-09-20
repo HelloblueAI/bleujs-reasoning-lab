@@ -1,13 +1,17 @@
 # BleuJS Reasoning Lab — measurable roadmap
 
 **Live site:** https://agi.bleujs.org
-**Canonical code:** `src/worker/index.ts` + `src/reasoning/ReasoningOrchestrator.ts`
+**Canonical code:** `src/worker/index.ts` + `src/evals/`
 
 ## North star
 
-Build **one measurable reasoning loop** whose benchmark scores improve over time —
-not more modules, and not simulated capability percentages. The deliverable is a
-**credible, honest lab**, not a claim of general intelligence.
+Answer one question well: **what does reasoning mode actually buy you, per task
+type, and what does it cost?** Labs publish accuracy and omit the token and
+latency bill. This lab measures both on the same fixed datasets, so the tradeoff
+is visible.
+
+The deliverable is a **citable measurement**, not a new model and not a claim of
+general intelligence.
 
 ---
 
@@ -15,62 +19,80 @@ not more modules, and not simulated capability percentages. The deliverable is a
 
 - [x] Single production Worker (`src/worker/index.ts`)
 - [x] Legacy consciousness/quantum/true-AGI code removed from `main` (history retained)
-- [x] Worker-first layout: `worker / reasoning / routing / retrieval / metrics / evals`
-- [x] Honest metrics — no `Math.random()` in any live API field
-- [x] Endpoints: `GET /metrics`, `GET /capabilities`, `GET /eval`, `GET /goals`, `POST /reason`
-- [x] Slimmed dependencies (removed TFJS, ONNX, pg/redis/typeorm, Express, Jest, FFI)
-- [x] `pnpm check` (format + lint + type-check + tests + evals) enforced in CI
-- [x] Evaluations split into component/smoke checks and reproducible benchmarks
+- [x] Offline benchmarks over fixed datasets with exact grading
 - [x] Benchmark results committed to `src/evals/results/latest.json`
+- [x] `pnpm check` (format + lint + type-check + tests + evals) enforced in CI
+- [x] Model-in-the-loop benchmarks: same datasets, sampled decoding, majority vote
+- [x] Reasoning on / low / off variants recorded with token and latency cost
+- [x] Eval provider config isolated from production routing (`NVIDIA_EVAL_API_KEY`)
+
+## Phase 1.5: Unmeasured claims removed (done, v6.0.0)
+
+Deleted the hand-rolled neural network, regex concept extractor, cross-domain
+"insight" generator, autonomous goal system, self-improvement loop, and the
+heuristic capability scores (`understandingDepth`, `adaptability`, `systemDepth`)
+that were formulas over request counters clamped to 0.95. Removed the `/learn`,
+`/create`, and `/goals` endpoints that published them.
+
+None of it ever affected a user-facing answer. `tests/unit/measuredMetrics.test.ts`
+fails if any of it returns.
 
 ---
 
-## Phase 2: Autonomous goal loop
+## Phase 2: Make the datasets able to discriminate
 
-**Focus:** the system sets sub-goals, acts, evaluates, and updates strategy.
+**Problem:** a strong model in thinking-on mode already saturates several
+benchmarks, so the harness currently cannot separate the configurations it exists
+to compare. This is the highest-value work available.
 
-1. Goal execution pipeline: `AutonomousGoalSystem` → pick top goal → call the
-   orchestrator → record outcome → update progress.
-2. `POST /goals/execute` runs one safe, rate-limited cycle.
-3. Failed benchmark items become goal candidates.
-4. Persist goal state across requests via a Cloudflare KV binding.
+1. Add harder arithmetic (multi-step word problems, unit conversion, precision traps).
+2. Add logic puzzles with more constraints and larger search spaces.
+3. Add retrieval queries with near-miss distractors, not just clear top-1 answers.
+4. Add adversarial abstention items where the correct answer is "I don't know".
+5. Record per-item difficulty so scores can be reported by tier.
 
-**Measure:** benchmark pass rate holds at 100% on fixed datasets while the
-autonomous loop logs completed goals.
-
----
-
-## Phase 3: Reasoning depth
-
-1. Persist `RealUnderstandingEngine` concepts across requests.
-2. Logic-first path: try `RealReasoningEngine` before the LLM on factual queries.
-3. Expand benchmarks: more held-out logic puzzles and retrieval queries with
-   exact scoring.
-4. Publish a benchmark pass-rate trend on the dashboard.
+**Measure:** thinking-on and thinking-off separate by more than sampling noise on
+at least three benchmarks.
 
 ---
 
-## Phase 4: Self-improvement loop
+## Phase 3: Report results with real statistics
 
-1. Strategy registry in `SelfImprovementLoop`: direct LLM / multi-agent / tool / logic-only.
-2. A/B strategies on the benchmark suite; keep the best per category.
-3. Auto-generated weekly benchmark report.
+1. Bootstrap confidence intervals on every reported score.
+2. State the minimum detectable difference for each dataset size.
+3. Flag saturated benchmarks automatically instead of relying on a prose caveat.
+4. Publish a cost-per-correct-answer column (completion tokens ÷ items correct).
 
-**Measure:** benchmark pass rate improves from the recorded baseline, with each
-strategy change logged with before/after numbers.
+**Measure:** no score is published without an interval, and "these two configs
+are tied" becomes a computed claim rather than a judgement call.
+
+---
+
+## Phase 4: Cross-vendor baselines
+
+Committed model results are currently all NVIDIA variants, so a comparative lab
+has nothing to compare. Record the same datasets against Anthropic and OpenAI
+reasoning models at matched concurrency, then publish the reasoning-mode cost
+curve across vendors.
+
+**Measure:** one table, three vendors, identical datasets and graders, with
+intervals and token cost.
 
 ---
 
 ## What we are NOT doing
 
 - Claiming consciousness, sentience, or AGI achievement
-- Adding new worker variants or "quantum" modules
-- Vanity node/connection counts or simulated telemetry
+- Training or fine-tuning models — this lab measures hosted models
+- Scoring our own "understanding", "adaptability", or "depth"
+- Publishing any number that cannot be traced to a counter, a timer, or a
+  reproducible benchmark run at a recorded git SHA
 
 ## Commands
 
 ```bash
-pnpm run eval                 # smoke evaluations + benchmarks
+pnpm run eval                 # offline benchmarks, refresh results/latest.json
+pnpm run eval:model           # hosted-model scores on the same datasets
 pnpm run worker:dev           # local worker
 pnpm run deploy:worker:prod   # production deploy (maintainers)
 pnpm run check                # full CI gate locally
@@ -79,9 +101,9 @@ pnpm run check                # full CI gate locally
 ## Success criteria
 
 1. One worker, one story — `agi.bleujs.org` is the lab, not a demo graveyard.
-2. Published benchmark trend with honest methodology.
-3. Autonomous loop generates, executes, and scores goals without manual wiring.
-4. A demonstrably useful path (logic+graph or self-improving routing) beyond a
-   plain LLM wrapper.
+2. Every published number is reproducible from a git SHA.
+3. Datasets hard enough that reasoning-mode differences are statistically real.
+4. A reasoning-mode cost curve across at least three vendors that someone else
+   would cite.
 
-This is not AGI — but it is an honest foundation someone could build on.
+This is not AGI. It is an honest measurement someone could build on.

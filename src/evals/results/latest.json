@@ -1,27 +1,17 @@
 {
-  "labVersion": "5.1.0",
-  "gitSha": "101a3a8",
-  "generatedAt": "2026-09-11T18:19:42.509Z",
-  "smoke": {
-    "suite": "smoke",
-    "labVersion": "5.1.0",
-    "timestamp": 1789150782454,
-    "total": 10,
-    "passed": 9,
-    "failed": 0,
-    "skipped": 1,
-    "passRate": 1
-  },
+  "labVersion": "6.0.0",
+  "gitSha": "9b002cbd",
+  "generatedAt": "2026-09-20T10:29:11.376Z",
   "benchmark": {
     "suite": "benchmark",
-    "labVersion": "5.1.0",
-    "gitSha": "101a3a8",
-    "timestamp": 1789150782509,
+    "labVersion": "6.0.0",
+    "gitSha": "9b002cbd",
+    "timestamp": 1789900151376,
     "total": 6,
     "passed": 6,
     "failed": 0,
     "passRate": 1,
-    "durationMs": 54,
+    "durationMs": 7,
     "benchmarks": [
       {
         "id": "arithmetic",
@@ -33,7 +23,7 @@
         "passed": true,
         "runs": 1,
         "deterministic": true,
-        "durationMs": 53,
+        "durationMs": 6,
         "model": null,
         "costUsd": null,
         "items": [

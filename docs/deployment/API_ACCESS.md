@@ -23,12 +23,9 @@ In [Cloudflare Dashboard](https://dash.cloudflare.com) → zone for **bleujs.org
   starts_with(http.request.uri.path, "/health") or
   starts_with(http.request.uri.path, "/metrics") or
   starts_with(http.request.uri.path, "/eval") or
-  starts_with(http.request.uri.path, "/goals") or
   starts_with(http.request.uri.path, "/status") or
   starts_with(http.request.uri.path, "/capabilities") or
-  starts_with(http.request.uri.path, "/reason") or
-  starts_with(http.request.uri.path, "/learn") or
-  starts_with(http.request.uri.path, "/create")
+  starts_with(http.request.uri.path, "/reason")
 ))
 ```
 
@@ -104,7 +101,7 @@ Tail should show JSON log lines when requests reach the Worker.
 
 ## Optional: API key for write endpoints
 
-`/reason`, `/learn`, `/create` are public POST endpoints. For production hardening (Phase 2), add a `Authorization: Bearer` check in `src/worker/index.ts` and store the secret with:
+`/reason` is the only public POST endpoint. For production hardening, add an `Authorization: Bearer` check in `src/worker/index.ts` and store the secret with:
 
 ```bash
 npx wrangler secret put AGI_API_KEY --env production

@@ -9,7 +9,7 @@
 
 import { tryArithmeticReason } from "@/routing/arithmeticReason";
 import { rankTextsByOverlap } from "@/retrieval/semanticRetrieval";
-import { ToolSystem } from "@/reasoning/ToolSystem";
+import { ToolSystem } from "@/tools/ToolSystem";
 import { solveBleuLabPuzzle } from "@/evals/logicPuzzle";
 import { LAB_VERSION } from "@/metrics/labStatus";
 import {

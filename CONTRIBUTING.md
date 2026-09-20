@@ -20,11 +20,17 @@ selection, and agent orchestration — not a claim of AGI or machine consciousne
 **Where the code lives:**
 
 - `src/worker/index.ts` — Cloudflare Worker (HTTP API + dashboard)
-- `src/reasoning/` — `ReasoningOrchestrator` and the engines it coordinates
+- `src/evals/` — offline and model-in-the-loop benchmarks, datasets, committed results
 - `src/routing/` — LLM provider integration, prompt shaping, routing metrics
 - `src/retrieval/` — embedding providers + semantic ranking
-- `src/metrics/` — capability/request metrics and API payloads
-- `src/evals/` — smoke evaluations and reproducible benchmarks
+- `src/tools/` — keyword tool router used as the tool-selection baseline
+- `src/metrics/` — request counters, latency samples, API payloads
+
+**One rule worth knowing before you add a metric:** every number in an API
+response must trace to a counter the Worker incremented, a duration it timed, or
+a benchmark score from a committed run. Heuristic "capability" scores are not
+accepted — [`tests/unit/measuredMetrics.test.ts`](tests/unit/measuredMetrics.test.ts)
+enforces this.
 
 ---
 

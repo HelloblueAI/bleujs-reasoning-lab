@@ -28,13 +28,8 @@ removed from the working tree (they remain in git history).
 src/
 ├── worker/
 │   └── index.ts            # Worker entry (HTTP routes + embedded dashboard)
-├── reasoning/
-│   ├── ReasoningOrchestrator.ts   # coordinates the components below
-│   ├── RealLearningEngine.ts / RealNeuralNetwork.ts
-│   ├── RealReasoningEngine.ts / RealUnderstandingEngine.ts
-│   ├── CrossDomainReasoningEngine.ts / AutonomousGoalSystem.ts
-│   ├── ChainOfThoughtReasoning.ts / MultiAgentSystem.ts
-│   └── ToolSystem.ts / MemorySystem.ts / SelfImprovementLoop.ts
+├── tools/
+│   └── ToolSystem.ts       # keyword baseline for the tool-selection benchmark
 ├── routing/
 │   ├── RealLLMIntegration.ts      # BleuJS → NVIDIA → Anthropic → OpenAI
 │   ├── reasonPrompt.ts / reasonResponse.ts
@@ -45,17 +40,19 @@ src/
 │   ├── NVIDIAEmbeddingProvider.ts / OpenAIEmbeddingProvider.ts
 │   └── semanticRetrieval.ts       # bag-of-words + provider ranking
 ├── metrics/
-│   ├── CapabilityDisplayMetrics.ts / RealMetricsCalculator.ts
-│   ├── labStatus.ts / endpointResponses.ts
-│   └── requestCounters.ts / honestMetrics.ts
+│   ├── labStatus.ts / endpointResponses.ts     # API payloads (measured only)
+│   ├── benchmarkSummary.ts                     # reads committed eval results
+│   └── requestCounters.ts                      # counters + latency samples
 ├── evals/
-│   ├── runner.ts / tasks.ts / logicPuzzle.ts   # component/smoke evaluations
+│   ├── logicPuzzle.ts                          # constraint puzzle + solver
 │   ├── schema.ts                               # benchmark result types
-│   ├── cli.ts                                  # `pnpm run eval`
+│   ├── cli.ts / modelCli.ts                    # `pnpm run eval` / `eval:model`
 │   ├── benchmarks/                             # fixed-dataset benchmarks
 │   │   ├── datasets.ts
-│   │   └── runner.ts
-│   └── results/latest.json                     # committed benchmark output
+│   │   ├── runner.ts                           # offline, deterministic
+│   │   └── modelRunner.ts                      # model-in-the-loop, sampled
+│   ├── model/                                  # eval-only provider config
+│   └── results/                                # committed benchmark output
 └── utils/
     └── Logger.ts / uuid.ts
 ```
@@ -67,8 +64,10 @@ Import aliases use `@/*` → `src/*` (see `tsconfig.json`).
 ```
 tests/
 ├── setup.ts                # mocks the openai SDK only
-├── unit/                   # routing, retrieval, metrics, arithmetic, capabilities
-└── eval/                   # smoke suite + benchmark suite
+├── unit/                   # routing, retrieval, metrics, arithmetic, eval model
+│                           # incl. measuredMetrics.test.ts — guards that no
+│                           # payload reports an unmeasured "capability" score
+└── eval/                   # benchmark suite
 ```
 
 ## Docs (`docs/`)

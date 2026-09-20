@@ -163,21 +163,9 @@ export interface ModelBenchmarkSuiteResult {
   benchmarks: ModelBenchmarkResult[];
 }
 
-export interface SmokeSuiteReport {
-  suite: "smoke";
-  labVersion: string;
-  timestamp: number;
-  total: number;
-  passed: number;
-  failed: number;
-  skipped: number;
-  passRate: number;
-}
-
 export interface EvalResultsFile {
   labVersion: string;
   gitSha: string | null;
   generatedAt: string;
-  smoke: SmokeSuiteReport;
   benchmark: BenchmarkSuiteResult;
 }
