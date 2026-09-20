@@ -313,13 +313,22 @@ export default {
         return new Response(metricsBody, { headers: corsHeaders });
       }
 
-      // Runs the offline suite live. Deterministic, so the result should match
-      // the committed run at the same commit.
+      // Runs the offline suite live. The Worker cannot know which commit it was
+      // built from, so `gitSha` is null rather than borrowing the SHA from the
+      // committed results — a deploy that did not refresh that file would
+      // otherwise attribute live scores to the wrong commit. Cite
+      // GET /capabilities, which reports a run that does have a SHA.
       if (path === "/eval" && request.method === "GET") {
         incrementEval();
-        const evalResult = await runBenchmarkSuite(benchmarks?.gitSha ?? null);
+        const evalResult = await runBenchmarkSuite(null);
         return new Response(
-          JSON.stringify({ success: true, data: evalResult }),
+          JSON.stringify({
+            success: true,
+            data: {
+              ...evalResult,
+              note: "Live run on the deployed Worker; not attributed to a commit. For a citable result see GET /capabilities.",
+            },
+          }),
           { headers: corsHeaders },
         );
       }
@@ -377,17 +386,20 @@ export default {
 
         const localArithmetic = tryArithmeticReason(input);
 
-        let llmEnhancement: {
-          insight: string;
-          confidence: number;
-          provider?: "bleujs" | "nvidia" | "anthropic" | "openai";
-        } | null = null;
+        let answer: string | null = null;
+        /**
+         * Provider-reported confidence only. The local arithmetic path leaves
+         * this null on purpose: its solver returns a constant 1, which asserts
+         * correctness rather than measuring it.
+         */
+        let confidence: number | null = null;
+        let provider: ReasonProvider | null = null;
         let llmError: string | null = null;
+        let llmAnswered = false;
+
         if (localArithmetic) {
-          llmEnhancement = {
-            insight: localArithmetic.answer,
-            confidence: localArithmetic.confidence,
-          };
+          answer = localArithmetic.answer;
+          provider = "local";
         } else {
           const llm = ensureLlmIntegration(env);
           if (llm && llm.isAvailable()) {
@@ -397,13 +409,10 @@ export default {
                 systemPrompt: getReasonSystemPrompt(simpleFactual),
                 maxTokens: getReasonMaxTokens(simpleFactual),
               });
-              llmEnhancement = {
-                insight: stripMarkdownEmphasis(llmResponse.answer),
-                confidence: llmResponse.confidence,
-                ...(llmResponse.provider
-                  ? { provider: llmResponse.provider }
-                  : {}),
-              };
+              answer = stripMarkdownEmphasis(llmResponse.answer);
+              confidence = llmResponse.confidence;
+              provider = llmResponse.provider ?? null;
+              llmAnswered = true;
             } catch (error) {
               llmError = error instanceof Error ? error.message : String(error);
               console.error("LLM enhancement unavailable:", error);
@@ -417,28 +426,14 @@ export default {
         const processingTimeMs = Date.now() - startTime;
         recordLatency(processingTimeMs);
         incrementReasoning();
-        if (localArithmetic) {
-          recordReasonProviderForMetrics(env, ctx, "local");
-        } else if (llmEnhancement?.provider === "bleujs") {
-          recordReasonProviderForMetrics(env, ctx, "bleujs");
-        } else if (llmEnhancement?.provider === "nvidia") {
-          recordReasonProviderForMetrics(env, ctx, "nvidia");
-        } else if (llmEnhancement?.provider === "anthropic") {
-          recordReasonProviderForMetrics(env, ctx, "anthropic");
-        } else if (llmEnhancement?.provider === "openai") {
-          recordReasonProviderForMetrics(env, ctx, "openai");
-        } else {
-          recordReasonProviderForMetrics(env, ctx, "none");
-        }
+        recordReasonProviderForMetrics(env, ctx, provider ?? "none");
 
         const honestData = buildHonestReasonResponse({
           input,
-          answer: llmEnhancement?.insight ?? null,
-          confidence: llmEnhancement?.confidence ?? null,
-          llmUsed: !localArithmetic && llmEnhancement !== null,
-          llmProvider: localArithmetic
-            ? "local"
-            : (llmEnhancement?.provider ?? null),
+          answer,
+          confidence,
+          llmUsed: llmAnswered,
+          llmProvider: provider,
           llmError,
           processingTimeMs,
         });
@@ -2106,22 +2101,20 @@ export default {
             if (endpoint === 'reason' && answer != null) {
                 document.getElementById('resultPanelTitle').textContent = 'Answer';
                 const meta = [
-                    !payload.llmUsed
-                        ? (payload.confidence === 1 ? 'Local math' : 'Local reasoning')
-                        : (payload.llmProvider === 'bleujs' ? 'BleuJS API'
-                            : payload.llmProvider === 'nvidia' ? 'NVIDIA Nemotron'
-                            : payload.llmProvider === 'anthropic' ? 'Anthropic'
-                            : payload.llmProvider === 'openai' ? 'OpenAI'
-                            : 'LLM'),
-                    ((payload.confidence ?? 0) * 100).toFixed(0) + '% confidence',
+                    payload.llmProvider === 'local' ? 'Local math (no LLM call)'
+                        : payload.llmProvider === 'bleujs' ? 'BleuJS API'
+                        : payload.llmProvider === 'nvidia' ? 'NVIDIA Nemotron'
+                        : payload.llmProvider === 'anthropic' ? 'Anthropic'
+                        : payload.llmProvider === 'openai' ? 'OpenAI'
+                        : 'no provider',
+                    // Omitted rather than shown as 0% when no provider reported one.
+                    payload.confidence == null
+                        ? 'confidence not reported'
+                        : (payload.confidence * 100).toFixed(0) + '% provider confidence',
                     (payload.processingTimeMs ?? '—') + 'ms'
                 ].join(' · ');
                 let html = '<div class="lab-meta">' + escapeHtml(meta) + '</div>';
                 html += '<div class="lab-answer">' + renderMarkdown(answer) + '</div>';
-                if (payload.understanding) {
-                    html += '<div class="lab-meta">Domains: ' + escapeHtml((payload.understanding.domains || []).join(', ') || 'general') +
-                        ' · ' + (payload.understanding.conceptCount ?? 0) + ' concepts</div>';
-                }
                 html += '<details class="lab-details"><summary>Raw JSON</summary><pre>' +
                     escapeHtml(JSON.stringify(payload, null, 2)) + '</pre></details>';
                 return html;

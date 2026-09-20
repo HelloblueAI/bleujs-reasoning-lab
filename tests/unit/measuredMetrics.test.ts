@@ -9,6 +9,7 @@
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
+import { runBenchmarkSuite } from "@/evals/benchmarks/runner";
 import { getOfflineBenchmarkSummary } from "@/metrics/benchmarkSummary";
 import { buildCapabilitiesEndpointPayload } from "@/metrics/endpointResponses";
 import {
@@ -23,6 +24,7 @@ import {
   recordLatency,
   resetRequestCountersForTests,
 } from "@/metrics/requestCounters";
+import { tryArithmeticReason } from "@/routing/arithmeticReason";
 import { buildHonestReasonResponse } from "@/routing/reasonResponse";
 
 /** Names of the removed heuristic scores. */
@@ -99,6 +101,54 @@ describe("public payloads contain no unmeasured capability scores", () => {
     expect(response.answer).toBe("4");
     expect(response.llmProvider).toBe("local");
     expect(collectKeys(response)).not.toContain("understanding");
+  });
+
+  it("does not launder the arithmetic solver's constant into a confidence", () => {
+    // `tryArithmeticReason` returns confidence 1 for every expression it can
+    // solve. That asserts correctness rather than measuring it, so the local
+    // path must not surface it.
+    const solved = tryArithmeticReason("144 / 12");
+    expect(solved).not.toBeNull();
+    expect(solved!.confidence).toBe(1);
+
+    const response = buildHonestReasonResponse({
+      input: "144 / 12",
+      answer: solved!.answer,
+      confidence: null,
+      llmUsed: false,
+      llmProvider: "local",
+      processingTimeMs: 1,
+    });
+    expect(response.confidence).toBeNull();
+  });
+
+  it("only reports a confidence a provider actually returned", () => {
+    const response = buildHonestReasonResponse({
+      input: "capital of Japan",
+      answer: "Tokyo",
+      confidence: 0.88,
+      llmUsed: true,
+      llmProvider: "nvidia",
+      processingTimeMs: 900,
+    });
+    expect(response.confidence).toBe(0.88);
+    expect(response.llmProvider).toBe("nvidia");
+  });
+});
+
+describe("a live benchmark run is not attributed to a commit", () => {
+  it("returns a null gitSha when no SHA is supplied", async () => {
+    // The Worker cannot know its own build commit. Borrowing the SHA from the
+    // committed results would misattribute live scores after a deploy that did
+    // not refresh that file.
+    const suite = await runBenchmarkSuite(null);
+    expect(suite.gitSha).toBeNull();
+    expect(suite.total).toBeGreaterThan(0);
+  });
+
+  it("records the SHA it was given, for the committed CLI run", async () => {
+    const suite = await runBenchmarkSuite("abc1234");
+    expect(suite.gitSha).toBe("abc1234");
   });
 });
 
