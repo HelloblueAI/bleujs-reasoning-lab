@@ -80,7 +80,7 @@ curl -X POST http://localhost:8787/reason \
 
 The lab separates two very different things:
 
-- **Offline benchmarks** ([`src/evals/benchmarks/`](src/evals/benchmarks/), served by `GET /eval`) score **deterministic baselines** against **fixed datasets** with **exact grading**: arithmetic, a constraint logic puzzle, retrieval top-1, tool selection, provider routing rates, and abstention. No API keys, no sampling — the same commit always yields the same numbers, written to [`src/evals/results/latest.json`](src/evals/results/latest.json).
+- **Offline benchmarks** ([`src/evals/benchmarks/`](src/evals/benchmarks/), served by `GET /eval`) score **deterministic baselines** against **fixed datasets** with **exact grading**: arithmetic, constraint logic puzzles, retrieval top-1, tool selection, provider routing rates, and abstention. No API keys, no sampling — the same commit always yields the same numbers, written to [`src/evals/results/latest.json`](src/evals/results/latest.json).
 
 ```bash
 pnpm run eval   # refreshes results/latest.json
@@ -97,16 +97,56 @@ pnpm run eval:model -- --summary-only            # rebuild the comparison file
 `--thinking low` uses NVIDIA's low reasoning-effort instruction, which keeps the
 reasoning channel active rather than disabling it.
 
+### Difficulty tiers
+
+Every dataset item is tagged `core` or `hard`, because the original datasets were
+saturated: every model variant scored 1.000 on retrieval and on the 3x3 logic
+puzzle, so the benchmarks could not answer the question the lab exists to ask.
+
+| Tier | Built for | Offline baseline scores |
+|------|-----------|-------------------------|
+| `core` | What the deterministic baselines handle: two-operand arithmetic, lexically obvious retrieval, literal tool keywords | 100% — it is a regression test |
+| `hard` | Defeating pattern matching: order of operations, percentages, unit conversion, multi-step word problems, near-miss passages where the correct answer shares *fewer* words with the query, tool requests with no trigger word, and arithmetic-shaped questions that are unanswerable | 0/20 arithmetic, 0/5 retrieval, 0/9 tool selection |
+
+`pnpm run eval` scores the core tier only, so it stays a clean regression test.
+`pnpm run eval:model` runs both and reports `tierScores` per benchmark and per
+suite. [`tests/unit/datasetTiers.test.ts`](tests/unit/datasetTiers.test.ts)
+enforces both directions: baselines must pass every core item and fail every hard
+one, so a hard item cannot silently degrade into an easy one.
+
+### Current result: what reasoning mode costs
+
+Nemotron 3 Super 120B A12B, 84 items, 3 runs per item, majority vote,
+concurrency 3 ([full record](src/evals/results/model-nvidia-nemotron-3-super-120b-a12b-comparison.json)):
+
+| Reasoning | Hard tier | Completion tokens | Latency p50 |
+|-----------|-----------|-------------------|-------------|
+| `on` | 43/45 (96%) | 97,125 | 3.8s |
+| `low` | 43/45 (96%) | 19,145 | 1.0s |
+| `off` | 36/45 (80%) | 9,287 | 0.5s |
+
+Two things worth noting. Turning reasoning off costs 16 points on the hard tier,
+and most of that loss is concentrated in the 5x5 logic puzzle (100% → 40%) and
+hard arithmetic (100% → 80%) — the tasks that need more than one step. But `low`
+matched `on` exactly while spending **5x fewer completion tokens** and answering
+**~4x faster**, which says the expensive full reasoning channel bought nothing
+measurable on these datasets.
+
+Treat the `on`/`low` tie as a tie, not as evidence `low` is better: there are no
+confidence intervals yet, and 45 hard items cannot resolve a 2-item difference.
+
 This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_CHAT_MODEL`, which the Worker never reads, so an eval model can never be served by production `/reason` (that chain uses `NVIDIA_API_KEY` / `NVIDIA_CHAT_MODEL`). Per-variant results land in `src/evals/results/model-<model>-thinking-<mode>.json`.
 
 ### Scope and known limitations
 
 State these before citing any number from this repo:
 
-- **Datasets are small** — tens of items per benchmark, and a strong model in thinking-on mode already saturates several of them. A one- or two-item difference between configurations is sampling noise, not a result.
+- **Read the hard tier, not the blended score.** The core tier is saturated for strong models, so `itemScore` hides whether a configuration change mattered. `tierScores.hard` is the number that separates variants.
+- **Retrieval and tool selection are saturated even on the hard tier.** Nemotron 3 Super scores 5/5 and 9/9 on hard retrieval and hard tool selection in every mode, so those two benchmarks currently discriminate between *baselines*, not between model configurations. Arithmetic, the logic puzzles, and abstention are where the reasoning setting shows up.
+- **Datasets are still small** — 84 items across five benchmarks. Enough to separate reasoning-off from reasoning-on, not enough to rank two close configurations.
 - **No confidence intervals yet.** Differences are reported without significance testing, so treat close scores as ties.
 - **Latency is shared-endpoint latency**, not a dedicated deployment, and is only comparable between variants recorded at the same concurrency.
-- **Cost metrics are the reliable ones.** Completion-token counts and latency percentiles are measured over hundreds of requests; accuracy deltas on a saturated dataset are not.
+- **Cost metrics are the reliable ones.** Completion-token counts and latency percentiles are measured over hundreds of requests; small accuracy deltas are not.
 - **Single vendor so far.** Committed model results are all NVIDIA variants; cross-vendor baselines are not yet recorded.
 
 Nothing here is evidence of general intelligence, and the project does not train models.

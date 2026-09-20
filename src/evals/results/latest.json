@@ -1,12 +1,12 @@
 {
   "labVersion": "6.0.0",
-  "gitSha": "9b002cbd",
-  "generatedAt": "2026-09-20T10:29:11.376Z",
+  "gitSha": "519a226a",
+  "generatedAt": "2026-09-20T13:13:34.148Z",
   "benchmark": {
     "suite": "benchmark",
     "labVersion": "6.0.0",
-    "gitSha": "9b002cbd",
-    "timestamp": 1789900151376,
+    "gitSha": "519a226a",
+    "timestamp": 1789910014148,
     "total": 6,
     "passed": 6,
     "failed": 0,
@@ -147,33 +147,63 @@
         "id": "logic-puzzle",
         "name": "Logic puzzle (constraint solve)",
         "metric": "exact assignment",
-        "total": 3,
-        "correct": 3,
+        "total": 8,
+        "correct": 8,
         "score": 1,
         "passed": true,
         "runs": 1,
         "deterministic": true,
-        "durationMs": 0,
+        "durationMs": 1,
         "model": null,
         "costUsd": null,
         "items": [
           {
-            "id": "assign-Alpha",
+            "id": "wing-assignment-3-Alpha",
             "passed": true,
             "got": "Orchestration",
             "expected": "Orchestration"
           },
           {
-            "id": "assign-Beta",
+            "id": "wing-assignment-3-Beta",
             "passed": true,
             "got": "Reasoning",
             "expected": "Reasoning"
           },
           {
-            "id": "assign-Gamma",
+            "id": "wing-assignment-3-Gamma",
             "passed": true,
             "got": "Understanding",
             "expected": "Understanding"
+          },
+          {
+            "id": "wing-assignment-5-Alpha",
+            "passed": true,
+            "got": "Retrieval",
+            "expected": "Retrieval"
+          },
+          {
+            "id": "wing-assignment-5-Beta",
+            "passed": true,
+            "got": "Reasoning",
+            "expected": "Reasoning"
+          },
+          {
+            "id": "wing-assignment-5-Gamma",
+            "passed": true,
+            "got": "Understanding",
+            "expected": "Understanding"
+          },
+          {
+            "id": "wing-assignment-5-Delta",
+            "passed": true,
+            "got": "Routing",
+            "expected": "Routing"
+          },
+          {
+            "id": "wing-assignment-5-Epsilon",
+            "passed": true,
+            "got": "Orchestration",
+            "expected": "Orchestration"
           }
         ]
       },
@@ -187,7 +217,7 @@
         "passed": true,
         "runs": 1,
         "deterministic": true,
-        "durationMs": 1,
+        "durationMs": 0,
         "model": null,
         "costUsd": null,
         "items": [
