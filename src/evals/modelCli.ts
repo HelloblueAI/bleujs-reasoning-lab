@@ -12,11 +12,11 @@
  * Results are written to src/evals/results/model-<model>-thinking-<mode>.json.
  */
 
-import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runModelBenchmarkSuite } from "./benchmarks/modelRunner";
+import { getGitSha } from "./gitSha";
 import {
   describeEvalModel,
   REASONING_MODES,
@@ -60,14 +60,6 @@ function numberFlag(name: string): number | undefined {
     throw new Error(`--${name} expects a number, got "${raw}"`);
   }
   return value;
-}
-
-function getGitSha(): string | null {
-  try {
-    return execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim();
-  } catch {
-    return null;
-  }
 }
 
 function variantPath(model: string, reasoning: string): string {

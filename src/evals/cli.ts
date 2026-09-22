@@ -12,21 +12,13 @@
  * GET /capabilities.
  */
 
-import { execSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { runBenchmarkSuite } from "./benchmarks/runner";
+import { getGitSha } from "./gitSha";
 import { LAB_VERSION } from "@/metrics/labStatus";
 import type { EvalResultsFile } from "./schema";
-
-function getGitSha(): string | null {
-  try {
-    return execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim();
-  } catch {
-    return null;
-  }
-}
 
 async function main() {
   const gitSha = getGitSha();
