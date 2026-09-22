@@ -33,9 +33,14 @@ with you before any public fix.
 
 ## Secrets and API keys
 
-- Never commit `.dev.vars`, API keys, or Cloudflare tokens.
+- Never commit `.dev.vars`, `wrangler.production.toml`, API keys, Cloudflare
+  tokens, or account/KV/zone IDs. Deployment configs belong in the gitignored
+  `wrangler.production.toml` (template: `wrangler.example.toml`).
 - Production secrets are set via `wrangler secret put` (see
   [README.md](README.md) and [.dev.vars.example](.dev.vars.example)).
+- `pnpm install` enables a pre-commit hook (`.githooks/pre-commit`) that refuses
+  private files and runs [gitleaks](https://github.com/gitleaks/gitleaks) when
+  installed. CI scans every pull request with the same rules (`.gitleaks.toml`).
 - If you accidentally commit a secret, rotate it immediately and notify maintainers.
 
 ## Scope

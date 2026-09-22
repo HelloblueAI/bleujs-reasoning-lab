@@ -1,0 +1,52 @@
+# Template for deploying your own instance of the lab.
+#
+#   cp wrangler.example.toml wrangler.production.toml   # gitignored
+#   # replace every <placeholder>, then:
+#   pnpm run deploy:worker:prod
+#
+# Secrets never go in this file — use `wrangler secret put <NAME>`.
+name = "<your-worker-name>"
+main = "src/worker/index.ts"
+compatibility_date = "2025-03-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "development"
+
+[env.production]
+name = "<your-worker-name>"
+# Optional custom domain, e.g. ["lab.example.com/*"]. Omit to use workers.dev only.
+routes = ["<your-hostname>/*"]
+# workers.dev and version preview URLs are not covered by zone-level WAF rules
+# on your custom domain. Enable only if you do not use a custom domain.
+workers_dev = false
+preview_urls = false
+[env.production.vars]
+ENVIRONMENT = "production"
+# "true" lets /reason try the other configured providers when the primary fails.
+ALLOW_LLM_FALLBACK = "false"
+# Optional: override the BleuJS chat endpoint.
+# BLEUJS_CHAT_URL = "https://<your-bleujs-endpoint>/api/v1/chat"
+
+# Optional KV: response cache + cross-isolate provider counters for /metrics.
+# Create with: npx wrangler kv namespace create AGI_CACHE
+# [[env.production.kv_namespaces]]
+# binding = "AGI_CACHE"
+# id = "<kv-namespace-id>"
+# preview_id = "<kv-preview-namespace-id>"
+
+# Optional (recommended when /reason is public): per-client rate limit.
+# [[env.production.ratelimits]]
+# name = "REASON_RATE_LIMITER"
+# namespace_id = "<unique-integer-per-account>"
+# simple = { limit = 20, period = 60 }
+
+[env.staging]
+name = "<your-worker-name>-staging"
+routes = []
+[env.staging.vars]
+ENVIRONMENT = "staging"
+
+[observability]
+enabled = true
+head_sampling_rate = 1

@@ -13,7 +13,13 @@ import {
   LAB_NAME,
   LAB_VERSION,
 } from "@/metrics/labStatus";
-import { buildHonestReasonResponse } from "@/routing/reasonResponse";
+import {
+  buildHonestReasonResponse,
+  MODEL_NOT_CONFIGURED,
+  toPublicReasonError,
+  type ReasonError,
+} from "@/routing/reasonResponse";
+import { hasBearerToken, isWithinRateLimit, type RateLimiter } from "./access";
 import {
   stripMarkdownEmphasis,
   tryArithmeticReason,
@@ -59,7 +65,7 @@ let llmConfigFingerprint: string | null = null;
 /** Env: secrets via wrangler secret put; optional AGI_CACHE KV binding for response cache. Run `wrangler types` to sync with config. */
 interface Env {
   BLEUJS_API_KEY?: string;
-  /** Override BleuJS chat endpoint (server-to-server: use Vercel origin to avoid api.bleujs.org 522). */
+  /** Override the BleuJS chat endpoint. */
   BLEUJS_CHAT_URL?: string;
   ANTHROPIC_API_KEY?: string;
   OPENAI_API_KEY?: string;
@@ -70,7 +76,14 @@ interface Env {
   ENVIRONMENT?: string;
   ALLOW_LLM_FALLBACK?: string;
   AGI_CACHE?: KVNamespace;
+  /** Bearer token for GET /metrics. Unset = /metrics is not served. */
+  METRICS_TOKEN?: string;
+  /** Optional Workers Rate Limiting binding applied to POST /reason. */
+  REASON_RATE_LIMITER?: RateLimiter;
 }
+
+/** The offline suite is deterministic, so one run per isolate serves every caller. */
+let offlineEvalRun: ReturnType<typeof runBenchmarkSuite> | null = null;
 
 function recordReasonProviderForMetrics(
   env: Env,
@@ -257,7 +270,7 @@ export default {
       const benchmarks = getOfflineBenchmarkSummary();
 
       if (path === "/status" && request.method === "GET") {
-        const cacheKey = "agi:status";
+        const cacheKey = "lab:status:v2";
         const cached = env.AGI_CACHE ? await env.AGI_CACHE.get(cacheKey) : null;
         if (cached) {
           logEvent("info", "cache_hit", { path: "/status" });
@@ -265,12 +278,7 @@ export default {
         }
         const statusBody = JSON.stringify({
           success: true,
-          data: buildLabStatusPayload({
-            llmAvailable,
-            counters: getRequestCounters(),
-            latency: getLatencySummary(),
-            benchmarks,
-          }),
+          data: buildLabStatusPayload({ llmAvailable, benchmarks }),
         });
         if (env.AGI_CACHE) {
           ctx.waitUntil(
@@ -299,7 +307,13 @@ export default {
         return new Response(body, { headers: corsHeaders });
       }
 
-      if (path === "/metrics" && request.method === "GET") {
+      // Operational telemetry: operators only. Unauthorized callers get the
+      // same 404 as an unknown path so the endpoint cannot be discovered.
+      if (
+        path === "/metrics" &&
+        request.method === "GET" &&
+        (await hasBearerToken(request, env.METRICS_TOKEN))
+      ) {
         const metricsBody = JSON.stringify({
           success: true,
           data: buildLabMetricsPayload({
@@ -310,7 +324,9 @@ export default {
             llmRouting: await getLlmRoutingForMetrics(env),
           }),
         });
-        return new Response(metricsBody, { headers: corsHeaders });
+        return new Response(metricsBody, {
+          headers: { ...corsHeaders, "Cache-Control": "no-store" },
+        });
       }
 
       // Runs the offline suite live. The Worker cannot know which commit it was
@@ -320,13 +336,17 @@ export default {
       // GET /capabilities, which reports a run that does have a SHA.
       if (path === "/eval" && request.method === "GET") {
         incrementEval();
-        const evalResult = await runBenchmarkSuite(null);
+        offlineEvalRun ??= runBenchmarkSuite(null).catch((error: unknown) => {
+          offlineEvalRun = null;
+          throw error;
+        });
+        const evalResult = await offlineEvalRun;
         return new Response(
           JSON.stringify({
             success: true,
             data: {
               ...evalResult,
-              note: "Live run on the deployed Worker; not attributed to a commit. For a citable result see GET /capabilities.",
+              note: "Run on the deployed Worker (once per isolate — the suite is deterministic); not attributed to a commit. For a citable result see GET /capabilities.",
             },
           }),
           { headers: corsHeaders },
@@ -334,6 +354,19 @@ export default {
       }
 
       if (path === "/reason" && request.method === "POST") {
+        if (!(await isWithinRateLimit(request, env.REASON_RATE_LIMITER))) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: "Too many requests. Please retry shortly.",
+            }),
+            {
+              status: 429,
+              headers: { ...corsHeaders, "Retry-After": "60" },
+            },
+          );
+        }
+
         // Validate request size (limit to 1MB)
         const contentLength = request.headers.get("content-length");
         if (contentLength && parseInt(contentLength) > 1024 * 1024) {
@@ -387,14 +420,8 @@ export default {
         const localArithmetic = tryArithmeticReason(input);
 
         let answer: string | null = null;
-        /**
-         * Provider-reported confidence only. The local arithmetic path leaves
-         * this null on purpose: its solver returns a constant 1, which asserts
-         * correctness rather than measuring it.
-         */
-        let confidence: number | null = null;
         let provider: ReasonProvider | null = null;
-        let llmError: string | null = null;
+        let reasonError: ReasonError | null = null;
         let llmAnswered = false;
 
         if (localArithmetic) {
@@ -410,16 +437,17 @@ export default {
                 maxTokens: getReasonMaxTokens(simpleFactual),
               });
               answer = stripMarkdownEmphasis(llmResponse.answer);
-              confidence = llmResponse.confidence;
               provider = llmResponse.provider ?? null;
               llmAnswered = true;
             } catch (error) {
-              llmError = error instanceof Error ? error.message : String(error);
-              console.error("LLM enhancement unavailable:", error);
+              reasonError = toPublicReasonError(error);
+              logEvent("error", "reason_llm_failed", {
+                code: reasonError.code,
+                detail: error instanceof Error ? error.message : String(error),
+              });
             }
           } else {
-            llmError =
-              "LLM integration is not configured. Set BLEUJS_API_KEY in production secrets.";
+            reasonError = MODEL_NOT_CONFIGURED;
           }
         }
 
@@ -431,10 +459,9 @@ export default {
         const honestData = buildHonestReasonResponse({
           input,
           answer,
-          confidence,
           llmUsed: llmAnswered,
           llmProvider: provider,
-          llmError,
+          error: reasonError,
           processingTimeMs,
         });
 
@@ -448,19 +475,12 @@ export default {
 
       // Root endpoint — dashboard with server-rendered live metrics
       if (path === "/" && request.method === "GET") {
-        const dashCounters = getRequestCounters();
-        const dashLatency = getLatencySummary();
-        const totalRequests = dashCounters.reasoning + dashCounters.eval;
         const benchPassPct = benchmarks
           ? (benchmarks.passRate * 100).toFixed(1)
           : "—";
         const benchDetail = benchmarks
           ? `${benchmarks.passed}/${benchmarks.total} benchmarks at ${benchmarks.gitSha ?? "unknown commit"}`
           : "run pnpm run eval to generate";
-        const latencyDetail =
-          dashLatency.p50Ms === null
-            ? "no requests on this isolate yet"
-            : `p50 ${dashLatency.p50Ms}ms · p95 ${dashLatency.p95Ms}ms · n=${dashLatency.count}`;
         const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -1789,12 +1809,6 @@ export default {
                 <div class="live-detail" id="evalDetail">Benchmark tasks run on demand</div>
                 <div class="live-endpoint">GET /eval</div>
             </div>
-            <div class="live-card" id="activityCard">
-                <h3>Request Activity</h3>
-                <div class="live-value" id="activityValue">${totalRequests}</div>
-                <div class="live-detail" id="activityDetail">${dashCounters.reasoning} reason · ${dashCounters.eval} eval · ${latencyDetail}</div>
-                <div class="live-endpoint">GET /metrics</div>
-            </div>
             <div class="live-card" id="capabilitiesCard">
                 <h3>Benchmark Pass Rate</h3>
                 <div class="live-value" id="capabilitiesValue">${benchPassPct}%</div>
@@ -1844,9 +1858,8 @@ export default {
                     
                     <h4>What it does</h4>
                     <ul>
-                        <li><strong>POST /reason:</strong> Answer-first responses, routed to the first configured provider</li>
+                        <li><strong>POST /reason:</strong> Answer-first responses from a hosted model; simple arithmetic is answered locally</li>
                         <li><strong>GET /eval:</strong> Runs the offline benchmark suite live — deterministic, so it matches the committed run at the same commit</li>
-                        <li><strong>GET /metrics:</strong> Request counters, measured latency percentiles, and provider routing shares</li>
                         <li><strong>GET /capabilities:</strong> Benchmark scores from the last committed eval run, with the dataset and git SHA</li>
                     </ul>
 
@@ -1864,7 +1877,7 @@ export default {
                     
                     <h4>Components</h4>
                     <ul>
-                        <li><strong>RealLLMIntegration:</strong> BleuJS API (<code>bleujs-chat</code>) primary; NVIDIA Nemotron as Inception fallback</li>
+                        <li><strong>RealLLMIntegration:</strong> provider client for <code>/reason</code> — see <code>src/routing/</code></li>
                         <li><strong>Offline benchmarks:</strong> <code>src/evals/benchmarks/</code> — fixed datasets scored against deterministic baselines</li>
                         <li><strong>Model-in-the-loop benchmarks:</strong> <code>pnpm run eval:model</code> — same datasets sent to a hosted model, majority vote over repeated sampled runs</li>
                         <li><strong>ToolSystem:</strong> keyword baseline for the tool-selection benchmark — the floor a model should beat</li>
@@ -1898,14 +1911,8 @@ export default {
                 
                 <div class="endpoint-item">
                     <div class="method">GET</div>
-                    <div class="path">/metrics</div>
-                    <div class="description">Request counters, measured latency percentiles, and provider routing shares</div>
-                </div>
-                
-                <div class="endpoint-item">
-                    <div class="method">GET</div>
                     <div class="path">/status</div>
-                    <div class="description">Operational status and feature flags</div>
+                    <div class="description">Version, feature flags, and the committed benchmark summary</div>
                 </div>
                 
                 <div class="endpoint-item">
@@ -1917,16 +1924,14 @@ export default {
                 <div class="endpoint-item">
                     <div class="method">POST</div>
                     <div class="path">/reason</div>
-                    <div class="description">Reasoning via the first configured provider; response includes <code>llmProvider</code> (<code>bleujs</code>, <code>nvidia</code>, <code>anthropic</code>, <code>openai</code>, or <code>local</code>)</div>
+                    <div class="description">Answer-first reasoning; <code>answerSource</code> is <code>local-arithmetic</code> or <code>model</code></div>
                 </div>
             </div>
             
             <div class="api-details">
                 <h3>API Notes</h3>
                 <ul>
-                    <li><strong>Every number is traceable:</strong> counters and latency are measured by this Worker; benchmark scores come from a committed run at a recorded git SHA. Nothing is simulated or heuristically scored.</li>
-                    <li><strong>Latency scope:</strong> percentiles describe recent requests on one Workers isolate, not a global SLO.</li>
-                    <li><strong>LLM:</strong> <code>BLEUJS_API_KEY</code> primary. Optional <code>NVIDIA_API_KEY</code> plus Anthropic/OpenAI. Check <code>llmProvider</code> in <code>/reason</code> responses.</li>
+                    <li><strong>Every number is traceable:</strong> benchmark scores come from a committed run at a recorded git SHA. Nothing is simulated or heuristically scored.</li>
                     <li><strong>Removed in v6:</strong> <code>POST /learn</code>, <code>POST /create</code>, and <code>GET /goals</code>. Nothing behind them affected an answer.</li>
                     <li><strong>CORS:</strong> Open for GET and POST from any origin</li>
                 </ul>
@@ -1935,51 +1940,7 @@ export default {
     </div>
     
     <script>
-        document.addEventListener('DOMContentLoaded', loadSystemStatus);
-
-        async function loadSystemStatus() {
-            await Promise.all([loadEvalCard(), refreshLiveMetrics()]);
-        }
-
-        async function refreshLiveMetrics() {
-            try {
-                const response = await fetch('/metrics');
-                if (!response.ok) return;
-                const json = await response.json();
-                if (!json.success || !json.data) return;
-
-                const requests = json.data.requests;
-                const latency = json.data.latency;
-                if (requests) {
-                    const total = requests.reasoning + requests.eval;
-                    const valueEl = document.getElementById('activityValue');
-                    const detailEl = document.getElementById('activityDetail');
-                    if (valueEl) valueEl.textContent = String(total);
-                    if (detailEl) {
-                        const latencyText = latency && latency.p50Ms !== null
-                            ? 'p50 ' + latency.p50Ms + 'ms · p95 ' + latency.p95Ms + 'ms · n=' + latency.count
-                            : 'no requests on this isolate yet';
-                        detailEl.textContent =
-                            requests.reasoning + ' reason · ' +
-                            requests.eval + ' eval · ' + latencyText;
-                    }
-                }
-
-                const bench = json.data.benchmarks;
-                if (bench) {
-                    const valueEl = document.getElementById('capabilitiesValue');
-                    const detailEl = document.getElementById('capabilitiesDetail');
-                    if (valueEl) valueEl.textContent = (bench.passRate * 100).toFixed(1) + '%';
-                    if (detailEl) {
-                        detailEl.textContent =
-                            bench.passed + '/' + bench.total + ' benchmarks at ' +
-                            (bench.gitSha || 'unknown commit');
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to refresh live metrics:', error);
-            }
-        }
+        document.addEventListener('DOMContentLoaded', loadEvalCard);
 
         async function loadEvalCard() {
             const card = document.getElementById('evalCard');
@@ -2073,27 +2034,15 @@ export default {
             return out.join('');
         }
 
-        function formatLlmErrorMessage(llmError) {
-            if (!llmError) {
-                return 'No LLM answer — BLEUJS_API_KEY may be missing or the BleuJS API is unavailable.';
+        function formatReasonError(error) {
+            const code = error && error.code;
+            if (code === 'model_not_configured') {
+                return 'No model is configured on this deployment; only simple arithmetic is answered.';
             }
-            const text = String(llmError).trim();
-            const prefix = 'BleuJS API error: ';
-            let status = null;
-            if (text.startsWith(prefix)) {
-                const after = text.slice(prefix.length);
-                const end = after.indexOf(' ');
-                const codeStr = end === -1 ? after : after.slice(0, end);
-                const code = Number(codeStr);
-                if (Number.isFinite(code)) status = code;
+            if (code === 'model_rate_limited' || code === 'model_temporarily_unavailable') {
+                return 'The model is temporarily unavailable. Please retry in a few seconds.';
             }
-            if (status === 522 || status === 523 || status === 524) {
-                return 'BleuJS API timed out (Cloudflare ' + status + '). The api.bleujs.org origin did not respond — please retry in a few seconds.';
-            }
-            if (status === 503 || status === 504 || status === 429) {
-                return 'BleuJS API is temporarily overloaded (' + status + '). Please retry in a few seconds.';
-            }
-            return 'BleuJS request failed: ' + llmError;
+            return 'The model could not answer this request. Please try again later.';
         }
 
         function formatLabResponse(endpoint, payload) {
@@ -2101,16 +2050,7 @@ export default {
             if (endpoint === 'reason' && answer != null) {
                 document.getElementById('resultPanelTitle').textContent = 'Answer';
                 const meta = [
-                    payload.llmProvider === 'local' ? 'Local math (no LLM call)'
-                        : payload.llmProvider === 'bleujs' ? 'BleuJS API'
-                        : payload.llmProvider === 'nvidia' ? 'NVIDIA Nemotron'
-                        : payload.llmProvider === 'anthropic' ? 'Anthropic'
-                        : payload.llmProvider === 'openai' ? 'OpenAI'
-                        : 'no provider',
-                    // Omitted rather than shown as 0% when no provider reported one.
-                    payload.confidence == null
-                        ? 'confidence not reported'
-                        : (payload.confidence * 100).toFixed(0) + '% provider confidence',
+                    payload.answerSource === 'local-arithmetic' ? 'Local math (no LLM call)' : 'Hosted model',
                     (payload.processingTimeMs ?? '—') + 'ms'
                 ].join(' · ');
                 let html = '<div class="lab-meta">' + escapeHtml(meta) + '</div>';
@@ -2121,7 +2061,7 @@ export default {
             }
             if (endpoint === 'reason' && !answer) {
                 document.getElementById('resultPanelTitle').textContent = 'Response';
-                const errorText = formatLlmErrorMessage(payload.llmError);
+                const errorText = formatReasonError(payload.error);
                 return '<div class="lab-meta">' + escapeHtml(errorText) + '</div><pre>' +
                     escapeHtml(JSON.stringify(payload, null, 2)) + '</pre>';
             }
@@ -2130,18 +2070,7 @@ export default {
         }
 
         function isRetryableHttpStatus(status) {
-            return status >= 500 || status === 429;
-        }
-
-        function isRetryableLlmError(llmError) {
-            if (!llmError) return false;
-            const text = String(llmError).trim();
-            const prefix = 'BleuJS API error: ';
-            if (!text.startsWith(prefix)) return false;
-            const after = text.slice(prefix.length);
-            const end = after.indexOf(' ');
-            const code = Number(end === -1 ? after : after.slice(0, end));
-            return code === 522 || code === 523 || code === 524 || code === 503 || code === 504 || code === 429;
+            return status >= 500;
         }
 
         async function interactWithSystem() {
@@ -2164,7 +2093,7 @@ export default {
                     const maxClientAttempts = 3;
                     for (let clientAttempt = 0; clientAttempt < maxClientAttempts; clientAttempt++) {
                         if (clientAttempt > 0) {
-                            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>BleuJS API timed out — retrying (' +
+                            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Model unavailable — retrying (' +
                                 (clientAttempt + 1) + '/' + maxClientAttempts + ')...</div>';
                             await new Promise(function(resolve) { setTimeout(resolve, 1500 * clientAttempt); });
                         }
@@ -2193,15 +2122,13 @@ export default {
                         }
                         if (data.success && data.data && data.data.answer) {
                             resultDiv.innerHTML = formatLabResponse(endpoint, data.data);
-                            refreshLiveMetrics();
                             return;
                         }
-                        const retryable = data.success && data.data && isRetryableLlmError(data.data.llmError);
+                        const retryable = data.success && data.data && data.data.error && data.data.error.retryable;
                         if (!retryable || clientAttempt === maxClientAttempts - 1) {
                             resultDiv.innerHTML = data.success
                                 ? formatLabResponse(endpoint, data.data)
                                 : ('Error: ' + (data.error || 'Unknown error occurred'));
-                            if (data.success) refreshLiveMetrics();
                             return;
                         }
                     }
@@ -2223,7 +2150,6 @@ export default {
                 
                 if (data.success) {
                     resultDiv.innerHTML = formatLabResponse(endpoint, data.data);
-                    refreshLiveMetrics();
                 } else {
                     resultDiv.innerHTML = 'Error: ' + (data.error || 'Unknown error occurred');
                 }
@@ -2271,7 +2197,6 @@ export default {
           error: "Endpoint not found",
           availableEndpoints: [
             "/health",
-            "/metrics",
             "/eval",
             "/status",
             "/capabilities",
@@ -2299,15 +2224,12 @@ export default {
         timestamp: new Date().toISOString(),
       });
 
-      // Return user-friendly error response (don't expose stack traces)
       return new Response(
         JSON.stringify({
           success: false,
           error: "Internal server error",
           message:
-            process.env["NODE_ENV"] === "development"
-              ? errorMessage
-              : "An error occurred while processing your request. Please try again later.",
+            "An error occurred while processing your request. Please try again later.",
           timestamp: Date.now(),
         }),
         {

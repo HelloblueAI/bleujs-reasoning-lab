@@ -54,12 +54,12 @@ describe("RealLLMIntegration BleuJS", () => {
       undefined,
       undefined,
       "bleujs_sk_test",
-      "https://bleujs-org.vercel.app/api/v1/chat",
+      "https://bleujs.example.com/api/v1/chat",
     );
     await llm.answerQuestion("hi");
 
     expect(requestHostname((fetchMock.mock.calls[0] as [string])[0])).toBe(
-      "bleujs-org.vercel.app",
+      "bleujs.example.com",
     );
   });
 

@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+# Blocks commits that would publish secrets or private deployment config.
+# Enabled by `pnpm install` (sets core.hooksPath=.githooks).
+set -eu
+
+blocked=$(git diff --cached --name-only --diff-filter=ACMR | grep -E \
+  '(^|/)\.dev\.vars$|(^|/)\.env($|\.)|(^|/)wrangler\.production\.toml$|\.local\.toml$|\.(pem|key|p12)$|(^|/)\.wrangler/' \
+  | grep -vE '\.example$' || true)
+if [ -n "$blocked" ]; then
+  echo "pre-commit: refusing to commit private files:" >&2
+  echo "$blocked" | sed 's/^/  /' >&2
+  echo "Unstage them with: git restore --staged <file>" >&2
+  exit 1
+fi
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact --no-banner --config .gitleaks.toml
+else
+  echo "pre-commit: gitleaks not installed — secret scan skipped locally (CI still runs it)." >&2
+  echo "  Install: https://github.com/gitleaks/gitleaks#installing" >&2
+fi

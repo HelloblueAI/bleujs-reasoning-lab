@@ -1,14 +1,11 @@
 # API reference
 
-The Worker exposes a small REST API. Base URLs:
+The Worker exposes a small REST API. Locally it runs at `http://localhost:8787`
+(via `pnpm run worker:dev`); a public demo runs at https://agi.bleujs.org.
 
-- Custom domain: `https://agi.bleujs.org`
-- Worker: `https://agi-primary.morning-star-e026.workers.dev`
-- Local: `http://localhost:8787` (via `pnpm run worker:dev`)
-
-All responses are JSON. CORS is open for GET and POST. No authentication is
-required for the read endpoints. Every metric is derived from measured
-learning-engine state — there is no simulated telemetry.
+All responses are JSON. CORS is open for GET and POST. Public endpoints need no
+authentication and return research results only; operational telemetry is
+served solely by the token-gated `GET /metrics`.
 
 ---
 
@@ -20,11 +17,16 @@ Liveness probe.
 { "status": "healthy", "system": "BleuJS Reasoning Lab", "version": "5.1.0" }
 ```
 
-## `GET /metrics`
+## `GET /status`
 
-Request counters, measured latency percentiles, and LLM routing counts
-(`bleujs` / `nvidia` / `anthropic` / `openai` / `local` / `none`) with a
-`fallbackRate`. Routing counts are global when the `AGI_CACHE` KV binding is set.
+Version, feature flags, and the committed benchmark summary.
+
+## `GET /metrics` (operator-only)
+
+Request counters, latency percentiles, and per-provider routing counts for the
+instance operator. Requires `Authorization: Bearer <METRICS_TOKEN>`; without a
+valid token (or when `METRICS_TOKEN` is unset) it returns the same `404` as an
+unknown path.
 
 ## `GET /capabilities`
 
@@ -46,7 +48,7 @@ hosted-model scores on the same datasets, use `pnpm run eval:model`.
 ## `POST /reason`
 
 Answer-first reasoning. Simple arithmetic is answered locally (no LLM); other
-prompts use the configured provider chain (BleuJS → NVIDIA → Anthropic → OpenAI).
+prompts go to the configured hosted model (see `src/routing/`).
 
 ```bash
 curl -X POST http://localhost:8787/reason \
@@ -62,13 +64,17 @@ curl -X POST http://localhost:8787/reason \
     "input": "144 / 12",
     "answer": "144 ÷ 12 = 12",
     "llmUsed": false,
-    "llmProvider": null
+    "answerSource": "local-arithmetic",
+    "error": null
   }
 }
 ```
 
-`llmProvider` identifies which backend answered (`bleujs`, `nvidia`, `anthropic`,
-or `openai`); it is `null` when the local arithmetic path is used.
+`answerSource` is `local-arithmetic` or `model`. When no answer could be
+produced, `error` is `{ "code": ..., "retryable": ... }` with one of
+`model_not_configured`, `model_rate_limited`, `model_temporarily_unavailable`,
+or `model_unavailable`. Upstream error details are logged server-side and never
+returned.
 
 ---
 
@@ -78,5 +84,5 @@ or `openai`); it is `null` when the local arithmetic path is used.
 { "success": false, "error": "Invalid input" }
 ```
 
-Requests over 1 MB return `413`; malformed JSON returns `400`; unavailable
-subsystems return `503`.
+Requests over 1 MB return `413`; malformed JSON returns `400`; clients over the
+optional `/reason` rate limit get `429`.

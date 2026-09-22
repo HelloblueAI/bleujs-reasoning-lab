@@ -1,44 +1,32 @@
-# Cloudflare domain setup
+# Serving your instance on a custom domain
 
-The Worker is named **`agi-primary`** and is served at:
+By default a deployed Worker is reachable at
+`https://<worker-name>.<your-subdomain>.workers.dev`. To serve it on your own
+domain instead:
 
-- Worker: `https://agi-primary.morning-star-e026.workers.dev`
-- Custom domain: `https://agi.bleujs.org`
+1. Add the domain as a zone in your Cloudflare account and make sure a proxied
+   DNS record exists for the hostname you want to use.
+2. In your `wrangler.production.toml` (copied from
+   [`wrangler.example.toml`](../../wrangler.example.toml)), set the route:
 
-`wrangler.toml` binds the production route `agi.bleujs.org/*` to `agi-primary`.
+   ```toml
+   [env.production]
+   name = "<your-worker-name>"
+   routes = ["<your-hostname>/*"]
+   ```
 
-## Point the custom domain at the Worker
+3. Deploy:
 
-### Option 1: Cloudflare dashboard (recommended)
-
-1. Open the **bleujs.org** zone → **Workers Routes** (or **Workers & Pages** → the
-   Worker → **Triggers**).
-2. Ensure the route `agi.bleujs.org/*` maps to `agi-primary`.
-3. Confirm a DNS record for `agi` exists and is proxied (orange cloud).
-
-### Option 2: Wrangler
-
-The route is already declared in `wrangler.toml`:
-
-```toml
-[env.production]
-name = "agi-primary"
-routes = ["agi.bleujs.org/*"]
-```
-
-Deploy with:
-
-```bash
-pnpm run deploy:worker:prod
-```
+   ```bash
+   pnpm run deploy:worker:prod
+   ```
 
 ## Verify
 
 ```bash
-curl https://agi.bleujs.org/health
-curl https://agi.bleujs.org/capabilities
-curl https://agi.bleujs.org/eval
+curl https://<your-hostname>/health
+curl https://<your-hostname>/capabilities
 ```
 
-If these return a Cloudflare bot challenge (HTTP 403 "Just a moment…"), see
-[API_ACCESS.md](API_ACCESS.md) for the WAF skip rule.
+If these return an HTML challenge page instead of JSON, see
+[API_ACCESS.md](API_ACCESS.md).

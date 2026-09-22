@@ -6,13 +6,11 @@
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange.svg)](https://workers.cloudflare.com/)
 
 > **What it is:** an open-source TypeScript harness for *measuring* LLM reasoning — fixed datasets, exact graders, and reasoning-mode cost curves.
-> **Live:** https://agi.bleujs.org · **Repo:** https://github.com/HelloblueAI/bleujs-reasoning-lab · **Worker API:** https://agi-primary.morning-star-e026.workers.dev
+> **Live demo:** https://agi.bleujs.org · **Repo:** https://github.com/HelloblueAI/bleujs-reasoning-lab
 
-This lab **measures** reasoning; it does not produce it. The reasoning quality it reports belongs to the hosted model under test. Every number the API returns is either a counter this Worker incremented, a duration it timed, or a benchmark score from a committed run at a recorded git SHA — there are no heuristic "capability" scores.
+This lab **measures** reasoning; it does not produce it. The reasoning quality it reports belongs to the hosted model under test. Every score the API returns is a benchmark result from a committed run at a recorded git SHA, or a deterministic run you can reproduce locally — there are no heuristic "capability" scores.
 
 > **Removed in v6.0.0.** Earlier versions shipped a hand-rolled neural network, a regex concept extractor, an autonomous-goal system, and capability scores named `understandingDepth` / `adaptability` / `systemDepth`. Those scores were formulas over request counters, clamped to 0.95 so they could never resolve to a real value, and none of that code affected a single user-facing answer. It has all been deleted, along with the `POST /learn`, `POST /create`, and `GET /goals` endpoints that exposed it. [`tests/unit/measuredMetrics.test.ts`](tests/unit/measuredMetrics.test.ts) fails if any of it returns.
-
-> **Note on naming:** the project is the *reasoning lab*. The live infrastructure still uses legacy `agi.*` identifiers (custom domain `agi.bleujs.org`, Worker `agi-primary`, KV `AGI_CACHE`) that are intentionally left unchanged so production does not break. They are deployment names, not a product claim.
 
 ---
 
@@ -53,10 +51,10 @@ See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for details.
 | Endpoint | Purpose |
 |----------|---------|
 | `GET /health` | Liveness probe |
-| `GET /metrics` | Request counters, measured latency percentiles, and `llmRouting` provider shares |
+| `GET /status` | Version, feature flags, and the committed benchmark summary |
 | `GET /capabilities` | Benchmark scores from the last committed eval run, with dataset path and git SHA |
 | `GET /eval` | Run the offline benchmark suite live (deterministic — matches the committed run at the same commit) |
-| `POST /reason` | Answer-first reasoning via BleuJS API, with NVIDIA Nemotron → Anthropic → OpenAI fallback; simple arithmetic is answered locally |
+| `POST /reason` | Answer-first reasoning via a configured hosted model; simple arithmetic is answered locally |
 
 ```bash
 # Benchmark scores from the last committed run (no API key required)
@@ -69,10 +67,10 @@ curl http://localhost:8787/capabilities
 curl -X POST http://localhost:8787/reason \
   -H "Content-Type: application/json" \
   -d '{"input": "144 / 12"}'
-# → {"data":{"answer":"144 ÷ 12 = 12","llmUsed":false,...}}
+# → {"data":{"answer":"144 ÷ 12 = 12","llmUsed":false,"answerSource":"local-arithmetic",...}}
 ```
 
-`llmProvider` identifies which backend answered: `bleujs`, `nvidia`, `anthropic`, or `openai`. Set `BLEUJS_API_KEY` via `wrangler secret put BLEUJS_API_KEY --env production` for live reasoning; fallbacks activate when `ALLOW_LLM_FALLBACK=true`. See [docs/deployment/API_ACCESS.md](docs/deployment/API_ACCESS.md) if the custom domain returns a bot challenge.
+`answerSource` is `local-arithmetic` or `model`. Provider keys are optional (see [`.dev.vars.example`](.dev.vars.example)); provider selection and fallback logic live in [`src/routing/`](src/routing/). Operational counters are served at `GET /metrics` only to callers holding `METRICS_TOKEN`. To run your own instance, see [docs/deployment/](docs/deployment/).
 
 ---
 
@@ -135,7 +133,7 @@ measurable on these datasets.
 Treat the `on`/`low` tie as a tie, not as evidence `low` is better: there are no
 confidence intervals yet, and 45 hard items cannot resolve a 2-item difference.
 
-This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_CHAT_MODEL`, which the Worker never reads, so an eval model can never be served by production `/reason` (that chain uses `NVIDIA_API_KEY` / `NVIDIA_CHAT_MODEL`). Per-variant results land in `src/evals/results/model-<model>-thinking-<mode>.json`.
+This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_CHAT_MODEL`, which the Worker never reads, so an eval model can never be served by `/reason`. Per-variant results land in `src/evals/results/model-<model>-thinking-<mode>.json`.
 
 ### Scope and known limitations
 
@@ -165,7 +163,7 @@ Nothing here is evidence of general intelligence, and the project does not train
 | `pnpm run lint` / `format` | ESLint / Prettier |
 | `pnpm run type-check` | TypeScript, no emit |
 | `pnpm run check` | All of the above in one command |
-| `pnpm run deploy:worker:prod` | Deploy the Worker (maintainer-only) |
+| `pnpm run deploy:worker:prod` | Deploy using your `wrangler.production.toml` (see [`wrangler.example.toml`](wrangler.example.toml)) |
 
 See [docs/LAB_PLAN.md](docs/LAB_PLAN.md) for the measurable roadmap.
 
@@ -177,7 +175,7 @@ See [docs/LAB_PLAN.md](docs/LAB_PLAN.md) for the measurable roadmap.
 2. Run `pnpm run check` before opening a PR.
 3. CI runs the same checks on every pull request ([`.github/workflows/lab-ci.yml`](.github/workflows/lab-ci.yml)).
 
-Please follow our [Code of Conduct](CODE_OF_CONDUCT.md). For help see [SUPPORT.md](SUPPORT.md); report vulnerabilities per [SECURITY.md](SECURITY.md) rather than public issues. Production deploy is maintainer-only — you do not need Cloudflare access to contribute.
+Please follow our [Code of Conduct](CODE_OF_CONDUCT.md). For help see [SUPPORT.md](SUPPORT.md); report vulnerabilities per [SECURITY.md](SECURITY.md) rather than public issues. You do not need Cloudflare access to contribute.
 
 ---
 

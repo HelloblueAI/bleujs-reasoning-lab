@@ -24,7 +24,6 @@ import {
   recordLatency,
   resetRequestCountersForTests,
 } from "@/metrics/requestCounters";
-import { tryArithmeticReason } from "@/routing/arithmeticReason";
 import { buildHonestReasonResponse } from "@/routing/reasonResponse";
 
 /** Names of the removed heuristic scores. */
@@ -61,8 +60,6 @@ describe("public payloads contain no unmeasured capability scores", () => {
     "/status": () =>
       buildLabStatusPayload({
         llmAvailable: true,
-        counters: getRequestCounters(),
-        latency: getLatencySummary(),
         benchmarks: getOfflineBenchmarkSummary(),
       }),
     "/metrics": () =>
@@ -85,54 +82,21 @@ describe("public payloads contain no unmeasured capability scores", () => {
     });
   }
 
-  it("/reason returns the answer and provenance, not a self-assessment", () => {
+  it("/reason returns the answer, not a self-assessment", () => {
     const response = buildHonestReasonResponse({
       input: "2 + 2",
       answer: "4",
-      confidence: null,
       llmUsed: false,
       llmProvider: "local",
       processingTimeMs: 3,
     });
 
-    // Null rather than a fabricated default: the local path has no provider
-    // confidence to report.
-    expect(response.confidence).toBeNull();
     expect(response.answer).toBe("4");
-    expect(response.llmProvider).toBe("local");
+    expect(response.answerSource).toBe("local-arithmetic");
     expect(collectKeys(response)).not.toContain("understanding");
-  });
-
-  it("does not launder the arithmetic solver's constant into a confidence", () => {
-    // `tryArithmeticReason` returns confidence 1 for every expression it can
-    // solve. That asserts correctness rather than measuring it, so the local
-    // path must not surface it.
-    const solved = tryArithmeticReason("144 / 12");
-    expect(solved).not.toBeNull();
-    expect(solved!.confidence).toBe(1);
-
-    const response = buildHonestReasonResponse({
-      input: "144 / 12",
-      answer: solved!.answer,
-      confidence: null,
-      llmUsed: false,
-      llmProvider: "local",
-      processingTimeMs: 1,
-    });
-    expect(response.confidence).toBeNull();
-  });
-
-  it("only reports a confidence a provider actually returned", () => {
-    const response = buildHonestReasonResponse({
-      input: "capital of Japan",
-      answer: "Tokyo",
-      confidence: 0.88,
-      llmUsed: true,
-      llmProvider: "nvidia",
-      processingTimeMs: 900,
-    });
-    expect(response.confidence).toBe(0.88);
-    expect(response.llmProvider).toBe("nvidia");
+    // Hardcoded per-provider constants, not measurements — and they fingerprint
+    // which provider answered.
+    expect(collectKeys(response)).not.toContain("confidence");
   });
 });
 

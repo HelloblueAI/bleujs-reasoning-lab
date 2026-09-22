@@ -45,10 +45,6 @@ in the description.
 
 ### Docs
 
-| Issue | Task |
-|-------|------|
-| [#37](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/37) | Expand Cloudflare access notes for `agi.bleujs.org` |
-
 Docs-only PRs that keep `README.md` and `docs/api/README.md` curl examples in
 sync with `POST /reason` are also welcome — no issue required.
 
