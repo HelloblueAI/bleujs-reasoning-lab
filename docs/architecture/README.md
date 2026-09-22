@@ -36,8 +36,9 @@ src/worker/index.ts            # routing, validation, dashboard, CORS
 
 ## Provider routing
 
-`RealLLMIntegration` tries providers in order and records which one answered so
-`/metrics` can report per-provider counts and a fallback rate:
+`RealLLMIntegration` tries configured providers in order and records which one
+answered, so the operator-only `/metrics` can report per-provider counts and a
+fallback rate (public `/reason` responses only say `local-arithmetic` or `model`):
 
 1. BleuJS API (`BLEUJS_API_KEY`)
 2. NVIDIA Nemotron Lightning (fallback, when `ALLOW_LLM_FALLBACK=true`)

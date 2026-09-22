@@ -15,7 +15,8 @@ removed from the working tree (they remain in git history).
 ├── tsconfig.json           # base TS config (includes src/**)
 ├── tsconfig.test.json      # extends base; adds tests/**
 ├── vitest.config.ts
-├── wrangler.toml           # single Worker config
+├── wrangler.toml           # local dev + CI Worker config (no production IDs)
+├── wrangler.example.toml   # template for your own deployment (copy to wrangler.production.toml)
 ├── .github/workflows/lab-ci.yml
 ├── docs/
 ├── src/

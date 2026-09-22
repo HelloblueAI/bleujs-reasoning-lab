@@ -1,46 +1,18 @@
-# BleuJS Reasoning Lab — primary worker at agi.bleujs.org
-# Run: pnpm run worker:dev | pnpm run deploy:worker:prod
-name = "agi-primary"
+# BleuJS Reasoning Lab — local development and CI config.
+# Run: pnpm run worker:dev
+#
+# This file intentionally has no routes, KV IDs, or production settings.
+# To deploy your own instance, copy wrangler.example.toml to
+# wrangler.production.toml (gitignored) and fill in your values.
+name = "bleujs-reasoning-lab"
 main = "src/worker/index.ts"
 compatibility_date = "2025-03-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Non-secret vars (use wrangler secret put for API keys)
+# Non-secret vars. API keys go in .dev.vars locally (see .dev.vars.example).
 [vars]
 ENVIRONMENT = "development"
 
-# Production route configuration
-[env.production]
-name = "agi-primary"
-routes = ["agi.bleujs.org/*"]
-workers_dev = true
-[env.production.vars]
-ENVIRONMENT = "production"
-ALLOW_LLM_FALLBACK = "true"
-# Server-to-server: bypass api.bleujs.org edge (avoids intermittent CF Worker → Worker 522).
-BLEUJS_CHAT_URL = "https://bleujs-org.vercel.app/api/v1/chat"
-
-# Staging environment
-[env.staging]
-name = "agi-primary-staging"
-routes = []
-[env.staging.vars]
-ENVIRONMENT = "staging"
-
-# Development environment (no routes, use dev mode)
-[env.development]
-name = "agi-primary-dev"
-routes = []
-[env.development.vars]
-ENVIRONMENT = "development"
-
-# Optional KV: response cache + global llmRouting metrics (shared across isolates)
-[[env.production.kv_namespaces]]
-binding = "AGI_CACHE"
-id = "04cce616bc4e473d9b421051f1b97e51"
-preview_id = "4a12bd192b30481e8987bcef25f5f65f"
-
-# Observability: structured logs and tracing (Workers Observability)
 [observability]
 enabled = true
-head_sampling_rate = 1 
+head_sampling_rate = 1

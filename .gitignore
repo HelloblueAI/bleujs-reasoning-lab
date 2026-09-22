@@ -47,6 +47,10 @@ c-core/**/CMakeFiles/
 # Wrangler local state (never commit; may contain cached secrets)
 .wrangler/
 
+# Real deployment configs (routes, KV IDs, backend URLs). Template: wrangler.example.toml
+wrangler.production.toml
+wrangler.*.local.toml
+
 # IDE and editor files
 .vscode/
 .cursor/
