@@ -19,12 +19,16 @@ selection, and agent orchestration — not a claim of AGI or machine consciousne
 
 **Where the code lives:**
 
-- `src/worker/index.ts` — Cloudflare Worker (HTTP API + dashboard)
-- `src/evals/` — offline and model-in-the-loop benchmarks, datasets, committed results
-- `src/routing/` — LLM provider integration, prompt shaping, routing metrics
+- `src/worker/` — Cloudflare Worker (HTTP API + dashboard) and access checks
+- `src/evals/` — benchmark CLIs (`cli.ts`, `modelCli.ts`) and the logic puzzles
+  - `src/evals/benchmarks/` — datasets (`datasets.ts`), offline runner, model-in-the-loop runner
+  - `src/evals/model/` — evaluation-only model config and client
+  - `src/evals/results/` — committed results served by the API
+- `src/routing/` — LLM provider integration, prompt shaping, local arithmetic, routing metrics
 - `src/retrieval/` — embedding providers + semantic ranking
 - `src/tools/` — keyword tool router used as the tool-selection baseline
-- `src/metrics/` — request counters, latency samples, API payloads
+- `src/metrics/` — request counters, latency samples, status/endpoint payloads
+- `src/utils/` — logger, id helpers
 
 **One rule worth knowing before you add a metric:** every number in an API
 response must trace to a counter the Worker incremented, a duration it timed, or
@@ -36,7 +40,7 @@ enforces this.
 
 ## Development setup
 
-**Requirements:** Node.js 20+, [pnpm](https://pnpm.io/) 10+
+**Requirements:** Node.js 22.12+, [pnpm](https://pnpm.io/) 10+
 
 ```bash
 git clone https://github.com/HelloblueAI/bleujs-reasoning-lab.git
@@ -45,7 +49,8 @@ pnpm install
 pnpm run check   # format + lint + type-check + unit tests + eval harness
 ```
 
-`pnpm run check` is the single gate CI enforces. Run it before opening a PR.
+`pnpm run check` runs everything CI checks except the Worker bundle dry-run and
+the secret scan. Run it before opening a PR.
 
 ### Claim an issue
 
@@ -55,14 +60,18 @@ focused PR that says `Closes #N`. The issue is the source of truth; the
 
 ### LLM features locally
 
-Evaluations and benchmarks run **offline** without API keys. To exercise
-`/reason` and the dashboard against a live provider:
+Offline benchmarks (`pnpm run eval`) need no API keys. To exercise `/reason`
+and the dashboard against a live provider:
 
 ```bash
 cp .dev.vars.example .dev.vars
-# set BLEUJS_API_KEY (primary). Optional fallbacks require ALLOW_LLM_FALLBACK=true
+# set at least one provider key; fallback between providers needs ALLOW_LLM_FALLBACK=true
 pnpm run worker:dev   # http://localhost:8787
 ```
+
+Model-in-the-loop benchmarks (`pnpm run eval:model`) read their own key,
+`NVIDIA_EVAL_API_KEY`, from the same `.dev.vars` file — see
+[Reproducing the published results](README.md#reproducing-the-published-results).
 
 ---
 
@@ -71,8 +80,9 @@ pnpm run worker:dev   # http://localhost:8787
 1. **Fork** and branch from `main` (`feat/…`, `fix/…`, `docs/…`, `chore/…`).
 2. **Keep scope focused** — one logical change per PR.
 3. **Add or update tests** when behavior changes:
-   - Smoke evaluations: `src/evals/tasks.ts`, `src/evals/runner.ts`
-   - Benchmarks: `src/evals/benchmarks/`, `tests/eval/`
+   - Dataset items: `src/evals/benchmarks/datasets.ts` (tag each `core` or `hard`;
+     `tests/unit/datasetTiers.test.ts` checks baselines pass core and fail hard)
+   - Benchmark runners: `src/evals/benchmarks/`, tested in `tests/eval/`
    - Unit logic: `tests/unit/`
    - Prefer exact, measurable assertions.
 4. **Match existing style** — TypeScript strict mode, no simulated telemetry.
@@ -80,9 +90,13 @@ pnpm run worker:dev   # http://localhost:8787
 
 ## What we welcome
 
-- New benchmark items with fixed datasets and exact scoring
-- Honest metrics and API clarity (`/capabilities`, `/metrics`, `/reason`)
-- The autonomous goal execution loop (see [docs/LAB_PLAN.md](docs/LAB_PLAN.md))
+- New benchmark items with fixed datasets and exact scoring — especially hard
+  retrieval and tool-selection items, which are still saturated
+- Confidence intervals and cost-per-correct-answer reporting
+  ([Phase 3](docs/LAB_PLAN.md#phase-3-report-results-with-real-statistics))
+- Cross-vendor model runs on the same datasets
+  ([Phase 4](docs/LAB_PLAN.md#phase-4-cross-vendor-baselines))
+- API clarity for `/status`, `/capabilities`, `/eval`, and `/reason`
 - Documentation and contributor-experience improvements
 
 ## What we will likely decline
@@ -97,12 +111,14 @@ pnpm run worker:dev   # http://localhost:8787
 
 Pull requests run [.github/workflows/lab-ci.yml](.github/workflows/lab-ci.yml),
 which executes `format:check`, `lint`, `type-check`, unit tests, the eval/benchmark
-harness, and a Worker bundle dry-run. Fix failing checks before requesting review.
+harness, a Worker bundle dry-run, and a gitleaks secret scan of the new commits.
+Fix failing checks before requesting review.
 
 ## Deployment
 
-**Only maintainers** deploy to production (`pnpm run deploy:worker:prod`).
-Contributors do not need Cloudflare access to submit PRs.
+Contributors do not need Cloudflare access to submit PRs. To run your own
+instance, copy `wrangler.example.toml` to `wrangler.production.toml` (gitignored)
+and follow [docs/deployment/](docs/deployment/).
 
 ## Code of conduct
 

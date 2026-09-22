@@ -10,6 +10,12 @@
 
 This lab **measures** reasoning; it does not produce it. The reasoning quality it reports belongs to the hosted model under test. Every score the API returns is a benchmark result from a committed run at a recorded git SHA, or a deterministic run you can reproduce locally — there are no heuristic "capability" scores.
 
+## Research purpose
+
+The lab studies one question: **what does a model's reasoning mode buy on tasks with exactly checkable answers, and what does it cost?** Model results are usually reported as accuracy alone, without the token and latency bill. Here the same fixed datasets are sent to a hosted model with reasoning on, at low effort, and off, and each run records accuracy alongside completion tokens and latency. Deterministic baselines score the same items, so a result shows how far the model gets past pattern matching.
+
+**Current focus.** The datasets now carry a `hard` tier that the baselines fail by construction, and the reasoning-mode comparison has been recorded for one model, NVIDIA Nemotron 3 Super ([current result](#current-result-what-reasoning-mode-costs)). The next steps on the [roadmap](docs/LAB_PLAN.md) are confidence intervals, so that close scores become computed ties rather than judgement calls, and the same comparison across other vendors. Until those land, the results are a single-model measurement on small datasets — see [Scope and known limitations](#scope-and-known-limitations).
+
 > **Removed in v6.0.0.** Earlier versions shipped a hand-rolled neural network, a regex concept extractor, an autonomous-goal system, and capability scores named `understandingDepth` / `adaptability` / `systemDepth`. Those scores were formulas over request counters, clamped to 0.95 so they could never resolve to a real value, and none of that code affected a single user-facing answer. It has all been deleted, along with the `POST /learn`, `POST /create`, and `GET /goals` endpoints that exposed it. [`tests/unit/measuredMetrics.test.ts`](tests/unit/measuredMetrics.test.ts) fails if any of it returns.
 
 ---
@@ -23,7 +29,7 @@ pnpm run eval         # offline benchmarks over fixed datasets
 pnpm run check        # format + lint + type-check + unit tests + eval harness
 ```
 
-`pnpm run check` is the single gate CI enforces on every pull request.
+Requires Node.js 22.12+ and pnpm 10+. `pnpm run check` runs everything CI checks on a pull request except the Worker bundle dry-run and the secret scan.
 
 ---
 
@@ -148,6 +154,37 @@ State these before citing any number from this repo:
 - **Single vendor so far.** Committed model results are all NVIDIA variants; cross-vendor baselines are not yet recorded.
 
 Nothing here is evidence of general intelligence, and the project does not train models.
+
+---
+
+## Reproducing the published results
+
+Everything below runs from a public clone. It needs no Helloblue account, no Cloudflare account, and no production configuration; `wrangler.production.toml` is only for deploying your own instance.
+
+**Offline benchmarks (exact).** Deterministic, so a clean checkout reproduces the committed numbers exactly:
+
+```bash
+git clone https://github.com/HelloblueAI/bleujs-reasoning-lab.git
+cd bleujs-reasoning-lab
+pnpm install --frozen-lockfile
+pnpm run eval
+git diff src/evals/results/latest.json   # only gitSha, timestamps, and durationMs change
+pnpm run check                           # the full test gate
+```
+
+**Model-in-the-loop (statistical).** Needs an API key for NVIDIA's hosted model API ([build.nvidia.com](https://build.nvidia.com)); the defaults for model, temperature, top-p, token budget, and timeout match the committed run.
+
+```bash
+cp .dev.vars.example .dev.vars   # set NVIDIA_EVAL_API_KEY
+pnpm run eval:model -- --smoke   # 1 item per benchmark, to check the key works
+pnpm run eval:model -- --thinking all --runs 3 --concurrency 3
+```
+
+The committed run took about 32 minutes for all three variants. Decoding is sampled, so expect scores close to the published ones rather than identical: compare the hard-tier scores and completion-token totals, and treat one- or two-item differences as noise. Latency depends on load on NVIDIA's shared endpoint and will not match exactly.
+
+**Provenance of the committed files:**
+- The Nemotron 3 Super files record `gitSha` `519a226a`, but they were produced with the tiered datasets that were committed next, in `97fc486c`. Datasets, graders, and runners are unchanged from `97fc486c` to current `main` (later commits only change how the SHA is recorded), so reproduce from either — not from `519a226a`, which has only the original 39 items. Runs recorded from now on append `-dirty` to the SHA when the working tree had uncommitted changes.
+- The Nemotron 3.5 Lightning files predate the difficulty tiers (39 items, no `tierScores`) and are not comparable with the table above.
 
 ---
 
