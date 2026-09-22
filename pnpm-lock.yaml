@@ -15,7 +15,7 @@ importers:
     dependencies:
       openai:
         specifier: ^7.8.0
-        version: 7.15.0(undici@7.29.0)(ws@8.21.3)(zod@3.25.76)
+        version: 7.20.0(undici@7.29.0)(ws@8.21.3)(zod@3.25.76)
     devDependencies:
       '@cloudflare/workers-types':
         specifier: ^5.20260904.1
@@ -1117,8 +1117,8 @@ packages:
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
 
-  openai@7.15.0:
-    resolution: {integrity: sha512-2DIwesnPSduw68MFx7nAdgvshrgvS8WOan5W8+tgUMlAy/tY+Q41g80Pa+w/v64rHA6rtn+dketa8QvMVxU96w==}
+  openai@7.20.0:
+    resolution: {integrity: sha512-5x5ru4cKEvEqHqYZbdIbT57OE7KqmP9YYxZiUKuKng016grOHXqom1vmu34MTPPW30q+lcP9RhxAbaRse+Xlcw==}
     engines: {node: '>=22.0.0'}
     peerDependencies:
       '@aws-sdk/credential-provider-node': '>=3.972.0 <4'
@@ -2416,7 +2416,7 @@ snapshots:
     dependencies:
       wrappy: 1.0.2
 
-  openai@7.15.0(undici@7.29.0)(ws@8.21.3)(zod@3.25.76):
+  openai@7.20.0(undici@7.29.0)(ws@8.21.3)(zod@3.25.76):
     optionalDependencies:
       undici: 7.29.0
       ws: 8.21.3
