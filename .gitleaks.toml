@@ -1,0 +1,31 @@
+# Secret scanning for commits (CI: .github/workflows/lab-ci.yml, local: .githooks/pre-commit).
+# Default gitleaks rules plus infrastructure identifiers that must stay out of
+# this public repo (see SECURITY.md).
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "cloudflare-resource-id"
+description = "Cloudflare account/zone/KV/D1/R2 ID in config — belongs in wrangler.production.toml"
+regex = '''(?i)\b(?:account_id|zone_id|id|preview_id|database_id|namespace_id)\s*=\s*["'][0-9a-f]{32}["']'''
+keywords = ["id"]
+
+[[rules]]
+id = "cloudflare-account-workers-dev"
+description = "Account-specific workers.dev hostname (maps live infrastructure)"
+regex = '''\b[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev\b'''
+keywords = ["workers.dev"]
+
+[[rules]]
+id = "vercel-deployment-url"
+description = "Vercel deployment hostname (maps live infrastructure)"
+regex = '''\b[a-z0-9-]+\.vercel\.app\b'''
+keywords = ["vercel.app"]
+
+[allowlist]
+description = "Documented placeholders"
+regexes = [
+  '''YOUR_API_(?:TOKEN|KEY)''',
+  '''your-api-token-here''',
+]

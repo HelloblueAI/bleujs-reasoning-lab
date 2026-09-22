@@ -5,6 +5,7 @@
   "main": "src/worker/index.ts",
   "type": "module",
   "scripts": {
+    "prepare": "git rev-parse --git-dir >/dev/null 2>&1 && git config core.hooksPath .githooks || true",
     "test": "vitest",
     "test:unit": "vitest tests/unit",
     "test:eval": "vitest tests/eval --run",
@@ -21,11 +22,10 @@
     "check": "pnpm run format:check && pnpm run lint && pnpm run type-check && pnpm run test:unit -- --run && pnpm run test:eval",
     "worker:dev": "wrangler dev --config wrangler.toml",
     "worker:types": "wrangler types --config wrangler.toml",
-    "deploy:worker": "wrangler deploy --config wrangler.toml",
-    "deploy:worker:prod": "wrangler deploy --config wrangler.toml --env production",
-    "deploy:worker:dry-run": "wrangler deploy --config wrangler.toml --env production --dry-run",
-    "deploy:worker:staging": "wrangler deploy --config wrangler.toml --env staging",
-    "worker:tail": "wrangler tail --config wrangler.toml"
+    "deploy:worker:prod": "wrangler deploy --config wrangler.production.toml --env production",
+    "deploy:worker:dry-run": "wrangler deploy --config wrangler.production.toml --env production --dry-run",
+    "deploy:worker:staging": "wrangler deploy --config wrangler.production.toml --env staging",
+    "worker:tail": "wrangler tail --config wrangler.production.toml --env production"
   },
   "keywords": [
     "bleujs",
