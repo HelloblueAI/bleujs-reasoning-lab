@@ -39,10 +39,12 @@ export type BenchmarkSummary = {
   scores: Record<string, number>;
 };
 
+/**
+ * Public status. Traffic counters, latency, and provider routing are
+ * operational telemetry and live only in the token-gated metrics payload.
+ */
 export function buildLabStatusPayload(params: {
   llmAvailable: boolean;
-  counters: RequestCounters;
-  latency: LatencySummary;
   benchmarks: BenchmarkSummary | null;
 }) {
   return {
@@ -55,12 +57,11 @@ export function buildLabStatusPayload(params: {
       offlineBenchmarks: true,
       modelInTheLoopBenchmarks: true,
     },
-    requests: params.counters,
-    latency: params.latency,
     benchmarks: params.benchmarks,
   };
 }
 
+/** Operator-only payload for `GET /metrics` (requires METRICS_TOKEN). */
 export function buildLabMetricsPayload(params: {
   llmAvailable: boolean;
   counters: RequestCounters;
