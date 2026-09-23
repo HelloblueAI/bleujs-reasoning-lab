@@ -36,6 +36,12 @@ a benchmark score from a committed run. Heuristic "capability" scores are not
 accepted — [`tests/unit/measuredMetrics.test.ts`](tests/unit/measuredMetrics.test.ts)
 enforces this.
 
+**Provenance notes stay.** When a published result turns out to be mislabelled or
+flawed, add a correction next to the original disclosure; never delete the
+disclosure to make the history look cleaner. The README's provenance note for the
+Nemotron 3 Super run is guarded by
+[`tests/unit/reproducibilityRecord.test.ts`](tests/unit/reproducibilityRecord.test.ts).
+
 ---
 
 ## Development setup
