@@ -12,7 +12,7 @@ const readme = readFileSync(resolve(__dirname, "../../README.md"), "utf8");
 describe("README keeps the reproducibility record", () => {
   it("discloses that the Nemotron 3 Super results are labelled 519a226a but were produced at 97fc486c", () => {
     const note = readme.match(
-      /\*\*Provenance of the committed files:\*\*[\s\S]*?\n\n/,
+      /\*\*Provenance of the committed files:\*\*[\s\S]*?(?=\n## )/,
     );
     expect(
       note,
