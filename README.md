@@ -5,7 +5,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange.svg)](https://workers.cloudflare.com/)
 
-> **What it is:** an open-source TypeScript harness for *measuring* LLM reasoning — fixed datasets, exact graders, and reasoning-mode cost curves.
+> **What it is:** an open-source TypeScript harness for _measuring_ LLM reasoning — fixed datasets, exact graders, and reasoning-mode cost curves.
 > **Live demo:** https://agi.bleujs.org · **Repo:** https://github.com/HelloblueAI/bleujs-reasoning-lab
 
 This lab **measures** reasoning; it does not produce it. The reasoning quality it reports belongs to the hosted model under test. Every score the API returns is a benchmark result from a committed run at a recorded git SHA, or a deterministic run you can reproduce locally — there are no heuristic "capability" scores.
@@ -54,13 +54,13 @@ See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for details.
 
 ## API
 
-| Endpoint | Purpose |
-|----------|---------|
-| `GET /health` | Liveness probe |
-| `GET /status` | Version, feature flags, and the committed benchmark summary |
-| `GET /capabilities` | Benchmark scores from the last committed eval run, with dataset path and git SHA |
-| `GET /eval` | Run the offline benchmark suite live (deterministic — matches the committed run at the same commit) |
-| `POST /reason` | Answer-first reasoning via a configured hosted model; simple arithmetic is answered locally |
+| Endpoint            | Purpose                                                                                             |
+| ------------------- | --------------------------------------------------------------------------------------------------- |
+| `GET /health`       | Liveness probe                                                                                      |
+| `GET /status`       | Version, feature flags, and the committed benchmark summary                                         |
+| `GET /capabilities` | Benchmark scores from the last committed eval run, with dataset path and git SHA                    |
+| `GET /eval`         | Run the offline benchmark suite live (deterministic — matches the committed run at the same commit) |
+| `POST /reason`      | Answer-first reasoning via a configured hosted model; simple arithmetic is answered locally         |
 
 ```bash
 # Benchmark scores from the last committed run (no API key required)
@@ -90,7 +90,7 @@ The lab separates two very different things:
 pnpm run eval   # refreshes results/latest.json
 ```
 
-- **Model-in-the-loop benchmarks** ([`src/evals/benchmarks/modelRunner.ts`](src/evals/benchmarks/modelRunner.ts)) send the *same* fixed datasets to a hosted model so its score is directly comparable to the offline baseline. Decoding is sampled, so every item runs `--runs` times and is scored by majority vote; rate-limited attempts are excluded from scoring rather than counted as wrong answers.
+- **Model-in-the-loop benchmarks** ([`src/evals/benchmarks/modelRunner.ts`](src/evals/benchmarks/modelRunner.ts)) send the _same_ fixed datasets to a hosted model so its score is directly comparable to the offline baseline. Decoding is sampled, so every item runs `--runs` times and is scored by majority vote; rate-limited attempts are excluded from scoring rather than counted as wrong answers.
 
 ```bash
 pnpm run eval:model -- --smoke                   # 1 item per benchmark
@@ -107,10 +107,10 @@ Every dataset item is tagged `core` or `hard`, because the original datasets wer
 saturated: every model variant scored 1.000 on retrieval and on the 3x3 logic
 puzzle, so the benchmarks could not answer the question the lab exists to ask.
 
-| Tier | Built for | Offline baseline scores |
-|------|-----------|-------------------------|
-| `core` | What the deterministic baselines handle: two-operand arithmetic, lexically obvious retrieval, literal tool keywords | 100% — it is a regression test |
-| `hard` | Defeating pattern matching: order of operations, percentages, unit conversion, multi-step word problems, near-miss passages where the correct answer shares *fewer* words with the query, tool requests with no trigger word, and arithmetic-shaped questions that are unanswerable | 0/20 arithmetic, 0/5 retrieval, 0/9 tool selection |
+| Tier   | Built for                                                                                                                                                                                                                                                                           | Offline baseline scores                            |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `core` | What the deterministic baselines handle: two-operand arithmetic, lexically obvious retrieval, literal tool keywords                                                                                                                                                                 | 100% — it is a regression test                     |
+| `hard` | Defeating pattern matching: order of operations, percentages, unit conversion, multi-step word problems, near-miss passages where the correct answer shares _fewer_ words with the query, tool requests with no trigger word, and arithmetic-shaped questions that are unanswerable | 0/20 arithmetic, 0/5 retrieval, 0/9 tool selection |
 
 `pnpm run eval` scores the core tier only, so it stays a clean regression test.
 `pnpm run eval:model` runs both and reports `tierScores` per benchmark and per
@@ -123,11 +123,11 @@ one, so a hard item cannot silently degrade into an easy one.
 Nemotron 3 Super 120B A12B, 84 items, 3 runs per item, majority vote,
 concurrency 3 ([full record](src/evals/results/model-nvidia-nemotron-3-super-120b-a12b-comparison.json)):
 
-| Reasoning | Hard tier | Completion tokens | Latency p50 |
-|-----------|-----------|-------------------|-------------|
-| `on` | 43/45 (96%) | 97,125 | 3.8s |
-| `low` | 43/45 (96%) | 19,145 | 1.0s |
-| `off` | 36/45 (80%) | 9,287 | 0.5s |
+| Reasoning | Hard tier   | Completion tokens | Latency p50 |
+| --------- | ----------- | ----------------- | ----------- |
+| `on`      | 43/45 (96%) | 97,125            | 3.8s        |
+| `low`     | 43/45 (96%) | 19,145            | 1.0s        |
+| `off`     | 36/45 (80%) | 9,287             | 0.5s        |
 
 Two things worth noting. Turning reasoning off costs 16 points on the hard tier,
 and most of that loss is concentrated in the 5x5 logic puzzle (100% → 40%) and
@@ -146,7 +146,7 @@ This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_
 State these before citing any number from this repo:
 
 - **Read the hard tier, not the blended score.** The core tier is saturated for strong models, so `itemScore` hides whether a configuration change mattered. `tierScores.hard` is the number that separates variants.
-- **Retrieval and tool selection are saturated even on the hard tier.** Nemotron 3 Super scores 5/5 and 9/9 on hard retrieval and hard tool selection in every mode, so those two benchmarks currently discriminate between *baselines*, not between model configurations. Arithmetic, the logic puzzles, and abstention are where the reasoning setting shows up.
+- **Retrieval and tool selection are saturated even on the hard tier.** Nemotron 3 Super scores 5/5 and 9/9 on hard retrieval and hard tool selection in every mode, so those two benchmarks currently discriminate between _baselines_, not between model configurations. Arithmetic, the logic puzzles, and abstention are where the reasoning setting shows up.
 - **Datasets are still small** — 84 items across five benchmarks. Enough to separate reasoning-off from reasoning-on, not enough to rank two close configurations.
 - **No confidence intervals yet.** Differences are reported without significance testing, so treat close scores as ties.
 - **Latency is shared-endpoint latency**, not a dedicated deployment, and is only comparable between variants recorded at the same concurrency.
@@ -183,6 +183,7 @@ pnpm run eval:model -- --thinking all --runs 3 --concurrency 3
 The committed run took about 32 minutes for all three variants. Decoding is sampled, so expect scores close to the published ones rather than identical: compare the hard-tier scores and completion-token totals, and treat one- or two-item differences as noise. Latency depends on load on NVIDIA's shared endpoint and will not match exactly.
 
 **Provenance of the committed files:**
+
 - The Nemotron 3 Super files record `gitSha` `519a226a`, but they were produced with the tiered datasets that were committed next, in `97fc486c`. Datasets, graders, and runners are unchanged from `97fc486c` to current `main` (later commits only change how the SHA is recorded), so reproduce from either — not from `519a226a`, which has only the original 39 items. Runs recorded from now on append `-dirty` to the SHA when the working tree had uncommitted changes.
 - The Nemotron 3.5 Lightning files predate the difficulty tiers (39 items, no `tierScores`) and are not comparable with the table above.
 
@@ -190,25 +191,38 @@ The committed run took about 32 minutes for all three variants. Decoding is samp
 
 ## Development
 
-| Script | Purpose |
-|--------|---------|
-| `pnpm run worker:dev` | Wrangler dev server for the Worker |
-| `pnpm run eval` | Offline benchmarks over fixed datasets (CLI) |
-| `pnpm run eval:model` | Model-in-the-loop benchmarks (needs `NVIDIA_EVAL_API_KEY`) |
-| `pnpm run test:unit` | Unit tests (Vitest) |
-| `pnpm run test:eval` | Benchmark tests (Vitest) |
-| `pnpm run lint` / `format` | ESLint / Prettier |
-| `pnpm run type-check` | TypeScript, no emit |
-| `pnpm run check` | All of the above in one command |
+| Script                        | Purpose                                                                                             |
+| ----------------------------- | --------------------------------------------------------------------------------------------------- |
+| `pnpm run worker:dev`         | Wrangler dev server for the Worker                                                                  |
+| `pnpm run eval`               | Offline benchmarks over fixed datasets (CLI)                                                        |
+| `pnpm run eval:model`         | Model-in-the-loop benchmarks (needs `NVIDIA_EVAL_API_KEY`)                                          |
+| `pnpm run test:unit`          | Unit tests (Vitest)                                                                                 |
+| `pnpm run test:eval`          | Benchmark tests (Vitest)                                                                            |
+| `pnpm run lint` / `format`    | ESLint / Prettier                                                                                   |
+| `pnpm run type-check`         | TypeScript, no emit                                                                                 |
+| `pnpm run check`              | All of the above in one command                                                                     |
 | `pnpm run deploy:worker:prod` | Deploy using your `wrangler.production.toml` (see [`wrangler.example.toml`](wrangler.example.toml)) |
 
 See [docs/LAB_PLAN.md](docs/LAB_PLAN.md) for the measurable roadmap.
 
 ---
 
+## Contributors
+
+People outside this repository whose pull requests have been merged:
+
+| Contributor                                             | What landed                                                                                                                                                                                            |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [Saubhagya Chopra](https://github.com/saubhagya-chopra) | Nine arithmetic items ([#46](https://github.com/HelloblueAI/bleujs-reasoning-lab/pull/46)) and the largest-planet retrieval query ([#54](https://github.com/HelloblueAI/bleujs-reasoning-lab/pull/54)) |
+| [Kartavya Dikshit](https://github.com/KartavyaDikshit)  | The first held-out logic puzzle ([#9](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/9))                                                                                                   |
+
+Maintainer and dependency-bot commits are not listed. New outside contributions are added here when they merge; see [CONTRIBUTING.md](CONTRIBUTING.md#recognition).
+
+---
+
 ## Contributing
 
-1. Read [CONTRIBUTING.md](CONTRIBUTING.md) and pick an [open good first issue](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md) and pick an [open good first issue](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or a [help wanted](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) issue.
 2. Run `pnpm run check` before opening a PR.
 3. CI runs the same checks on every pull request ([`.github/workflows/lab-ci.yml`](.github/workflows/lab-ci.yml)).
 

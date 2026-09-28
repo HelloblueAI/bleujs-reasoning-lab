@@ -28,22 +28,15 @@ in the description.
 
 ## Open starter tasks
 
-### Benchmarks (offline, no API keys)
+No API key and no Cloudflare access. Each issue names the file and the test that
+will check the change.
 
-| Issue | Task |
-|-------|------|
-| [#28](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/28) | Add a second held-out logic puzzle with exact assignment scoring |
-| [#33](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/33) | Add one retrieval query (three passages, exact top-1) |
-| [#34](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/34) | Record a routing fixture and update expected rates |
-
-### Product surface
-
-| Issue | Task |
-|-------|------|
-| [#29](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/29) | Show the latest `GET /eval` pass rate on the dashboard |
-| [#36](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/36) | Optional live-LLM benchmark that skips in CI when no key is set |
-
-### Docs
+| Issue                                                                | Labels           | Task                                                                 |
+| -------------------------------------------------------------------- | ---------------- | -------------------------------------------------------------------- |
+| [#69](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/69) | good first issue | One hard retrieval query the word-overlap baseline misses            |
+| [#70](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/70) | good first issue | One hard tool-selection request the keyword router gets wrong        |
+| [#34](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/34) | good first issue | One routing fixture where OpenAI is the provider that succeeds       |
+| [#71](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/71) | help wanted      | Completion tokens per correct hard-tier item, from committed results |
 
 Docs-only PRs that keep `README.md` and `docs/api/README.md` curl examples in
 sync with `POST /reason` are also welcome — no issue required.
@@ -52,7 +45,12 @@ sync with `POST /reason` are also welcome — no issue required.
 
 ## Already shipped (do not reopen)
 
-- Arithmetic benchmark expansion — [#35](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/35) / [#46](https://github.com/HelloblueAI/bleujs-reasoning-lab/pull/46)
+- Arithmetic benchmark expansion — [#35](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/35) / [#46](https://github.com/HelloblueAI/bleujs-reasoning-lab/pull/46) ([Saubhagya Chopra](https://github.com/saubhagya-chopra))
+- Retrieval query — [#33](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/33) / [#54](https://github.com/HelloblueAI/bleujs-reasoning-lab/pull/54) ([Saubhagya Chopra](https://github.com/saubhagya-chopra))
+- First held-out logic puzzle — [#9](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/9) ([Kartavya Dikshit](https://github.com/KartavyaDikshit))
+- Second logic puzzle (hard-tier 5×5) — [#28](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/28), landed with the difficulty tiers
+- Dashboard `GET /eval` pass rate — [#29](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/29)
+- Hosted-model benchmarks — [#36](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/36), shipped as `pnpm run eval:model` instead of inside the offline suite
 - Eval result persistence — `pnpm run eval` writes `src/evals/results/latest.json`
 
 ---

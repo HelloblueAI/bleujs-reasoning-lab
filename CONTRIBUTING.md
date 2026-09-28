@@ -10,12 +10,12 @@ selection, and agent orchestration — not a claim of AGI or machine consciousne
 
 ## Where to start
 
-| I want to… | Start here |
-|------------|------------|
-| Understand the roadmap | [docs/LAB_PLAN.md](docs/LAB_PLAN.md) |
-| Run the Worker locally | [README.md](README.md#quick-start) |
-| Find starter tasks | [Open good first issues](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) ([index](docs/GOOD_FIRST_ISSUES.md)) |
-| Learn the layout | [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) |
+| I want to…             | Start here                                                                                                                                                                                                                                                                                               |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Understand the roadmap | [docs/LAB_PLAN.md](docs/LAB_PLAN.md)                                                                                                                                                                                                                                                                     |
+| Run the Worker locally | [README.md](README.md#quick-start)                                                                                                                                                                                                                                                                       |
+| Find starter tasks     | [good first issue](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and [help wanted](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) ([index](docs/GOOD_FIRST_ISSUES.md)) |
+| Learn the layout       | [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md)                                                                                                                                                                                                                                                   |
 
 **Where the code lives:**
 
@@ -125,6 +125,14 @@ Fix failing checks before requesting review.
 Contributors do not need Cloudflare access to submit PRs. To run your own
 instance, copy `wrangler.example.toml` to `wrangler.production.toml` (gitignored)
 and follow [docs/deployment/](docs/deployment/).
+
+## Recognition
+
+Merged work from outside this repository is listed in the README
+[Contributors](README.md#contributors) section and under "Already shipped" in
+[docs/GOOD_FIRST_ISSUES.md](docs/GOOD_FIRST_ISSUES.md). When you merge an outside
+pull request, add the contributor there in the same change. Maintainer commits
+and dependency-bot updates are not listed.
 
 ## Code of conduct
 
