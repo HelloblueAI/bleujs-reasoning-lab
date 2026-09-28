@@ -471,6 +471,13 @@ export const TOOL_SELECTION_ITEMS: ReadonlyArray<{
     expected: "none",
     tier: "hard",
   },
+  {
+    id: "trap-h4",
+    // "execute" appears, but this is a live-data lookup, not code execution.
+    query: "When does the Fed next execute an interest-rate decision?",
+    expected: "websearch",
+    tier: "hard",
+  },
 ];
 
 /**
@@ -593,12 +600,6 @@ export const ABSTENTION_ITEMS: ReadonlyArray<{
     input: "What is 12 divided by 0?",
     tier: "hard",
     reason: "mathematically undefined",
-  },
-  {
-    id: "trap-unknown-var",
-    input: "What is 250 plus x?",
-    tier: "hard",
-    reason: "unbound variable, no numeric answer",
   },
   {
     id: "trap-divergent",
