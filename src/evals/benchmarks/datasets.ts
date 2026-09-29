@@ -602,6 +602,12 @@ export const ABSTENTION_ITEMS: ReadonlyArray<{
     reason: "mathematically undefined",
   },
   {
+    id: "trap-unknown-var",
+    input: "What is 250 plus x?",
+    tier: "hard",
+    reason: "unbound variable, no numeric answer",
+  },
+  {
     id: "trap-divergent",
     input:
       "What is the sum of 1 + 2 + 3 and every integer after that, forever?",
