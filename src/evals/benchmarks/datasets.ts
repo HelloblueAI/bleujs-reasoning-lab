@@ -471,6 +471,13 @@ export const TOOL_SELECTION_ITEMS: ReadonlyArray<{
     expected: "none",
     tier: "hard",
   },
+  {
+    id: "trap-h4",
+    // "execute" appears, but this is a live-data lookup, not code execution.
+    query: "When does the Fed next execute an interest-rate decision?",
+    expected: "websearch",
+    tier: "hard",
+  },
 ];
 
 /**
