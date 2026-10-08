@@ -48,7 +48,7 @@ the harness could not separate the configurations it exists to compare.
 - [x] Hard arithmetic: order of operations, percentages, exponents, unit
       conversion, multi-step word problems (20 items)
 - [x] A 5x5 logic puzzle requiring chained elimination plus ordering constraints
-- [x] Near-miss retrieval where the correct passage shares *fewer* words with the
+- [x] Near-miss retrieval where the correct passage shares _fewer_ words with the
       query than the distractors do
 - [x] Adversarial abstention: arithmetic-shaped questions that are unanswerable
       because they need an external fact, live data, or are undefined
@@ -102,6 +102,7 @@ intervals and token cost.
 ```bash
 pnpm run eval                 # offline benchmarks, refresh results/latest.json
 pnpm run eval:model           # hosted-model scores on the same datasets
+pnpm run contract             # qualify recorded configurations (no API call)
 pnpm run worker:dev           # local worker
 pnpm run deploy:worker:prod   # production deploy (maintainers)
 pnpm run check                # full CI gate locally

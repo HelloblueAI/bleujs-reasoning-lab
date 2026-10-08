@@ -141,6 +141,19 @@ confidence intervals yet, and 45 hard items cannot resolve a 2-item difference.
 
 This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_CHAT_MODEL`, which the Worker never reads, so an eval model can never be served by `/reason`. Per-variant results land in `src/evals/results/model-<model>-thinking-<mode>.json`.
 
+### Capability contract
+
+`pnpm run contract` applies one small contract to the configurations already recorded in the comparison files. It does not call a provider, deploy a model, or change routing. A configuration is `QUALIFIED` only when every requirement passes. A measurement that was not recorded fails that requirement, so two runs on different datasets are not treated as the same score.
+
+| Requirement     | Rule                                                            |
+| --------------- | --------------------------------------------------------------- |
+| Hard-tier score | `tierScores.hard.score` at least 0.90                           |
+| Latency         | p50 at most 5000ms, and only when concurrency was recorded as 3 |
+| Tool selection  | hard-tier tool-selection score at least 0.80                    |
+| No regression   | hard-tier score drops by at most 0.05 from Super reasoning-on   |
+
+Against those committed files, Super reasoning-on and reasoning-low are `QUALIFIED`. Super reasoning-off is `NOT QUALIFIED` because its hard-tier score is 0.80 and the drop from reasoning-on is larger than 0.05. Lightning reasoning-on and reasoning-off are `NOT QUALIFIED` because that run has no hard tier and no recorded concurrency; the contract does not convert those gaps into a quality or latency failure. The full pass/fail record is [`src/evals/results/capability-contract-mvp.json`](src/evals/results/capability-contract-mvp.json). [`tests/unit/capabilityContract.test.ts`](tests/unit/capabilityContract.test.ts) fails if that file drifts from the evaluator.
+
 ### Scope and known limitations
 
 State these before citing any number from this repo:
@@ -196,6 +209,7 @@ The committed run took about 32 minutes for all three variants. Decoding is samp
 | `pnpm run worker:dev`         | Wrangler dev server for the Worker                                                                  |
 | `pnpm run eval`               | Offline benchmarks over fixed datasets (CLI)                                                        |
 | `pnpm run eval:model`         | Model-in-the-loop benchmarks (needs `NVIDIA_EVAL_API_KEY`)                                          |
+| `pnpm run contract`           | Qualify recorded configurations against the MVP contract                                            |
 | `pnpm run test:unit`          | Unit tests (Vitest)                                                                                 |
 | `pnpm run test:eval`          | Benchmark tests (Vitest)                                                                            |
 | `pnpm run lint` / `format`    | ESLint / Prettier                                                                                   |
