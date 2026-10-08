@@ -152,7 +152,11 @@ This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_
 | Tool selection  | hard-tier tool-selection score at least 0.80                    |
 | No regression   | hard-tier score drops by at most 0.05 from Super reasoning-on   |
 
-Against those committed files, Super reasoning-on and reasoning-low are `QUALIFIED`. Super reasoning-off is `NOT QUALIFIED` because its hard-tier score is 0.80 and the drop from reasoning-on is larger than 0.05. Lightning reasoning-on and reasoning-off are `NOT QUALIFIED` because that run has no hard tier and no recorded concurrency; the contract does not convert those gaps into a quality or latency failure. The full pass/fail record is [`src/evals/results/capability-contract-mvp.json`](src/evals/results/capability-contract-mvp.json). [`tests/unit/capabilityContract.test.ts`](tests/unit/capabilityContract.test.ts) fails if that file drifts from the evaluator.
+Against those committed files, Super reasoning-on and reasoning-low are `QUALIFIED`. Super reasoning-off is `NOT QUALIFIED` on a recorded measurement: its hard-tier score is 0.80, and the drop from reasoning-on is larger than 0.05. That row has `basis: "measured"`.
+
+Lightning reasoning-on and reasoning-off are also `NOT QUALIFIED`, with `basis: "incomplete-record"`. Those runs were committed before the hard tier existed, and they did not record concurrency. The contract cannot score them. That status is not a finding that Lightning 30B missed the quality bar or the latency bar. The recorded Lightning p50 values stay in the report and are marked `compared: false`.
+
+The full pass/fail record is [`src/evals/results/capability-contract-mvp.json`](src/evals/results/capability-contract-mvp.json). [`tests/unit/capabilityContract.test.ts`](tests/unit/capabilityContract.test.ts) fails if that file drifts from the evaluator.
 
 ### Scope and known limitations
 
