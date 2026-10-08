@@ -39,9 +39,9 @@ export const REASONING_LAB_MVP: CapabilityContract = {
 
 export const CONTRACT_NOTE =
   "Computed from committed comparison files. No provider was called. " +
-  "A requirement fails when its measurement was not recorded. " +
-  "The Nemotron 3 Super files are labelled gitSha 519a226a; see the README provenance note. " +
-  "Nemotron 3.5 Lightning was recorded before difficulty tiers existed, so it has no hard-tier score.";
+  "status NOT QUALIFIED with basis incomplete-record means the run is missing measurements, not that the model failed a quality or latency bar. " +
+  "Nemotron 3.5 Lightning was recorded before difficulty tiers existed and did not record concurrency, so both Lightning rows are incomplete-record. " +
+  "The Nemotron 3 Super files are labelled gitSha 519a226a; see the README provenance note.";
 
 const COMPARISON_FILES = [
   "model-nvidia-nemotron-3-super-120b-a12b-comparison.json",

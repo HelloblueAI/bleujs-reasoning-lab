@@ -28,9 +28,16 @@ for (const requirement of report.requirements) {
 }
 for (const result of report.results) {
   const name = result.model.split("/").pop();
-  console.log(`\n${result.status}  ${name} thinking ${result.reasoning}`);
+  console.log(
+    `\n${result.status}  ${name} thinking ${result.reasoning}  (${result.basis})`,
+  );
+  console.log(`  ${result.summary}`);
   for (const requirement of result.requirements) {
-    const mark = requirement.pass ? "pass" : "fail";
+    const mark = requirement.pass
+      ? "pass"
+      : requirement.compared
+        ? "fail"
+        : "not compared";
     const measured =
       requirement.measured === null
         ? "not recorded"

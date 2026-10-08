@@ -45,16 +45,30 @@ export interface CandidateMeasurement {
 export interface RequirementResult {
   id: RequirementId;
   pass: boolean;
+  /**
+   * False when this run does not contain the measurement, so the threshold
+   * was not applied. A false pass is then a gap in the record, not a miss.
+   */
+  compared: boolean;
   measured: number | null;
   rule: string;
   detail: string;
 }
+
+export type QualificationBasis = "measured" | "incomplete-record";
 
 export interface Qualification {
   model: string;
   reasoning: string;
   gitSha: string | null;
   status: QualificationStatus;
+  /**
+   * `measured` means every failed requirement was compared with a recorded
+   * value. `incomplete-record` means the run is NOT QUALIFIED because those
+   * measurements were never recorded, not because the model missed a bar.
+   */
+  basis: QualificationBasis;
+  summary: string;
   requirements: RequirementResult[];
 }
 
@@ -90,6 +104,7 @@ function hardScoreRequirement(
     return {
       id: "hard-tier-score",
       pass: false,
+      compared: false,
       measured: null,
       rule,
       detail: "hard-tier score was not recorded for this run",
@@ -99,6 +114,7 @@ function hardScoreRequirement(
   return {
     id: "hard-tier-score",
     pass,
+    compared: true,
     measured: candidate.hardScore,
     rule,
     detail: pass
@@ -116,6 +132,7 @@ function latencyRequirement(
     return {
       id: "latency-p50",
       pass: false,
+      compared: false,
       measured: candidate.latencyP50Ms,
       rule,
       detail:
@@ -128,6 +145,7 @@ function latencyRequirement(
     return {
       id: "latency-p50",
       pass: false,
+      compared: false,
       measured: null,
       rule,
       detail: "latency p50 was not recorded for this run",
@@ -137,6 +155,7 @@ function latencyRequirement(
   return {
     id: "latency-p50",
     pass,
+    compared: true,
     measured: candidate.latencyP50Ms,
     rule,
     detail: pass
@@ -154,6 +173,7 @@ function toolRequirement(
     return {
       id: "tool-selection",
       pass: false,
+      compared: false,
       measured: null,
       rule,
       detail: "hard-tier tool-selection score was not recorded for this run",
@@ -164,6 +184,7 @@ function toolRequirement(
   return {
     id: "tool-selection",
     pass,
+    compared: true,
     measured: candidate.toolSelectionHardScore,
     rule,
     detail: pass
@@ -182,6 +203,7 @@ function regressionRequirement(
     return {
       id: "no-regression",
       pass: false,
+      compared: false,
       measured: null,
       rule,
       detail:
@@ -193,12 +215,32 @@ function regressionRequirement(
   return {
     id: "no-regression",
     pass,
+    compared: true,
     measured: candidate.hardScore,
     rule,
     detail: pass
       ? "hard-tier score is within the allowed drop from the baseline"
       : "hard-tier score drops more than the allowed amount from the baseline",
   };
+}
+
+const INCOMPLETE_RECORD_SUMMARY =
+  "NOT QUALIFIED because this committed run does not include measurements the contract requires. This is not a finding that the model missed a quality or latency bar.";
+
+const MEASURED_MISS_SUMMARY =
+  "NOT QUALIFIED because a recorded measurement missed a contract threshold.";
+
+export function qualificationBasis(
+  requirements: readonly RequirementResult[],
+): QualificationBasis {
+  const failures = requirements.filter((requirement) => !requirement.pass);
+  if (
+    failures.length > 0 &&
+    failures.every((requirement) => !requirement.compared)
+  ) {
+    return "incomplete-record";
+  }
+  return "measured";
 }
 
 export function evaluateCandidate(
@@ -212,13 +254,22 @@ export function evaluateCandidate(
     toolRequirement(contract, candidate),
     regressionRequirement(contract, candidate, baselineHardScore),
   ];
+  const status = requirements.every((requirement) => requirement.pass)
+    ? QUALIFIED
+    : NOT_QUALIFIED;
+  const basis = qualificationBasis(requirements);
   return {
     model: candidate.model,
     reasoning: candidate.reasoning,
     gitSha: candidate.gitSha,
-    status: requirements.every((requirement) => requirement.pass)
-      ? QUALIFIED
-      : NOT_QUALIFIED,
+    status,
+    basis,
+    summary:
+      status === QUALIFIED
+        ? "Every recorded requirement met the contract."
+        : basis === "incomplete-record"
+          ? INCOMPLETE_RECORD_SUMMARY
+          : MEASURED_MISS_SUMMARY,
     requirements,
   };
 }

@@ -71,10 +71,12 @@ describe("capability contract qualification", () => {
       baselineHardScore,
     );
     expect(result.status).toBe(NOT_QUALIFIED);
+    expect(result.basis).toBe("measured");
     const latency = result.requirements.find(
       (requirement) => requirement.id === "latency-p50",
     );
     expect(latency?.pass).toBe(false);
+    expect(latency?.compared).toBe(true);
     expect(latency?.measured).toBe(8000);
     expect(
       result.requirements.filter((requirement) => requirement.pass),
@@ -93,10 +95,13 @@ describe("capability contract qualification", () => {
       baselineHardScore,
     );
     expect(result.status).toBe(NOT_QUALIFIED);
+    expect(result.basis).toBe("incomplete-record");
+    expect(result.summary).toContain("not a finding");
     const latency = result.requirements.find(
       (requirement) => requirement.id === "latency-p50",
     );
     expect(latency?.pass).toBe(false);
+    expect(latency?.compared).toBe(false);
     expect(latency?.measured).toBe(23327);
     expect(latency?.detail).toContain("not compared");
     expect(
@@ -137,9 +142,18 @@ describe("recorded NVIDIA configurations", () => {
     const latency = lightning?.requirements.find(
       (requirement) => requirement.id === "latency-p50",
     );
+    expect(lightning?.basis).toBe("incomplete-record");
+    expect(lightning?.summary).toContain("not a finding");
     expect(hard?.measured).toBeNull();
+    expect(hard?.compared).toBe(false);
     expect(hard?.detail).toContain("not recorded");
+    expect(latency?.compared).toBe(false);
     expect(latency?.detail).toContain("not compared");
+    const superOff = report.results.find(
+      (result) =>
+        result.model.endsWith("super-120b-a12b") && result.reasoning === "off",
+    );
+    expect(superOff?.basis).toBe("measured");
   });
 
   it("matches the committed contract report", () => {

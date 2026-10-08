@@ -1,6 +1,6 @@
 {
   "contractId": "reasoning-lab-mvp",
-  "note": "Computed from committed comparison files. No provider was called. A requirement fails when its measurement was not recorded. The Nemotron 3 Super files are labelled gitSha 519a226a; see the README provenance note. Nemotron 3.5 Lightning was recorded before difficulty tiers existed, so it has no hard-tier score.",
+  "note": "Computed from committed comparison files. No provider was called. status NOT QUALIFIED with basis incomplete-record means the run is missing measurements, not that the model failed a quality or latency bar. Nemotron 3.5 Lightning was recorded before difficulty tiers existed and did not record concurrency, so both Lightning rows are incomplete-record. The Nemotron 3 Super files are labelled gitSha 519a226a; see the README provenance note.",
   "baseline": {
     "model": "nvidia/nemotron-3-super-120b-a12b",
     "reasoning": "on",
@@ -31,10 +31,13 @@
       "reasoning": "on",
       "gitSha": "519a226a",
       "status": "QUALIFIED",
+      "basis": "measured",
+      "summary": "Every recorded requirement met the contract.",
       "requirements": [
         {
           "id": "hard-tier-score",
           "pass": true,
+          "compared": true,
           "measured": 0.9555555555555556,
           "rule": "tierScores.hard.score >= 0.9",
           "detail": "meets the minimum hard-tier score"
@@ -42,6 +45,7 @@
         {
           "id": "latency-p50",
           "pass": true,
+          "compared": true,
           "measured": 3799,
           "rule": "latencyMs.p50 <= 5000 at concurrency 3",
           "detail": "p50 is within the maximum at the required concurrency"
@@ -49,6 +53,7 @@
         {
           "id": "tool-selection",
           "pass": true,
+          "compared": true,
           "measured": 0.8888888888888888,
           "rule": "hard tool-selection score >= 0.8",
           "detail": "meets the minimum hard-tier tool-selection score"
@@ -56,6 +61,7 @@
         {
           "id": "no-regression",
           "pass": true,
+          "compared": true,
           "measured": 0.9555555555555556,
           "rule": "hard-tier score drops by at most 0.05 from the baseline",
           "detail": "hard-tier score is within the allowed drop from the baseline"
@@ -67,10 +73,13 @@
       "reasoning": "low",
       "gitSha": "519a226a",
       "status": "QUALIFIED",
+      "basis": "measured",
+      "summary": "Every recorded requirement met the contract.",
       "requirements": [
         {
           "id": "hard-tier-score",
           "pass": true,
+          "compared": true,
           "measured": 0.9555555555555556,
           "rule": "tierScores.hard.score >= 0.9",
           "detail": "meets the minimum hard-tier score"
@@ -78,6 +87,7 @@
         {
           "id": "latency-p50",
           "pass": true,
+          "compared": true,
           "measured": 1037,
           "rule": "latencyMs.p50 <= 5000 at concurrency 3",
           "detail": "p50 is within the maximum at the required concurrency"
@@ -85,6 +95,7 @@
         {
           "id": "tool-selection",
           "pass": true,
+          "compared": true,
           "measured": 1,
           "rule": "hard tool-selection score >= 0.8",
           "detail": "meets the minimum hard-tier tool-selection score"
@@ -92,6 +103,7 @@
         {
           "id": "no-regression",
           "pass": true,
+          "compared": true,
           "measured": 0.9555555555555556,
           "rule": "hard-tier score drops by at most 0.05 from the baseline",
           "detail": "hard-tier score is within the allowed drop from the baseline"
@@ -103,10 +115,13 @@
       "reasoning": "off",
       "gitSha": "519a226a",
       "status": "NOT QUALIFIED",
+      "basis": "measured",
+      "summary": "NOT QUALIFIED because a recorded measurement missed a contract threshold.",
       "requirements": [
         {
           "id": "hard-tier-score",
           "pass": false,
+          "compared": true,
           "measured": 0.8,
           "rule": "tierScores.hard.score >= 0.9",
           "detail": "below the minimum hard-tier score"
@@ -114,6 +129,7 @@
         {
           "id": "latency-p50",
           "pass": true,
+          "compared": true,
           "measured": 500,
           "rule": "latencyMs.p50 <= 5000 at concurrency 3",
           "detail": "p50 is within the maximum at the required concurrency"
@@ -121,6 +137,7 @@
         {
           "id": "tool-selection",
           "pass": true,
+          "compared": true,
           "measured": 0.8888888888888888,
           "rule": "hard tool-selection score >= 0.8",
           "detail": "meets the minimum hard-tier tool-selection score"
@@ -128,6 +145,7 @@
         {
           "id": "no-regression",
           "pass": false,
+          "compared": true,
           "measured": 0.8,
           "rule": "hard-tier score drops by at most 0.05 from the baseline",
           "detail": "hard-tier score drops more than the allowed amount from the baseline"
@@ -139,10 +157,13 @@
       "reasoning": "on",
       "gitSha": "d843351d",
       "status": "NOT QUALIFIED",
+      "basis": "incomplete-record",
+      "summary": "NOT QUALIFIED because this committed run does not include measurements the contract requires. This is not a finding that the model missed a quality or latency bar.",
       "requirements": [
         {
           "id": "hard-tier-score",
           "pass": false,
+          "compared": false,
           "measured": null,
           "rule": "tierScores.hard.score >= 0.9",
           "detail": "hard-tier score was not recorded for this run"
@@ -150,6 +171,7 @@
         {
           "id": "latency-p50",
           "pass": false,
+          "compared": false,
           "measured": 23327,
           "rule": "latencyMs.p50 <= 5000 at concurrency 3",
           "detail": "concurrency was not recorded, so p50 was not compared with 5000ms"
@@ -157,6 +179,7 @@
         {
           "id": "tool-selection",
           "pass": false,
+          "compared": false,
           "measured": null,
           "rule": "hard tool-selection score >= 0.8",
           "detail": "hard-tier tool-selection score was not recorded for this run"
@@ -164,6 +187,7 @@
         {
           "id": "no-regression",
           "pass": false,
+          "compared": false,
           "measured": null,
           "rule": "hard-tier score drops by at most 0.05 from the baseline",
           "detail": "hard-tier score was not recorded, so regression was not computed"
@@ -175,10 +199,13 @@
       "reasoning": "off",
       "gitSha": "d843351d",
       "status": "NOT QUALIFIED",
+      "basis": "incomplete-record",
+      "summary": "NOT QUALIFIED because this committed run does not include measurements the contract requires. This is not a finding that the model missed a quality or latency bar.",
       "requirements": [
         {
           "id": "hard-tier-score",
           "pass": false,
+          "compared": false,
           "measured": null,
           "rule": "tierScores.hard.score >= 0.9",
           "detail": "hard-tier score was not recorded for this run"
@@ -186,6 +213,7 @@
         {
           "id": "latency-p50",
           "pass": false,
+          "compared": false,
           "measured": 1402,
           "rule": "latencyMs.p50 <= 5000 at concurrency 3",
           "detail": "concurrency was not recorded, so p50 was not compared with 5000ms"
@@ -193,6 +221,7 @@
         {
           "id": "tool-selection",
           "pass": false,
+          "compared": false,
           "measured": null,
           "rule": "hard tool-selection score >= 0.8",
           "detail": "hard-tier tool-selection score was not recorded for this run"
@@ -200,6 +229,7 @@
         {
           "id": "no-regression",
           "pass": false,
+          "compared": false,
           "measured": null,
           "rule": "hard-tier score drops by at most 0.05 from the baseline",
           "detail": "hard-tier score was not recorded, so regression was not computed"
