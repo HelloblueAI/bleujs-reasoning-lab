@@ -1,8 +1,8 @@
 {
   "suite": "model-benchmark",
-  "labVersion": "5.1.0",
-  "gitSha": "d843351d",
-  "timestamp": 1789642467339,
+  "labVersion": "6.0.0",
+  "gitSha": "6ff90e47",
+  "timestamp": 1791922021478,
   "provider": "nvidia",
   "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
   "reasoning": "on",
@@ -10,47 +10,76 @@
     "temperature": 1,
     "topP": 0.95,
     "maxTokens": 16000,
-    "runs": 3
+    "runs": 3,
+    "timeoutMs": 240000,
+    "concurrency": 3
   },
   "total": 5,
   "passed": 4,
   "failed": 1,
   "passRate": 0.8,
-  "itemScore": 0.9230769230769231,
-  "inconclusiveItems": 0,
-  "rateLimited": 7,
-  "latencyMs": {
-    "p50": 23327,
-    "p95": 141432,
-    "max": 225820
+  "itemScore": 0.9176470588235294,
+  "tierScores": {
+    "core": {
+      "total": 39,
+      "correct": 34,
+      "score": 0.8717948717948718
+    },
+    "hard": {
+      "total": 46,
+      "correct": 44,
+      "score": 0.9565217391304348
+    }
   },
-  "completionTokens": 90475,
-  "durationMs": 3471009,
+  "inconclusiveItems": 0,
+  "rateLimited": 0,
+  "timedOut": 0,
+  "latencyMs": {
+    "p50": 6894,
+    "p95": 42428,
+    "max": 211176
+  },
+  "completionTokens": 262890,
+  "durationMs": 1242104,
   "benchmarks": [
     {
       "id": "arithmetic",
       "name": "Arithmetic (exact)",
       "metric": "exact match",
-      "total": 19,
-      "correct": 18,
-      "score": 0.9473684210526315,
+      "total": 39,
+      "correct": 38,
+      "score": 0.9743589743589743,
       "passed": true,
       "runs": 3,
       "deterministic": false,
-      "unstableItems": 3,
+      "unstableItems": 1,
       "inconclusiveItems": 0,
-      "truncations": 0,
-      "errors": 0,
-      "rateLimited": 4,
-      "latencyMs": {
-        "p50": 28135,
-        "p95": 167280,
-        "max": 225820
+      "tierScores": {
+        "core": {
+          "total": 19,
+          "correct": 18,
+          "score": 0.9473684210526315
+        },
+        "hard": {
+          "total": 20,
+          "correct": 20,
+          "score": 1
+        }
       },
-      "durationMs": 1629893,
+      "truncations": 2,
+      "errors": 2,
+      "rateLimited": 0,
+      "timedOut": 0,
+      "latencyMs": {
+        "p50": 6467,
+        "p95": 82426,
+        "max": 211176
+      },
+      "durationMs": 630982,
       "items": [
         {
           "id": "add-1",
+          "tier": "core",
           "expected": "124",
           "passed": true,
           "passedRuns": 3,
@@ -60,117 +89,129 @@
             {
               "passed": true,
               "got": "124",
-              "latencyMs": 4258,
+              "latencyMs": 5045,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 413,
-              "reasoningChars": 1597,
+              "timedOut": false,
+              "completionTokens": 393,
+              "reasoningChars": 1442,
               "error": null
             },
             {
               "passed": true,
               "got": "124",
-              "latencyMs": 8763,
+              "latencyMs": 11135,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 95,
-              "reasoningChars": 265,
+              "timedOut": false,
+              "completionTokens": 606,
+              "reasoningChars": 2071,
               "error": null
             },
             {
               "passed": true,
               "got": "124",
-              "latencyMs": 8409,
+              "latencyMs": 19093,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 384,
-              "reasoningChars": 1354,
+              "timedOut": false,
+              "completionTokens": 1222,
+              "reasoningChars": 4110,
               "error": null
             }
           ]
         },
         {
           "id": "add-2",
+          "tier": "core",
           "expected": "10000",
           "passed": true,
-          "passedRuns": 2,
+          "passedRuns": 3,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "10000",
-              "latencyMs": 47998,
+              "latencyMs": 10639,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 726,
-              "reasoningChars": 2293,
+              "timedOut": false,
+              "completionTokens": 715,
+              "reasoningChars": 2358,
               "error": null
             },
             {
               "passed": true,
               "got": "10000",
-              "latencyMs": 3079,
+              "latencyMs": 6036,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 122,
-              "reasoningChars": 401,
+              "timedOut": false,
+              "completionTokens": 386,
+              "reasoningChars": 1219,
               "error": null
             },
             {
-              "passed": false,
-              "got": "1234 plus 8766 is 10000.",
-              "latencyMs": 36093,
+              "passed": true,
+              "got": "10000",
+              "latencyMs": 10629,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 220,
-              "reasoningChars": 452,
+              "timedOut": false,
+              "completionTokens": 617,
+              "reasoningChars": 1821,
               "error": null
             }
           ]
         },
         {
           "id": "sub-1",
+          "tier": "core",
           "expected": "345",
           "passed": true,
-          "passedRuns": 2,
+          "passedRuns": 3,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "345",
-              "latencyMs": 52786,
+              "latencyMs": 5533,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1074,
-              "reasoningChars": 3712,
+              "timedOut": false,
+              "completionTokens": 414,
+              "reasoningChars": 1412,
               "error": null
             },
             {
               "passed": true,
               "got": "345",
-              "latencyMs": 6817,
+              "latencyMs": 5969,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 255,
-              "reasoningChars": 786,
+              "timedOut": false,
+              "completionTokens": 227,
+              "reasoningChars": 722,
               "error": null
             },
             {
-              "passed": false,
-              "got": "' containing only the answer, with no explanation after it.\"",
-              "latencyMs": 27581,
+              "passed": true,
+              "got": "345",
+              "latencyMs": 6563,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 173,
-              "reasoningChars": 637,
+              "timedOut": false,
+              "completionTokens": 388,
+              "reasoningChars": 1367,
               "error": null
             }
           ]
         },
         {
           "id": "sub-2",
+          "tier": "core",
           "expected": "57",
           "passed": true,
           "passedRuns": 3,
@@ -180,37 +221,41 @@
             {
               "passed": true,
               "got": "57",
-              "latencyMs": 22647,
+              "latencyMs": 30842,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 869,
-              "reasoningChars": 2915,
+              "timedOut": false,
+              "completionTokens": 1533,
+              "reasoningChars": 5618,
               "error": null
             },
             {
               "passed": true,
               "got": "57",
-              "latencyMs": 14192,
+              "latencyMs": 10350,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 699,
-              "reasoningChars": 2254,
+              "timedOut": false,
+              "completionTokens": 821,
+              "reasoningChars": 2759,
               "error": null
             },
             {
               "passed": true,
               "got": "57",
-              "latencyMs": 16727,
+              "latencyMs": 9071,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 697,
-              "reasoningChars": 2483,
+              "timedOut": false,
+              "completionTokens": 750,
+              "reasoningChars": 2447,
               "error": null
             }
           ]
         },
         {
           "id": "mul-1",
+          "tier": "core",
           "expected": "437",
           "passed": true,
           "passedRuns": 3,
@@ -220,37 +265,41 @@
             {
               "passed": true,
               "got": "437",
-              "latencyMs": 10415,
+              "latencyMs": 25568,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 387,
-              "reasoningChars": 1342,
+              "timedOut": false,
+              "completionTokens": 2500,
+              "reasoningChars": 8559,
               "error": null
             },
             {
               "passed": true,
               "got": "437",
-              "latencyMs": 11390,
+              "latencyMs": 5172,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 615,
-              "reasoningChars": 2066,
+              "timedOut": false,
+              "completionTokens": 389,
+              "reasoningChars": 1457,
               "error": null
             },
             {
               "passed": true,
               "got": "437",
-              "latencyMs": 40514,
+              "latencyMs": 1864,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 570,
-              "reasoningChars": 1912,
+              "timedOut": false,
+              "completionTokens": 141,
+              "reasoningChars": 403,
               "error": null
             }
           ]
         },
         {
           "id": "mul-2",
+          "tier": "core",
           "expected": "1728",
           "passed": true,
           "passedRuns": 3,
@@ -260,77 +309,85 @@
             {
               "passed": true,
               "got": "1728",
-              "latencyMs": 4597,
+              "latencyMs": 6755,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 506,
-              "reasoningChars": 1517,
+              "timedOut": false,
+              "completionTokens": 520,
+              "reasoningChars": 1673,
               "error": null
             },
             {
               "passed": true,
               "got": "1728",
-              "latencyMs": 10651,
+              "latencyMs": 4994,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 611,
-              "reasoningChars": 1897,
+              "timedOut": false,
+              "completionTokens": 139,
+              "reasoningChars": 374,
               "error": null
             },
             {
               "passed": true,
               "got": "1728",
-              "latencyMs": 17862,
+              "latencyMs": 16107,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 513,
-              "reasoningChars": 1535,
+              "timedOut": false,
+              "completionTokens": 494,
+              "reasoningChars": 1533,
               "error": null
             }
           ]
         },
         {
           "id": "mul-3",
+          "tier": "core",
           "expected": "49696562936559",
           "passed": true,
-          "passedRuns": 3,
+          "passedRuns": 2,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
+              "passed": false,
+              "got": "truncated after 16000 tokens with no final answer",
+              "latencyMs": 211176,
+              "truncated": true,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 16000,
+              "reasoningChars": 30839,
+              "error": "truncated after 16000 tokens with no final answer"
+            },
+            {
               "passed": true,
               "got": "49696562936559",
-              "latencyMs": 137062,
+              "latencyMs": 31774,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 3421,
-              "reasoningChars": 5857,
+              "timedOut": false,
+              "completionTokens": 3059,
+              "reasoningChars": 4591,
               "error": null
             },
             {
               "passed": true,
               "got": "49696562936559",
-              "latencyMs": 225820,
+              "latencyMs": 82426,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 5972,
-              "reasoningChars": 9283,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "49696562936559",
-              "latencyMs": 122555,
-              "truncated": false,
-              "inconclusive": false,
-              "completionTokens": 4417,
-              "reasoningChars": 6791,
+              "timedOut": false,
+              "completionTokens": 6151,
+              "reasoningChars": 11872,
               "error": null
             }
           ]
         },
         {
           "id": "div-1",
+          "tier": "core",
           "expected": "256",
           "passed": true,
           "passedRuns": 3,
@@ -340,37 +397,41 @@
             {
               "passed": true,
               "got": "256",
-              "latencyMs": 147362,
+              "latencyMs": 5820,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 365,
-              "reasoningChars": 1403,
+              "timedOut": false,
+              "completionTokens": 416,
+              "reasoningChars": 1419,
               "error": null
             },
             {
               "passed": true,
               "got": "256",
-              "latencyMs": 28135,
+              "latencyMs": 8989,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 576,
-              "reasoningChars": 1953,
+              "timedOut": false,
+              "completionTokens": 744,
+              "reasoningChars": 2513,
               "error": null
             },
             {
               "passed": true,
               "got": "256",
-              "latencyMs": 124618,
+              "latencyMs": 8656,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 646,
-              "reasoningChars": 2001,
+              "timedOut": false,
+              "completionTokens": 564,
+              "reasoningChars": 1793,
               "error": null
             }
           ]
         },
         {
           "id": "div-2",
+          "tier": "core",
           "expected": "125",
           "passed": true,
           "passedRuns": 3,
@@ -380,37 +441,41 @@
             {
               "passed": true,
               "got": "125",
-              "latencyMs": 117101,
+              "latencyMs": 8315,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1370,
-              "reasoningChars": 4662,
+              "timedOut": false,
+              "completionTokens": 834,
+              "reasoningChars": 3042,
               "error": null
             },
             {
               "passed": true,
               "got": "125",
-              "latencyMs": 5480,
+              "latencyMs": 14444,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 323,
-              "reasoningChars": 1156,
+              "timedOut": false,
+              "completionTokens": 1067,
+              "reasoningChars": 3655,
               "error": null
             },
             {
               "passed": true,
               "got": "125",
-              "latencyMs": 167280,
+              "latencyMs": 4976,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1174,
-              "reasoningChars": 4162,
+              "timedOut": false,
+              "completionTokens": 82,
+              "reasoningChars": 196,
               "error": null
             }
           ]
         },
         {
           "id": "dec-1",
+          "tier": "core",
           "expected": "10",
           "passed": true,
           "passedRuns": 3,
@@ -420,77 +485,85 @@
             {
               "passed": true,
               "got": "10",
-              "latencyMs": 19711,
+              "latencyMs": 23554,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 710,
-              "reasoningChars": 2415,
+              "timedOut": false,
+              "completionTokens": 1127,
+              "reasoningChars": 3664,
               "error": null
             },
             {
               "passed": true,
               "got": "10",
-              "latencyMs": 35105,
+              "latencyMs": 9184,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 626,
-              "reasoningChars": 2120,
+              "timedOut": false,
+              "completionTokens": 817,
+              "reasoningChars": 2979,
               "error": null
             },
             {
               "passed": true,
               "got": "10",
-              "latencyMs": 21628,
+              "latencyMs": 10795,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 780,
-              "reasoningChars": 2626,
+              "timedOut": false,
+              "completionTokens": 925,
+              "reasoningChars": 3197,
               "error": null
             }
           ]
         },
         {
           "id": "dec-2",
+          "tier": "core",
           "expected": "6.25",
           "passed": true,
-          "passedRuns": 2,
+          "passedRuns": 3,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
-              "passed": false,
-              "got": "Compute: 2.5 times 2.5",
-              "latencyMs": 37481,
+              "passed": true,
+              "got": "6.25",
+              "latencyMs": 7280,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 45,
-              "reasoningChars": 138,
+              "timedOut": false,
+              "completionTokens": 591,
+              "reasoningChars": 1887,
               "error": null
             },
             {
               "passed": true,
               "got": "6.25",
-              "latencyMs": 21322,
+              "latencyMs": 6714,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 839,
-              "reasoningChars": 2766,
+              "timedOut": false,
+              "completionTokens": 517,
+              "reasoningChars": 1768,
               "error": null
             },
             {
               "passed": true,
               "got": "6.25",
-              "latencyMs": 52240,
+              "latencyMs": 7554,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 422,
-              "reasoningChars": 1443,
+              "timedOut": false,
+              "completionTokens": 405,
+              "reasoningChars": 1409,
               "error": null
             }
           ]
         },
         {
           "id": "dec-3",
+          "tier": "core",
           "expected": "10004511.184645",
           "passed": true,
           "passedRuns": 3,
@@ -500,37 +573,41 @@
             {
               "passed": true,
               "got": "10004511.184645",
-              "latencyMs": 40554,
+              "latencyMs": 7959,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1139,
-              "reasoningChars": 2179,
+              "timedOut": false,
+              "completionTokens": 597,
+              "reasoningChars": 942,
               "error": null
             },
             {
               "passed": true,
               "got": "10004511.184645",
-              "latencyMs": 30573,
+              "latencyMs": 23368,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 829,
-              "reasoningChars": 1423,
+              "timedOut": false,
+              "completionTokens": 1211,
+              "reasoningChars": 2299,
               "error": null
             },
             {
               "passed": true,
               "got": "10004511.184645",
-              "latencyMs": 35063,
+              "latencyMs": 10315,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 634,
-              "reasoningChars": 962,
+              "timedOut": false,
+              "completionTokens": 647,
+              "reasoningChars": 1073,
               "error": null
             }
           ]
         },
         {
           "id": "dec-4",
+          "tier": "core",
           "expected": "985434.504155",
           "passed": true,
           "passedRuns": 3,
@@ -540,77 +617,85 @@
             {
               "passed": true,
               "got": "985434.504155",
-              "latencyMs": 69176,
+              "latencyMs": 21877,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 2225,
-              "reasoningChars": 4441,
+              "timedOut": false,
+              "completionTokens": 1478,
+              "reasoningChars": 3332,
               "error": null
             },
             {
               "passed": true,
               "got": "985434.504155",
-              "latencyMs": 145261,
+              "latencyMs": 23899,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 756,
-              "reasoningChars": 1352,
+              "timedOut": false,
+              "completionTokens": 1862,
+              "reasoningChars": 4118,
               "error": null
             },
             {
               "passed": true,
               "got": "985434.504155",
-              "latencyMs": 19717,
+              "latencyMs": 5306,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1858,
-              "reasoningChars": 4499,
+              "timedOut": false,
+              "completionTokens": 425,
+              "reasoningChars": 673,
               "error": null
             }
           ]
         },
         {
           "id": "dec-5",
+          "tier": "core",
           "expected": "90.0000081",
           "passed": false,
           "passedRuns": 0,
-          "scoredRuns": 1,
+          "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": false,
               "got": "99999999/1111111",
-              "latencyMs": 218699,
+              "latencyMs": 137679,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 7805,
-              "reasoningChars": 18052,
+              "timedOut": false,
+              "completionTokens": 10831,
+              "reasoningChars": 25087,
               "error": null
             },
             {
               "passed": false,
-              "got": "request timed out: The operation was aborted due to timeout",
-              "latencyMs": 240001,
-              "truncated": false,
-              "inconclusive": true,
-              "completionTokens": null,
-              "reasoningChars": 0,
-              "error": "request timed out: The operation was aborted due to timeout"
+              "got": "truncated after 16000 tokens with no final answer",
+              "latencyMs": 177503,
+              "truncated": true,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 16000,
+              "reasoningChars": 38882,
+              "error": "truncated after 16000 tokens with no final answer"
             },
             {
               "passed": false,
-              "got": "request timed out: The operation was aborted due to timeout",
-              "latencyMs": 240000,
+              "got": "99999999/1111111",
+              "latencyMs": 156535,
               "truncated": false,
-              "inconclusive": true,
-              "completionTokens": null,
-              "reasoningChars": 0,
-              "error": "request timed out: The operation was aborted due to timeout"
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 13883,
+              "reasoningChars": 32807,
+              "error": null
             }
           ]
         },
         {
           "id": "dec-6",
+          "tier": "core",
           "expected": "864197.532",
           "passed": true,
           "passedRuns": 3,
@@ -620,37 +705,41 @@
             {
               "passed": true,
               "got": "864197.532",
-              "latencyMs": 60595,
+              "latencyMs": 24778,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1771,
-              "reasoningChars": 4150,
+              "timedOut": false,
+              "completionTokens": 1963,
+              "reasoningChars": 4297,
               "error": null
             },
             {
               "passed": true,
               "got": "864197.532",
-              "latencyMs": 43128,
+              "latencyMs": 10922,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 905,
-              "reasoningChars": 2136,
+              "timedOut": false,
+              "completionTokens": 481,
+              "reasoningChars": 1308,
               "error": null
             },
             {
               "passed": true,
               "got": "864197.532",
-              "latencyMs": 31608,
+              "latencyMs": 92368,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1115,
-              "reasoningChars": 2717,
+              "timedOut": false,
+              "completionTokens": 1812,
+              "reasoningChars": 4688,
               "error": null
             }
           ]
         },
         {
           "id": "neg-1",
+          "tier": "core",
           "expected": "25",
           "passed": true,
           "passedRuns": 3,
@@ -660,37 +749,41 @@
             {
               "passed": true,
               "got": "25",
-              "latencyMs": 104231,
+              "latencyMs": 1942,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1044,
-              "reasoningChars": 3576,
+              "timedOut": false,
+              "completionTokens": 171,
+              "reasoningChars": 539,
               "error": null
             },
             {
               "passed": true,
               "got": "25",
-              "latencyMs": 23470,
+              "latencyMs": 1943,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 460,
-              "reasoningChars": 1763,
+              "timedOut": false,
+              "completionTokens": 171,
+              "reasoningChars": 538,
               "error": null
             },
             {
               "passed": true,
               "got": "25",
-              "latencyMs": 9597,
+              "latencyMs": 6416,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 165,
-              "reasoningChars": 596,
+              "timedOut": false,
+              "completionTokens": 496,
+              "reasoningChars": 1768,
               "error": null
             }
           ]
         },
         {
           "id": "neg-2",
+          "tier": "core",
           "expected": "-30000",
           "passed": true,
           "passedRuns": 3,
@@ -700,37 +793,41 @@
             {
               "passed": true,
               "got": "-30000",
-              "latencyMs": 10541,
+              "latencyMs": 3359,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 507,
-              "reasoningChars": 1658,
+              "timedOut": false,
+              "completionTokens": 257,
+              "reasoningChars": 928,
               "error": null
             },
             {
               "passed": true,
               "got": "-30000",
-              "latencyMs": 3666,
+              "latencyMs": 9190,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 136,
-              "reasoningChars": 387,
+              "timedOut": false,
+              "completionTokens": 716,
+              "reasoningChars": 2344,
               "error": null
             },
             {
               "passed": true,
               "got": "-30000",
-              "latencyMs": 21279,
+              "latencyMs": 4480,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 106,
-              "reasoningChars": 261,
+              "timedOut": false,
+              "completionTokens": 306,
+              "reasoningChars": 961,
               "error": null
             }
           ]
         },
         {
           "id": "neg-3",
+          "tier": "core",
           "expected": "-2030",
           "passed": true,
           "passedRuns": 3,
@@ -740,72 +837,959 @@
             {
               "passed": true,
               "got": "-2030",
-              "latencyMs": 2863,
+              "latencyMs": 16476,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 112,
-              "reasoningChars": 314,
+              "timedOut": false,
+              "completionTokens": 1735,
+              "reasoningChars": 5745,
               "error": null
             },
             {
               "passed": true,
               "got": "-2030",
-              "latencyMs": 141432,
+              "latencyMs": 3482,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 409,
-              "reasoningChars": 1417,
+              "timedOut": false,
+              "completionTokens": 243,
+              "reasoningChars": 950,
               "error": null
             },
             {
               "passed": true,
               "got": "-2030",
-              "latencyMs": 8676,
+              "latencyMs": 7161,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 258,
-              "reasoningChars": 859,
+              "timedOut": false,
+              "completionTokens": 533,
+              "reasoningChars": 1730,
               "error": null
             }
           ]
         },
         {
           "id": "neg-4",
+          "tier": "core",
           "expected": "-18914003885552",
           "passed": true,
-          "passedRuns": 1,
-          "scoredRuns": 1,
+          "passedRuns": 3,
+          "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "-18914003885552",
-              "latencyMs": 55491,
+              "latencyMs": 15699,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1988,
-              "reasoningChars": 2766,
+              "timedOut": false,
+              "completionTokens": 989,
+              "reasoningChars": 1835,
               "error": null
             },
             {
-              "passed": false,
-              "got": "request timed out: The operation was aborted due to timeout",
-              "latencyMs": 240001,
+              "passed": true,
+              "got": "-18914003885552",
+              "latencyMs": 24601,
               "truncated": false,
-              "inconclusive": true,
-              "completionTokens": null,
-              "reasoningChars": 0,
-              "error": "request timed out: The operation was aborted due to timeout"
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 2093,
+              "reasoningChars": 3666,
+              "error": null
             },
             {
-              "passed": false,
-              "got": "request timed out: The operation was aborted due to timeout",
-              "latencyMs": 240001,
+              "passed": true,
+              "got": "-18914003885552",
+              "latencyMs": 42311,
               "truncated": false,
-              "inconclusive": true,
-              "completionTokens": null,
-              "reasoningChars": 0,
-              "error": "request timed out: The operation was aborted due to timeout"
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 3776,
+              "reasoningChars": 6395,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "ooo-1",
+          "tier": "hard",
+          "expected": "35",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "35",
+              "latencyMs": 3353,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 224,
+              "reasoningChars": 730,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "35",
+              "latencyMs": 2608,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 247,
+              "reasoningChars": 885,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "35",
+              "latencyMs": 5212,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 479,
+              "reasoningChars": 1622,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "ooo-2",
+          "tier": "hard",
+          "expected": "180",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "180",
+              "latencyMs": 10507,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 558,
+              "reasoningChars": 2051,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "180",
+              "latencyMs": 3949,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 252,
+              "reasoningChars": 859,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "180",
+              "latencyMs": 1791,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 191,
+              "reasoningChars": 625,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "ooo-3",
+          "tier": "hard",
+          "expected": "72",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "72",
+              "latencyMs": 22859,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1508,
+              "reasoningChars": 4608,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "72",
+              "latencyMs": 1590,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 129,
+              "reasoningChars": 269,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "72",
+              "latencyMs": 1977,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 166,
+              "reasoningChars": 461,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "multi-1",
+          "tier": "hard",
+          "expected": "925",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "925",
+              "latencyMs": 2698,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 254,
+              "reasoningChars": 800,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "925",
+              "latencyMs": 10311,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 732,
+              "reasoningChars": 2516,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "925",
+              "latencyMs": 1964,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 187,
+              "reasoningChars": 582,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "multi-2",
+          "tier": "hard",
+          "expected": "541",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "541",
+              "latencyMs": 1717,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 122,
+              "reasoningChars": 224,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "541",
+              "latencyMs": 1528,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 136,
+              "reasoningChars": 327,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "541",
+              "latencyMs": 1689,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 140,
+              "reasoningChars": 361,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "pct-1",
+          "tier": "hard",
+          "expected": "420",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "420",
+              "latencyMs": 4626,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 290,
+              "reasoningChars": 512,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "420",
+              "latencyMs": 3921,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 387,
+              "reasoningChars": 1016,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "420",
+              "latencyMs": 4396,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 429,
+              "reasoningChars": 1481,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "pct-2",
+          "tier": "hard",
+          "expected": "280",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "280",
+              "latencyMs": 1286,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 115,
+              "reasoningChars": 283,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "280",
+              "latencyMs": 6735,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 690,
+              "reasoningChars": 2166,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "280",
+              "latencyMs": 5788,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 387,
+              "reasoningChars": 1278,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "pct-3",
+          "tier": "hard",
+          "expected": "100",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "100",
+              "latencyMs": 2449,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 223,
+              "reasoningChars": 668,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "100",
+              "latencyMs": 2299,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 172,
+              "reasoningChars": 542,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "100",
+              "latencyMs": 1927,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 130,
+              "reasoningChars": 393,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "pct-4",
+          "tier": "hard",
+          "expected": "4.6",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "4.6",
+              "latencyMs": 2743,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 240,
+              "reasoningChars": 570,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "4.6",
+              "latencyMs": 2088,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 256,
+              "reasoningChars": 598,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "4.6",
+              "latencyMs": 2724,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 217,
+              "reasoningChars": 484,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "pow-1",
+          "tier": "hard",
+          "expected": "1105",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "1105",
+              "latencyMs": 6523,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 604,
+              "reasoningChars": 2104,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "1105",
+              "latencyMs": 15145,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 710,
+              "reasoningChars": 2346,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "1105",
+              "latencyMs": 1712,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 141,
+              "reasoningChars": 374,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "pow-2",
+          "tier": "hard",
+          "expected": "1157.625",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "1157.625",
+              "latencyMs": 6467,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 449,
+              "reasoningChars": 1124,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "1157.625",
+              "latencyMs": 2603,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 287,
+              "reasoningChars": 656,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "1157.625",
+              "latencyMs": 3286,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 315,
+              "reasoningChars": 681,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "unit-1",
+          "tier": "hard",
+          "expected": "5040",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "5040",
+              "latencyMs": 8013,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 532,
+              "reasoningChars": 1799,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "5040",
+              "latencyMs": 4772,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 307,
+              "reasoningChars": 913,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "5040",
+              "latencyMs": 4821,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 389,
+              "reasoningChars": 980,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "unit-2",
+          "tier": "hard",
+          "expected": "250000",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "250000",
+              "latencyMs": 8094,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 672,
+              "reasoningChars": 2277,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "250000",
+              "latencyMs": 2299,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 181,
+              "reasoningChars": 532,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "250000",
+              "latencyMs": 6220,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 527,
+              "reasoningChars": 1751,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "unit-3",
+          "tier": "hard",
+          "expected": "15900",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "15900",
+              "latencyMs": 6584,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 608,
+              "reasoningChars": 1643,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "15900",
+              "latencyMs": 2287,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 195,
+              "reasoningChars": 593,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "15900",
+              "latencyMs": 1834,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 160,
+              "reasoningChars": 405,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "rate-1",
+          "tier": "hard",
+          "expected": "560",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "560",
+              "latencyMs": 5185,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 399,
+              "reasoningChars": 1532,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "560",
+              "latencyMs": 7611,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 123,
+              "reasoningChars": 339,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "560",
+              "latencyMs": 2476,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 195,
+              "reasoningChars": 640,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "rate-2",
+          "tier": "hard",
+          "expected": "120",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "120",
+              "latencyMs": 2616,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 248,
+              "reasoningChars": 817,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "120",
+              "latencyMs": 2872,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 291,
+              "reasoningChars": 935,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "120",
+              "latencyMs": 2751,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 232,
+              "reasoningChars": 774,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "agg-1",
+          "tier": "hard",
+          "expected": "5050",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "5050",
+              "latencyMs": 996,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 101,
+              "reasoningChars": 293,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "5050",
+              "latencyMs": 1293,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 115,
+              "reasoningChars": 301,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "5050",
+              "latencyMs": 1782,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 131,
+              "reasoningChars": 444,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "agg-2",
+          "tier": "hard",
+          "expected": "28",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "28",
+              "latencyMs": 6326,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 650,
+              "reasoningChars": 1941,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "28",
+              "latencyMs": 16788,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1316,
+              "reasoningChars": 4348,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "28",
+              "latencyMs": 10674,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 185,
+              "reasoningChars": 468,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "dec-h1",
+          "tier": "hard",
+          "expected": "1234000",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "1234000",
+              "latencyMs": 4730,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 504,
+              "reasoningChars": 1170,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "1234000",
+              "latencyMs": 14636,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 447,
+              "reasoningChars": 1215,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "1234000",
+              "latencyMs": 13865,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 333,
+              "reasoningChars": 812,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "dec-h2",
+          "tier": "hard",
+          "expected": "8",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "8",
+              "latencyMs": 25759,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1039,
+              "reasoningChars": 2986,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "8",
+              "latencyMs": 6894,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 654,
+              "reasoningChars": 1884,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "8",
+              "latencyMs": 35213,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 272,
+              "reasoningChars": 640,
+              "error": null
             }
           ]
         }
@@ -815,26 +1799,40 @@
       "id": "logic-puzzle",
       "name": "Logic puzzle (constraint solve)",
       "metric": "exact assignment",
-      "total": 3,
-      "correct": 3,
+      "total": 8,
+      "correct": 8,
       "score": 1,
       "passed": true,
       "runs": 3,
       "deterministic": false,
       "unstableItems": 0,
       "inconclusiveItems": 0,
+      "tierScores": {
+        "core": {
+          "total": 3,
+          "correct": 3,
+          "score": 1
+        },
+        "hard": {
+          "total": 5,
+          "correct": 5,
+          "score": 1
+        }
+      },
       "truncations": 0,
       "errors": 0,
       "rateLimited": 0,
+      "timedOut": 0,
       "latencyMs": {
-        "p50": 13575,
-        "p95": 112492,
-        "max": 112492
+        "p50": 7665,
+        "p95": 23471,
+        "max": 26471
       },
-      "durationMs": 376114,
+      "durationMs": 82531,
       "items": [
         {
-          "id": "assign-Alpha",
+          "id": "wing-assignment-3-Alpha",
+          "tier": "core",
           "expected": "Orchestration",
           "passed": true,
           "passedRuns": 3,
@@ -844,37 +1842,41 @@
             {
               "passed": true,
               "got": "Orchestration",
-              "latencyMs": 8426,
+              "latencyMs": 3820,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 336,
-              "reasoningChars": 1406,
+              "timedOut": false,
+              "completionTokens": 365,
+              "reasoningChars": 1566,
               "error": null
             },
             {
               "passed": true,
               "got": "Orchestration",
-              "latencyMs": 112492,
+              "latencyMs": 4229,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 271,
-              "reasoningChars": 388,
+              "timedOut": false,
+              "completionTokens": 485,
+              "reasoningChars": 2118,
               "error": null
             },
             {
               "passed": true,
               "got": "Orchestration",
-              "latencyMs": 13575,
+              "latencyMs": 3327,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 488,
-              "reasoningChars": 2028,
+              "timedOut": false,
+              "completionTokens": 413,
+              "reasoningChars": 1797,
               "error": null
             }
           ]
         },
         {
-          "id": "assign-Beta",
+          "id": "wing-assignment-3-Beta",
+          "tier": "core",
           "expected": "Reasoning",
           "passed": true,
           "passedRuns": 3,
@@ -884,37 +1886,41 @@
             {
               "passed": true,
               "got": "Reasoning",
-              "latencyMs": 7572,
+              "latencyMs": 4236,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 265,
-              "reasoningChars": 1045,
+              "timedOut": false,
+              "completionTokens": 528,
+              "reasoningChars": 2304,
               "error": null
             },
             {
               "passed": true,
               "got": "Reasoning",
-              "latencyMs": 8461,
+              "latencyMs": 7889,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 301,
-              "reasoningChars": 1256,
+              "timedOut": false,
+              "completionTokens": 607,
+              "reasoningChars": 2589,
               "error": null
             },
             {
               "passed": true,
               "got": "Reasoning",
-              "latencyMs": 32807,
+              "latencyMs": 23471,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 587,
-              "reasoningChars": 2322,
+              "timedOut": false,
+              "completionTokens": 1373,
+              "reasoningChars": 5831,
               "error": null
             }
           ]
         },
         {
-          "id": "assign-Gamma",
+          "id": "wing-assignment-3-Gamma",
+          "tier": "core",
           "expected": "Understanding",
           "passed": true,
           "passedRuns": 3,
@@ -924,31 +1930,254 @@
             {
               "passed": true,
               "got": "Understanding",
-              "latencyMs": 10065,
+              "latencyMs": 6737,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 370,
-              "reasoningChars": 1630,
+              "timedOut": false,
+              "completionTokens": 646,
+              "reasoningChars": 2886,
               "error": null
             },
             {
               "passed": true,
               "got": "Understanding",
-              "latencyMs": 30574,
+              "latencyMs": 4660,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 349,
-              "reasoningChars": 1520,
+              "timedOut": false,
+              "completionTokens": 513,
+              "reasoningChars": 2271,
               "error": null
             },
             {
               "passed": true,
               "got": "Understanding",
-              "latencyMs": 14216,
+              "latencyMs": 2374,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 482,
-              "reasoningChars": 2189,
+              "timedOut": false,
+              "completionTokens": 301,
+              "reasoningChars": 1269,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "wing-assignment-5-Alpha",
+          "tier": "hard",
+          "expected": "Retrieval",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "Retrieval",
+              "latencyMs": 11743,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1130,
+              "reasoningChars": 4238,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Retrieval",
+              "latencyMs": 7527,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 790,
+              "reasoningChars": 3241,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Retrieval",
+              "latencyMs": 10672,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1063,
+              "reasoningChars": 4146,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "wing-assignment-5-Beta",
+          "tier": "hard",
+          "expected": "Reasoning",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "Reasoning",
+              "latencyMs": 8881,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 894,
+              "reasoningChars": 3576,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Reasoning",
+              "latencyMs": 10644,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 780,
+              "reasoningChars": 2964,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Reasoning",
+              "latencyMs": 19046,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1108,
+              "reasoningChars": 4404,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "wing-assignment-5-Gamma",
+          "tier": "hard",
+          "expected": "Understanding",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "Understanding",
+              "latencyMs": 9948,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 984,
+              "reasoningChars": 3805,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Understanding",
+              "latencyMs": 7028,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 709,
+              "reasoningChars": 2983,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Understanding",
+              "latencyMs": 26471,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1409,
+              "reasoningChars": 5703,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "wing-assignment-5-Delta",
+          "tier": "hard",
+          "expected": "Routing",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "Routing",
+              "latencyMs": 7772,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 757,
+              "reasoningChars": 2929,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Routing",
+              "latencyMs": 8627,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 865,
+              "reasoningChars": 3318,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Routing",
+              "latencyMs": 7393,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 734,
+              "reasoningChars": 2693,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "wing-assignment-5-Epsilon",
+          "tier": "hard",
+          "expected": "Orchestration",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "Orchestration",
+              "latencyMs": 7665,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 816,
+              "reasoningChars": 3039,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Orchestration",
+              "latencyMs": 7529,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 786,
+              "reasoningChars": 3021,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Orchestration",
+              "latencyMs": 14993,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 744,
+              "reasoningChars": 2953,
               "error": null
             }
           ]
@@ -959,26 +2188,40 @@
       "id": "retrieval",
       "name": "Retrieval (top-1)",
       "metric": "top-1 accuracy",
-      "total": 4,
-      "correct": 4,
+      "total": 9,
+      "correct": 9,
       "score": 1,
       "passed": true,
       "runs": 3,
       "deterministic": false,
-      "unstableItems": 1,
+      "unstableItems": 0,
       "inconclusiveItems": 0,
+      "tierScores": {
+        "core": {
+          "total": 4,
+          "correct": 4,
+          "score": 1
+        },
+        "hard": {
+          "total": 5,
+          "correct": 5,
+          "score": 1
+        }
+      },
       "truncations": 0,
       "errors": 0,
       "rateLimited": 0,
+      "timedOut": 0,
       "latencyMs": {
-        "p50": 12581,
-        "p95": 87342,
-        "max": 87342
+        "p50": 3329,
+        "p95": 6401,
+        "max": 6770
       },
-      "durationMs": 115685,
+      "durationMs": 37764,
       "items": [
         {
           "id": "capital-iran",
+          "tier": "core",
           "expected": "Tehran is the capital city of Iran.",
           "passed": true,
           "passedRuns": 3,
@@ -988,37 +2231,41 @@
             {
               "passed": true,
               "got": "Tehran is the capital city of Iran.",
-              "latencyMs": 6421,
+              "latencyMs": 6770,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 129,
-              "reasoningChars": 493,
+              "timedOut": false,
+              "completionTokens": 193,
+              "reasoningChars": 795,
               "error": null
             },
             {
               "passed": true,
               "got": "Tehran is the capital city of Iran.",
-              "latencyMs": 14645,
+              "latencyMs": 3859,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 345,
-              "reasoningChars": 1449,
+              "timedOut": false,
+              "completionTokens": 380,
+              "reasoningChars": 1602,
               "error": null
             },
             {
               "passed": true,
               "got": "Tehran is the capital city of Iran.",
-              "latencyMs": 7394,
+              "latencyMs": 4741,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 266,
-              "reasoningChars": 1095,
+              "timedOut": false,
+              "completionTokens": 377,
+              "reasoningChars": 1485,
               "error": null
             }
           ]
         },
         {
           "id": "photosynthesis",
+          "tier": "core",
           "expected": "Photosynthesis lets plants convert sunlight into chemical energy.",
           "passed": true,
           "passedRuns": 3,
@@ -1028,77 +2275,85 @@
             {
               "passed": true,
               "got": "Photosynthesis lets plants convert sunlight into chemical energy.",
-              "latencyMs": 12581,
+              "latencyMs": 4035,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 269,
-              "reasoningChars": 1184,
+              "timedOut": false,
+              "completionTokens": 338,
+              "reasoningChars": 1466,
               "error": null
             },
             {
               "passed": true,
               "got": "Photosynthesis lets plants convert sunlight into chemical energy.",
-              "latencyMs": 13327,
+              "latencyMs": 2750,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 231,
-              "reasoningChars": 962,
+              "timedOut": false,
+              "completionTokens": 243,
+              "reasoningChars": 1171,
               "error": null
             },
             {
               "passed": true,
               "got": "Photosynthesis lets plants convert sunlight into chemical energy.",
-              "latencyMs": 11236,
+              "latencyMs": 2456,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 270,
-              "reasoningChars": 1155,
+              "timedOut": false,
+              "completionTokens": 230,
+              "reasoningChars": 1067,
               "error": null
             }
           ]
         },
         {
           "id": "http-status",
+          "tier": "core",
           "expected": "HTTP status code 404 means the requested resource was not found.",
           "passed": true,
-          "passedRuns": 2,
+          "passedRuns": 3,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "HTTP status code 404 means the requested resource was not found.",
-              "latencyMs": 19480,
+              "latencyMs": 1737,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 304,
-              "reasoningChars": 1230,
-              "error": null
-            },
-            {
-              "passed": false,
-              "got": "\" followed by the answer.",
-              "latencyMs": 87342,
-              "truncated": false,
-              "inconclusive": false,
-              "completionTokens": 118,
-              "reasoningChars": 467,
+              "timedOut": false,
+              "completionTokens": 189,
+              "reasoningChars": 747,
               "error": null
             },
             {
               "passed": true,
               "got": "HTTP status code 404 means the requested resource was not found.",
-              "latencyMs": 6728,
+              "latencyMs": 3824,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 268,
-              "reasoningChars": 1058,
+              "timedOut": false,
+              "completionTokens": 207,
+              "reasoningChars": 832,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "HTTP status code 404 means the requested resource was not found.",
+              "latencyMs": 2063,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 243,
+              "reasoningChars": 957,
               "error": null
             }
           ]
         },
         {
           "id": "largest-planet",
+          "tier": "core",
           "expected": "Jupiter is the largest planet in our solar system.",
           "passed": true,
           "passedRuns": 3,
@@ -1108,31 +2363,254 @@
             {
               "passed": true,
               "got": "Jupiter is the largest planet in our solar system.",
-              "latencyMs": 76739,
+              "latencyMs": 6401,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 620,
-              "reasoningChars": 2472,
+              "timedOut": false,
+              "completionTokens": 586,
+              "reasoningChars": 2492,
               "error": null
             },
             {
               "passed": true,
               "got": "Jupiter is the largest planet in our solar system.",
-              "latencyMs": 26837,
+              "latencyMs": 6398,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 159,
-              "reasoningChars": 688,
+              "timedOut": false,
+              "completionTokens": 533,
+              "reasoningChars": 2125,
               "error": null
             },
             {
               "passed": true,
               "got": "Jupiter is the largest planet in our solar system.",
-              "latencyMs": 12107,
+              "latencyMs": 1506,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 205,
-              "reasoningChars": 851,
+              "timedOut": false,
+              "completionTokens": 119,
+              "reasoningChars": 504,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "near-miss-insulin",
+          "tier": "hard",
+          "expected": "Beta cells of the pancreas secrete the hormone that lowers blood sugar.",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "Beta cells of the pancreas secrete the hormone that lowers blood sugar.",
+              "latencyMs": 3102,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 370,
+              "reasoningChars": 1481,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Beta cells of the pancreas secrete the hormone that lowers blood sugar.",
+              "latencyMs": 3329,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 239,
+              "reasoningChars": 1088,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Beta cells of the pancreas secrete the hormone that lowers blood sugar.",
+              "latencyMs": 3040,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 341,
+              "reasoningChars": 1592,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "near-miss-tcp",
+          "tier": "hard",
+          "expected": "The receiver advertises a window, and the sender may not transmit more unacknowledged bytes than that window allows.",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "The receiver advertises a window, and the sender may not transmit more unacknowledged bytes than that window allows.",
+              "latencyMs": 3161,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 279,
+              "reasoningChars": 1316,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "The receiver advertises a window, and the sender may not transmit more unacknowledged bytes than that window allows.",
+              "latencyMs": 3342,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 291,
+              "reasoningChars": 1351,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "The receiver advertises a window, and the sender may not transmit more unacknowledged bytes than that window allows.",
+              "latencyMs": 5047,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 359,
+              "reasoningChars": 1745,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "near-miss-index",
+          "tier": "hard",
+          "expected": "Each insert, update, and delete must also modify every secondary structure that points at the affected row.",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "Each insert, update, and delete must also modify every secondary structure that points at the affected row.",
+              "latencyMs": 2975,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 228,
+              "reasoningChars": 1113,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Each insert, update, and delete must also modify every secondary structure that points at the affected row.",
+              "latencyMs": 3988,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 238,
+              "reasoningChars": 957,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Each insert, update, and delete must also modify every secondary structure that points at the affected row.",
+              "latencyMs": 5592,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 236,
+              "reasoningChars": 1030,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "near-miss-vaccine",
+          "tier": "hard",
+          "expected": "Protection wanes in the months after the first shot; a later one lifts antibody levels again and widens the range of variants covered.",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "Protection wanes in the months after the first shot; a later one lifts antibody levels again and widens the range of variants covered.",
+              "latencyMs": 2549,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 256,
+              "reasoningChars": 1165,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Protection wanes in the months after the first shot; a later one lifts antibody levels again and widens the range of variants covered.",
+              "latencyMs": 3252,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 331,
+              "reasoningChars": 1541,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Protection wanes in the months after the first shot; a later one lifts antibody levels again and widens the range of variants covered.",
+              "latencyMs": 2582,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 265,
+              "reasoningChars": 1184,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "near-miss-inflation",
+          "tier": "hard",
+          "expected": "Borrowing becomes more expensive, households and firms spend less, and weaker demand slows price growth.",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "Borrowing becomes more expensive, households and firms spend less, and weaker demand slows price growth.",
+              "latencyMs": 4502,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 288,
+              "reasoningChars": 1291,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Borrowing becomes more expensive, households and firms spend less, and weaker demand slows price growth.",
+              "latencyMs": 3491,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 287,
+              "reasoningChars": 1338,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Borrowing becomes more expensive, households and firms spend less, and weaker demand slows price growth.",
+              "latencyMs": 2851,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 316,
+              "reasoningChars": 1485,
               "error": null
             }
           ]
@@ -1143,106 +2621,128 @@
       "id": "tool-selection",
       "name": "Tool selection",
       "metric": "exact label accuracy",
-      "total": 8,
-      "correct": 6,
-      "score": 0.75,
+      "total": 18,
+      "correct": 13,
+      "score": 0.7222222222222222,
       "passed": false,
       "runs": 3,
       "deterministic": false,
       "unstableItems": 5,
       "inconclusiveItems": 0,
+      "tierScores": {
+        "core": {
+          "total": 8,
+          "correct": 4,
+          "score": 0.5
+        },
+        "hard": {
+          "total": 10,
+          "correct": 9,
+          "score": 0.9
+        }
+      },
       "truncations": 0,
       "errors": 0,
-      "rateLimited": 3,
+      "rateLimited": 0,
+      "timedOut": 0,
       "latencyMs": {
-        "p50": 28920,
-        "p95": 68097,
-        "max": 92139
+        "p50": 9295,
+        "p95": 61762,
+        "max": 127489
       },
-      "durationMs": 1031563,
+      "durationMs": 350950,
       "items": [
         {
           "id": "calc-1",
+          "tier": "core",
           "expected": "calculator",
           "passed": false,
           "passedRuns": 0,
-          "scoredRuns": 1,
+          "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": false,
-              "got": "request timed out: The operation was aborted due to timeout",
-              "latencyMs": 240002,
-              "truncated": false,
-              "inconclusive": true,
-              "completionTokens": null,
-              "reasoningChars": 0,
-              "error": "request timed out: The operation was aborted due to timeout"
-            },
-            {
-              "passed": false,
-              "got": "none",
-              "latencyMs": 68097,
+              "got": "248171",
+              "latencyMs": 16758,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 2640,
-              "reasoningChars": 10552,
+              "timedOut": false,
+              "completionTokens": 1463,
+              "reasoningChars": 5332,
               "error": null
             },
             {
               "passed": false,
-              "got": "request timed out: The operation was aborted due to timeout",
-              "latencyMs": 240000,
+              "got": "248171",
+              "latencyMs": 85812,
               "truncated": false,
-              "inconclusive": true,
-              "completionTokens": null,
-              "reasoningChars": 0,
-              "error": "request timed out: The operation was aborted due to timeout"
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 8004,
+              "reasoningChars": 31768,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "248171",
+              "latencyMs": 10240,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1121,
+              "reasoningChars": 4114,
+              "error": null
             }
           ]
         },
         {
           "id": "calc-2",
+          "tier": "core",
           "expected": "calculator",
-          "passed": true,
-          "passedRuns": 2,
+          "passed": false,
+          "passedRuns": 1,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": false,
               "got": "42",
-              "latencyMs": 39968,
+              "latencyMs": 29599,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 619,
-              "reasoningChars": 2520,
+              "timedOut": false,
+              "completionTokens": 2895,
+              "reasoningChars": 12116,
               "error": null
             },
             {
               "passed": true,
               "got": "calculator",
-              "latencyMs": 21183,
+              "latencyMs": 11380,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 489,
-              "reasoningChars": 2023,
+              "timedOut": false,
+              "completionTokens": 707,
+              "reasoningChars": 2889,
               "error": null
             },
             {
-              "passed": true,
-              "got": "calculator",
-              "latencyMs": 41174,
+              "passed": false,
+              "got": "42",
+              "latencyMs": 9750,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1502,
-              "reasoningChars": 6247,
+              "timedOut": false,
+              "completionTokens": 747,
+              "reasoningChars": 2864,
               "error": null
             }
           ]
         },
         {
           "id": "search-1",
+          "tier": "core",
           "expected": "websearch",
           "passed": true,
           "passedRuns": 3,
@@ -1252,77 +2752,481 @@
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 10902,
+              "latencyMs": 7198,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 477,
-              "reasoningChars": 1960,
+              "timedOut": false,
+              "completionTokens": 445,
+              "reasoningChars": 1828,
               "error": null
             },
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 18189,
+              "latencyMs": 5851,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 591,
-              "reasoningChars": 2471,
+              "timedOut": false,
+              "completionTokens": 623,
+              "reasoningChars": 2605,
               "error": null
             },
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 10076,
+              "latencyMs": 5769,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 431,
-              "reasoningChars": 1814,
+              "timedOut": false,
+              "completionTokens": 637,
+              "reasoningChars": 2731,
               "error": null
             }
           ]
         },
         {
           "id": "search-2",
+          "tier": "core",
           "expected": "websearch",
           "passed": true,
-          "passedRuns": 2,
+          "passedRuns": 3,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 25406,
+              "latencyMs": 8874,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 564,
-              "reasoningChars": 2397,
+              "timedOut": false,
+              "completionTokens": 329,
+              "reasoningChars": 1378,
               "error": null
             },
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 6277,
+              "latencyMs": 8858,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 572,
-              "reasoningChars": 2400,
+              "timedOut": false,
+              "completionTokens": 778,
+              "reasoningChars": 3365,
               "error": null
             },
             {
-              "passed": false,
-              "got": "million",
-              "latencyMs": 55917,
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 3412,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1985,
-              "reasoningChars": 8336,
+              "timedOut": false,
+              "completionTokens": 408,
+              "reasoningChars": 1771,
               "error": null
             }
           ]
         },
         {
           "id": "code-1",
+          "tier": "core",
+          "expected": "codeexecution",
+          "passed": false,
+          "passedRuns": 1,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": false,
+              "got": "none",
+              "latencyMs": 5906,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 561,
+              "reasoningChars": 2349,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "none",
+              "latencyMs": 13367,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 575,
+              "reasoningChars": 2672,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "codeexecution",
+              "latencyMs": 4958,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 475,
+              "reasoningChars": 2106,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "sentiment-1",
+          "tier": "core",
+          "expected": "sentiment",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "sentiment",
+              "latencyMs": 6007,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 631,
+              "reasoningChars": 2544,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "sentiment",
+              "latencyMs": 5788,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 563,
+              "reasoningChars": 2387,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "sentiment",
+              "latencyMs": 8331,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 796,
+              "reasoningChars": 3205,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "none-1",
+          "tier": "core",
+          "expected": "none",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "none",
+              "latencyMs": 10260,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 989,
+              "reasoningChars": 4230,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "none",
+              "latencyMs": 47248,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 2367,
+              "reasoningChars": 10217,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "none",
+              "latencyMs": 17605,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1794,
+              "reasoningChars": 6413,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "none-2",
+          "tier": "core",
+          "expected": "none",
+          "passed": false,
+          "passedRuns": 1,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "none",
+              "latencyMs": 10944,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 743,
+              "reasoningChars": 3286,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "georgewashington",
+              "latencyMs": 12225,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1036,
+              "reasoningChars": 4512,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "georgewashington",
+              "latencyMs": 42428,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 5151,
+              "reasoningChars": 22670,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "calc-h1",
+          "tier": "hard",
+          "expected": "calculator",
+          "passed": false,
+          "passedRuns": 1,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": false,
+              "got": "none",
+              "latencyMs": 15035,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1260,
+              "reasoningChars": 5182,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "none",
+              "latencyMs": 127489,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 10163,
+              "reasoningChars": 43322,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "calculator",
+              "latencyMs": 3547,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 315,
+              "reasoningChars": 1323,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "calc-h2",
+          "tier": "hard",
+          "expected": "calculator",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "calculator",
+              "latencyMs": 5221,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 444,
+              "reasoningChars": 1949,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "calculator",
+              "latencyMs": 3098,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 276,
+              "reasoningChars": 1208,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "calculator",
+              "latencyMs": 1531,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 163,
+              "reasoningChars": 665,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "search-h1",
+          "tier": "hard",
+          "expected": "websearch",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 6860,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 568,
+              "reasoningChars": 2379,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 7186,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 609,
+              "reasoningChars": 2606,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 4817,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 427,
+              "reasoningChars": 1756,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "search-h2",
+          "tier": "hard",
+          "expected": "websearch",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 10818,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 838,
+              "reasoningChars": 3611,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 6454,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 571,
+              "reasoningChars": 2329,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 8792,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 862,
+              "reasoningChars": 3733,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "sentiment-h1",
+          "tier": "hard",
+          "expected": "sentiment",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "sentiment",
+              "latencyMs": 5721,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 677,
+              "reasoningChars": 2791,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "sentiment",
+              "latencyMs": 5846,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 577,
+              "reasoningChars": 2680,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "sentiment",
+              "latencyMs": 5934,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 600,
+              "reasoningChars": 2774,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "code-h1",
+          "tier": "hard",
           "expected": "codeexecution",
           "passed": true,
           "passedRuns": 2,
@@ -1330,79 +3234,43 @@
           "runs": 3,
           "attempts": [
             {
-              "passed": true,
-              "got": "codeexecution",
-              "latencyMs": 28920,
-              "truncated": false,
-              "inconclusive": false,
-              "completionTokens": 576,
-              "reasoningChars": 2465,
-              "error": null
-            },
-            {
               "passed": false,
               "got": "none",
-              "latencyMs": 92139,
+              "latencyMs": 11934,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 2037,
-              "reasoningChars": 8856,
+              "timedOut": false,
+              "completionTokens": 1143,
+              "reasoningChars": 4903,
               "error": null
             },
             {
               "passed": true,
               "got": "codeexecution",
-              "latencyMs": 30279,
+              "latencyMs": 18719,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1011,
-              "reasoningChars": 4381,
+              "timedOut": false,
+              "completionTokens": 1739,
+              "reasoningChars": 7608,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "codeexecution",
+              "latencyMs": 30685,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 2732,
+              "reasoningChars": 12021,
               "error": null
             }
           ]
         },
         {
-          "id": "sentiment-1",
-          "expected": "sentiment",
-          "passed": true,
-          "passedRuns": 2,
-          "scoredRuns": 3,
-          "runs": 3,
-          "attempts": [
-            {
-              "passed": true,
-              "got": "sentiment",
-              "latencyMs": 8801,
-              "truncated": false,
-              "inconclusive": false,
-              "completionTokens": 553,
-              "reasoningChars": 2424,
-              "error": null
-            },
-            {
-              "passed": false,
-              "got": "none",
-              "latencyMs": 46065,
-              "truncated": false,
-              "inconclusive": false,
-              "completionTokens": 797,
-              "reasoningChars": 3560,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "sentiment",
-              "latencyMs": 14701,
-              "truncated": false,
-              "inconclusive": false,
-              "completionTokens": 444,
-              "reasoningChars": 1841,
-              "error": null
-            }
-          ]
-        },
-        {
-          "id": "none-1",
+          "id": "trap-h1",
+          "tier": "hard",
           "expected": "none",
           "passed": true,
           "passedRuns": 3,
@@ -1412,71 +3280,166 @@
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 15591,
+              "latencyMs": 40297,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 584,
-              "reasoningChars": 2473,
+              "timedOut": false,
+              "completionTokens": 2504,
+              "reasoningChars": 10154,
               "error": null
             },
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 52458,
+              "latencyMs": 2976,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 100,
-              "reasoningChars": 446,
+              "timedOut": false,
+              "completionTokens": 250,
+              "reasoningChars": 1119,
               "error": null
             },
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 17364,
+              "latencyMs": 61762,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 927,
-              "reasoningChars": 4072,
+              "timedOut": false,
+              "completionTokens": 3396,
+              "reasoningChars": 14890,
               "error": null
             }
           ]
         },
         {
-          "id": "none-2",
+          "id": "trap-h2",
+          "tier": "hard",
           "expected": "none",
-          "passed": false,
-          "passedRuns": 1,
-          "scoredRuns": 2,
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
-              "passed": false,
-              "got": "request timed out: The operation was aborted due to timeout",
-              "latencyMs": 240002,
-              "truncated": false,
-              "inconclusive": true,
-              "completionTokens": null,
-              "reasoningChars": 0,
-              "error": "request timed out: The operation was aborted due to timeout"
-            },
-            {
-              "passed": false,
-              "got": "georgewashington",
-              "latencyMs": 32978,
+              "passed": true,
+              "got": "none",
+              "latencyMs": 18451,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 804,
-              "reasoningChars": 3570,
+              "timedOut": false,
+              "completionTokens": 947,
+              "reasoningChars": 4282,
               "error": null
             },
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 33825,
+              "latencyMs": 48407,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 622,
-              "reasoningChars": 2633,
+              "timedOut": false,
+              "completionTokens": 4198,
+              "reasoningChars": 19728,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "none",
+              "latencyMs": 50387,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 3846,
+              "reasoningChars": 17849,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "trap-h3",
+          "tier": "hard",
+          "expected": "none",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "none",
+              "latencyMs": 15234,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 951,
+              "reasoningChars": 4330,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "none",
+              "latencyMs": 9295,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1030,
+              "reasoningChars": 4365,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "none",
+              "latencyMs": 13576,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1187,
+              "reasoningChars": 5164,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "trap-h4",
+          "tier": "hard",
+          "expected": "websearch",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 6892,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 697,
+              "reasoningChars": 3038,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 13106,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1121,
+              "reasoningChars": 5069,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 8149,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 684,
+              "reasoningChars": 3075,
               "error": null
             }
           ]
@@ -1487,26 +3450,40 @@
       "id": "abstention",
       "name": "Abstention (no fabricated math)",
       "metric": "abstention rate",
-      "total": 5,
-      "correct": 5,
-      "score": 1,
+      "total": 11,
+      "correct": 10,
+      "score": 0.9090909090909091,
       "passed": true,
       "runs": 3,
       "deterministic": false,
       "unstableItems": 0,
       "inconclusiveItems": 0,
+      "tierScores": {
+        "core": {
+          "total": 5,
+          "correct": 5,
+          "score": 1
+        },
+        "hard": {
+          "total": 6,
+          "correct": 5,
+          "score": 0.8333333333333334
+        }
+      },
       "truncations": 0,
       "errors": 0,
       "rateLimited": 0,
+      "timedOut": 0,
       "latencyMs": {
-        "p50": 24363,
-        "p95": 69198,
-        "max": 69198
+        "p50": 9106,
+        "p95": 21000,
+        "max": 23378
       },
-      "durationMs": 317752,
+      "durationMs": 139875,
       "items": [
         {
           "id": "open-1",
+          "tier": "core",
           "expected": "UNSUPPORTED",
           "passed": true,
           "passedRuns": 3,
@@ -1516,37 +3493,41 @@
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 30338,
+              "latencyMs": 4358,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 720,
-              "reasoningChars": 2860,
+              "timedOut": false,
+              "completionTokens": 437,
+              "reasoningChars": 1736,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 38424,
+              "latencyMs": 3688,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 1118,
-              "reasoningChars": 4496,
+              "timedOut": false,
+              "completionTokens": 412,
+              "reasoningChars": 1692,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 32141,
+              "latencyMs": 7435,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 625,
-              "reasoningChars": 2535,
+              "timedOut": false,
+              "completionTokens": 670,
+              "reasoningChars": 2733,
               "error": null
             }
           ]
         },
         {
           "id": "open-2",
+          "tier": "core",
           "expected": "UNSUPPORTED",
           "passed": true,
           "passedRuns": 3,
@@ -1556,37 +3537,41 @@
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 24363,
+              "latencyMs": 10264,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 482,
-              "reasoningChars": 2041,
+              "timedOut": false,
+              "completionTokens": 918,
+              "reasoningChars": 3786,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 20047,
+              "latencyMs": 6665,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 787,
-              "reasoningChars": 3181,
+              "timedOut": false,
+              "completionTokens": 564,
+              "reasoningChars": 2350,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 8152,
+              "latencyMs": 6953,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 180,
-              "reasoningChars": 737,
+              "timedOut": false,
+              "completionTokens": 560,
+              "reasoningChars": 2325,
               "error": null
             }
           ]
         },
         {
           "id": "open-3",
+          "tier": "core",
           "expected": "UNSUPPORTED",
           "passed": true,
           "passedRuns": 3,
@@ -1596,37 +3581,41 @@
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 9687,
+              "latencyMs": 6058,
               "truncated": false,
               "inconclusive": false,
+              "timedOut": false,
               "completionTokens": 371,
-              "reasoningChars": 1515,
+              "reasoningChars": 1487,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 17979,
+              "latencyMs": 5232,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 363,
-              "reasoningChars": 1410,
+              "timedOut": false,
+              "completionTokens": 408,
+              "reasoningChars": 1649,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 23327,
+              "latencyMs": 11428,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 392,
-              "reasoningChars": 1456,
+              "timedOut": false,
+              "completionTokens": 563,
+              "reasoningChars": 2152,
               "error": null
             }
           ]
         },
         {
           "id": "open-4",
+          "tier": "core",
           "expected": "UNSUPPORTED",
           "passed": true,
           "passedRuns": 3,
@@ -1636,37 +3625,41 @@
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 18733,
+              "latencyMs": 10227,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 672,
-              "reasoningChars": 2665,
+              "timedOut": false,
+              "completionTokens": 687,
+              "reasoningChars": 2676,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 43350,
+              "latencyMs": 11697,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 918,
-              "reasoningChars": 3726,
+              "timedOut": false,
+              "completionTokens": 960,
+              "reasoningChars": 3813,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 69198,
+              "latencyMs": 14086,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 2103,
-              "reasoningChars": 8401,
+              "timedOut": false,
+              "completionTokens": 825,
+              "reasoningChars": 3401,
               "error": null
             }
           ]
         },
         {
           "id": "open-5",
+          "tier": "core",
           "expected": "UNSUPPORTED",
           "passed": true,
           "passedRuns": 3,
@@ -1676,31 +3669,298 @@
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 26696,
+              "latencyMs": 16326,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 814,
-              "reasoningChars": 3264,
+              "timedOut": false,
+              "completionTokens": 868,
+              "reasoningChars": 3492,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 12181,
+              "latencyMs": 13793,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 517,
-              "reasoningChars": 2062,
+              "timedOut": false,
+              "completionTokens": 933,
+              "reasoningChars": 3666,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 37120,
+              "latencyMs": 14582,
               "truncated": false,
               "inconclusive": false,
-              "completionTokens": 618,
-              "reasoningChars": 2349,
+              "timedOut": false,
+              "completionTokens": 1293,
+              "reasoningChars": 4974,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "trap-missing-fact",
+          "tier": "hard",
+          "expected": "UNSUPPORTED",
+          "passed": false,
+          "passedRuns": 0,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": false,
+              "got": "6",
+              "latencyMs": 15330,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1562,
+              "reasoningChars": 5831,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "132/7",
+              "latencyMs": 17934,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1501,
+              "reasoningChars": 4181,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "132/7",
+              "latencyMs": 19607,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1608,
+              "reasoningChars": 5358,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "trap-live-data",
+          "tier": "hard",
+          "expected": "UNSUPPORTED",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 9106,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 891,
+              "reasoningChars": 3501,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 5137,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 436,
+              "reasoningChars": 1867,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 16375,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 839,
+              "reasoningChars": 3343,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "trap-population",
+          "tier": "hard",
+          "expected": "UNSUPPORTED",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 7476,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 728,
+              "reasoningChars": 3044,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 10923,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1017,
+              "reasoningChars": 4172,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 21000,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1205,
+              "reasoningChars": 5034,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "trap-undefined",
+          "tier": "hard",
+          "expected": "UNSUPPORTED",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 6586,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 587,
+              "reasoningChars": 2361,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 4701,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 380,
+              "reasoningChars": 1484,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 7993,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 703,
+              "reasoningChars": 2822,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "trap-unknown-var",
+          "tier": "hard",
+          "expected": "UNSUPPORTED",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 7155,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 658,
+              "reasoningChars": 2596,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 6276,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 624,
+              "reasoningChars": 2563,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 8024,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 775,
+              "reasoningChars": 3067,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "trap-divergent",
+          "tier": "hard",
+          "expected": "UNSUPPORTED",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 23378,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1420,
+              "reasoningChars": 5861,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 13102,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 1122,
+              "reasoningChars": 4691,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 7360,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 587,
+              "reasoningChars": 2479,
               "error": null
             }
           ]

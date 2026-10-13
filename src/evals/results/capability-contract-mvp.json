@@ -1,6 +1,6 @@
 {
   "contractId": "reasoning-lab-mvp",
-  "note": "Computed from committed comparison files. No provider was called. status NOT QUALIFIED with basis incomplete-record means the run is missing measurements, not that the model failed a quality or latency bar. Nemotron 3.5 Lightning was recorded before difficulty tiers existed and did not record concurrency, so both Lightning rows are incomplete-record. The Nemotron 3 Super files are labelled gitSha 519a226a; see the README provenance note.",
+  "note": "Computed from committed comparison files. No provider was called. status NOT QUALIFIED with basis incomplete-record means the run is missing measurements, not that the model failed a quality or latency bar. Lightning was rerun on the current tiered dataset at concurrency 3, so those rows are measured. Super's committed hard tier has 45 items; Lightning's rerun has 46 because trap-h4 was added after Super was recorded. The Nemotron 3 Super files are labelled gitSha 519a226a; see the README provenance note.",
   "baseline": {
     "model": "nvidia/nemotron-3-super-120b-a12b",
     "reasoning": "on",
@@ -155,84 +155,126 @@
     {
       "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
       "reasoning": "on",
-      "gitSha": "d843351d",
+      "gitSha": "6ff90e47",
       "status": "NOT QUALIFIED",
-      "basis": "incomplete-record",
-      "summary": "NOT QUALIFIED because this committed run does not include measurements the contract requires. This is not a finding that the model missed a quality or latency bar.",
+      "basis": "measured",
+      "summary": "NOT QUALIFIED because a recorded measurement missed a contract threshold.",
       "requirements": [
         {
           "id": "hard-tier-score",
-          "pass": false,
-          "compared": false,
-          "measured": null,
+          "pass": true,
+          "compared": true,
+          "measured": 0.9565217391304348,
           "rule": "tierScores.hard.score >= 0.9",
-          "detail": "hard-tier score was not recorded for this run"
+          "detail": "meets the minimum hard-tier score"
         },
         {
           "id": "latency-p50",
           "pass": false,
-          "compared": false,
-          "measured": 23327,
+          "compared": true,
+          "measured": 6894,
           "rule": "latencyMs.p50 <= 5000 at concurrency 3",
-          "detail": "concurrency was not recorded, so p50 was not compared with 5000ms"
+          "detail": "p50 is above the maximum at the required concurrency"
         },
         {
           "id": "tool-selection",
-          "pass": false,
-          "compared": false,
-          "measured": null,
+          "pass": true,
+          "compared": true,
+          "measured": 0.9,
           "rule": "hard tool-selection score >= 0.8",
-          "detail": "hard-tier tool-selection score was not recorded for this run"
+          "detail": "meets the minimum hard-tier tool-selection score"
         },
         {
           "id": "no-regression",
-          "pass": false,
-          "compared": false,
-          "measured": null,
+          "pass": true,
+          "compared": true,
+          "measured": 0.9565217391304348,
           "rule": "hard-tier score drops by at most 0.05 from the baseline",
-          "detail": "hard-tier score was not recorded, so regression was not computed"
+          "detail": "hard-tier score is within the allowed drop from the baseline"
+        }
+      ]
+    },
+    {
+      "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
+      "reasoning": "low",
+      "gitSha": "6ff90e47",
+      "status": "NOT QUALIFIED",
+      "basis": "measured",
+      "summary": "NOT QUALIFIED because a recorded measurement missed a contract threshold.",
+      "requirements": [
+        {
+          "id": "hard-tier-score",
+          "pass": true,
+          "compared": true,
+          "measured": 0.9347826086956522,
+          "rule": "tierScores.hard.score >= 0.9",
+          "detail": "meets the minimum hard-tier score"
+        },
+        {
+          "id": "latency-p50",
+          "pass": false,
+          "compared": true,
+          "measured": 6695,
+          "rule": "latencyMs.p50 <= 5000 at concurrency 3",
+          "detail": "p50 is above the maximum at the required concurrency"
+        },
+        {
+          "id": "tool-selection",
+          "pass": true,
+          "compared": true,
+          "measured": 0.8,
+          "rule": "hard tool-selection score >= 0.8",
+          "detail": "meets the minimum hard-tier tool-selection score"
+        },
+        {
+          "id": "no-regression",
+          "pass": true,
+          "compared": true,
+          "measured": 0.9347826086956522,
+          "rule": "hard-tier score drops by at most 0.05 from the baseline",
+          "detail": "hard-tier score is within the allowed drop from the baseline"
         }
       ]
     },
     {
       "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
       "reasoning": "off",
-      "gitSha": "d843351d",
+      "gitSha": "6ff90e47",
       "status": "NOT QUALIFIED",
-      "basis": "incomplete-record",
-      "summary": "NOT QUALIFIED because this committed run does not include measurements the contract requires. This is not a finding that the model missed a quality or latency bar.",
+      "basis": "measured",
+      "summary": "NOT QUALIFIED because a recorded measurement missed a contract threshold.",
       "requirements": [
         {
           "id": "hard-tier-score",
           "pass": false,
-          "compared": false,
-          "measured": null,
+          "compared": true,
+          "measured": 0.5652173913043478,
           "rule": "tierScores.hard.score >= 0.9",
-          "detail": "hard-tier score was not recorded for this run"
+          "detail": "below the minimum hard-tier score"
         },
         {
           "id": "latency-p50",
-          "pass": false,
-          "compared": false,
-          "measured": 1402,
+          "pass": true,
+          "compared": true,
+          "measured": 289,
           "rule": "latencyMs.p50 <= 5000 at concurrency 3",
-          "detail": "concurrency was not recorded, so p50 was not compared with 5000ms"
+          "detail": "p50 is within the maximum at the required concurrency"
         },
         {
           "id": "tool-selection",
           "pass": false,
-          "compared": false,
-          "measured": null,
+          "compared": true,
+          "measured": 0.5,
           "rule": "hard tool-selection score >= 0.8",
-          "detail": "hard-tier tool-selection score was not recorded for this run"
+          "detail": "below the minimum hard-tier tool-selection score"
         },
         {
           "id": "no-regression",
           "pass": false,
-          "compared": false,
-          "measured": null,
+          "compared": true,
+          "measured": 0.5652173913043478,
           "rule": "hard-tier score drops by at most 0.05 from the baseline",
-          "detail": "hard-tier score was not recorded, so regression was not computed"
+          "detail": "hard-tier score drops more than the allowed amount from the baseline"
         }
       ]
     }

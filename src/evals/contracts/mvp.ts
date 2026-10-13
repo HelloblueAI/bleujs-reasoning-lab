@@ -40,7 +40,8 @@ export const REASONING_LAB_MVP: CapabilityContract = {
 export const CONTRACT_NOTE =
   "Computed from committed comparison files. No provider was called. " +
   "status NOT QUALIFIED with basis incomplete-record means the run is missing measurements, not that the model failed a quality or latency bar. " +
-  "Nemotron 3.5 Lightning was recorded before difficulty tiers existed and did not record concurrency, so both Lightning rows are incomplete-record. " +
+  "Lightning was rerun on the current tiered dataset at concurrency 3, so those rows are measured. " +
+  "Super's committed hard tier has 45 items; Lightning's rerun has 46 because trap-h4 was added after Super was recorded. " +
   "The Nemotron 3 Super files are labelled gitSha 519a226a; see the README provenance note.";
 
 const COMPARISON_FILES = [
