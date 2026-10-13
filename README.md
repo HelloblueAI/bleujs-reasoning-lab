@@ -154,7 +154,7 @@ This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_
 
 Against those committed files, Super reasoning-on and reasoning-low are `QUALIFIED`. Super reasoning-off is `NOT QUALIFIED` on a recorded measurement: its hard-tier score is 0.80, and the drop from reasoning-on is larger than 0.05. That row has `basis: "measured"`.
 
-Lightning reasoning-on and reasoning-off are also `NOT QUALIFIED`, with `basis: "incomplete-record"`. Those runs were committed before the hard tier existed, and they did not record concurrency. The contract cannot score them. That status is not a finding that Lightning 30B missed the quality bar or the latency bar. The recorded Lightning p50 values stay in the report and are marked `compared: false`.
+Lightning was rerun on the current tiered dataset at concurrency 3, with reasoning on, low, and off (`gitSha` `6ff90e47`). All three rows are `basis: "measured"`. Reasoning-on scores 44/46 on the hard tier and reasoning-low scores 43/46, so both clear 0.90 and the regression limit. Both are `NOT QUALIFIED` because latency p50 is 6894ms and 6695ms, above the 5000ms maximum. Reasoning-off is `NOT QUALIFIED` because its recorded hard-tier score is 26/46. Super's committed run has 45 hard items; this Lightning run has 46, because `trap-h4` was added after Super was recorded.
 
 The full pass/fail record is [`src/evals/results/capability-contract-mvp.json`](src/evals/results/capability-contract-mvp.json). [`tests/unit/capabilityContract.test.ts`](tests/unit/capabilityContract.test.ts) fails if that file drifts from the evaluator.
 
@@ -202,7 +202,7 @@ The committed run took about 32 minutes for all three variants. Decoding is samp
 **Provenance of the committed files:**
 
 - The Nemotron 3 Super files record `gitSha` `519a226a`, but they were produced with the tiered datasets that were committed next, in `97fc486c`. Datasets, graders, and runners are unchanged from `97fc486c` to current `main` (later commits only change how the SHA is recorded), so reproduce from either — not from `519a226a`, which has only the original 39 items. Runs recorded from now on append `-dirty` to the SHA when the working tree had uncommitted changes.
-- The Nemotron 3.5 Lightning files predate the difficulty tiers (39 items, no `tierScores`) and are not comparable with the table above.
+- The Nemotron 3.5 Lightning files were rerun on the current tiered dataset at concurrency 3 (`gitSha` `6ff90e47`). They include the hard tool-selection item `trap-h4`, which the Super files do not, so the hard-tier denominators are 46 and 45.
 
 ---
 

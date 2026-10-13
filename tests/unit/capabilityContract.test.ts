@@ -127,33 +127,33 @@ describe("recorded NVIDIA configurations", () => {
       "nemotron-3-super-120b-a12b:low": QUALIFIED,
       "nemotron-3-super-120b-a12b:off": NOT_QUALIFIED,
       "nemotron-3.5-lightning-30b-a3b:on": NOT_QUALIFIED,
+      "nemotron-3.5-lightning-30b-a3b:low": NOT_QUALIFIED,
       "nemotron-3.5-lightning-30b-a3b:off": NOT_QUALIFIED,
     });
   });
 
-  it("fails Lightning because the hard tier was not recorded, not because a threshold was invented", () => {
-    const lightning = report.results.find(
-      (result) =>
-        result.model.endsWith("lightning-30b-a3b") && result.reasoning === "on",
+  it("scores the Lightning rerun against the thresholds instead of a missing record", () => {
+    const lightning = report.results.filter((result) =>
+      result.model.endsWith("lightning-30b-a3b"),
     );
-    const hard = lightning?.requirements.find(
+    expect(lightning.map((result) => result.basis)).toEqual([
+      "measured",
+      "measured",
+      "measured",
+    ]);
+    const on = lightning.find((result) => result.reasoning === "on");
+    const hard = on?.requirements.find(
       (requirement) => requirement.id === "hard-tier-score",
     );
-    const latency = lightning?.requirements.find(
+    const latency = on?.requirements.find(
       (requirement) => requirement.id === "latency-p50",
     );
-    expect(lightning?.basis).toBe("incomplete-record");
-    expect(lightning?.summary).toContain("not a finding");
-    expect(hard?.measured).toBeNull();
-    expect(hard?.compared).toBe(false);
-    expect(hard?.detail).toContain("not recorded");
-    expect(latency?.compared).toBe(false);
-    expect(latency?.detail).toContain("not compared");
-    const superOff = report.results.find(
-      (result) =>
-        result.model.endsWith("super-120b-a12b") && result.reasoning === "off",
-    );
-    expect(superOff?.basis).toBe("measured");
+    expect(on?.status).toBe(NOT_QUALIFIED);
+    expect(hard?.compared).toBe(true);
+    expect(hard?.pass).toBe(true);
+    expect(latency?.compared).toBe(true);
+    expect(latency?.pass).toBe(false);
+    expect(latency?.measured).toBeGreaterThan(5000);
   });
 
   it("matches the committed contract report", () => {
