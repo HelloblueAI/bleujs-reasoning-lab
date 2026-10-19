@@ -115,7 +115,7 @@ describe("capability contract qualification", () => {
 describe("recorded NVIDIA configurations", () => {
   const report = buildContractReport();
 
-  it("qualifies Super reasoning-on and reasoning-low only", () => {
+  it("records the rerun qualification for each configuration", () => {
     const status = Object.fromEntries(
       report.results.map((result) => [
         `${result.model.split("/").pop()}:${result.reasoning}`,
@@ -123,7 +123,7 @@ describe("recorded NVIDIA configurations", () => {
       ]),
     );
     expect(status).toEqual({
-      "nemotron-3-super-120b-a12b:on": QUALIFIED,
+      "nemotron-3-super-120b-a12b:on": NOT_QUALIFIED,
       "nemotron-3-super-120b-a12b:low": QUALIFIED,
       "nemotron-3-super-120b-a12b:off": NOT_QUALIFIED,
       "nemotron-3.5-lightning-30b-a3b:on": NOT_QUALIFIED,

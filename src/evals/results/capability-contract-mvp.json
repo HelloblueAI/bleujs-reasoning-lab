@@ -1,11 +1,11 @@
 {
   "contractId": "reasoning-lab-mvp",
-  "note": "Computed from committed comparison files. No provider was called. status NOT QUALIFIED with basis incomplete-record means the run is missing measurements, not that the model failed a quality or latency bar. Lightning was rerun on the current tiered dataset at concurrency 3, so those rows are measured. Super's committed hard tier has 45 items; Lightning's rerun has 46 because trap-h4 was added after Super was recorded. The Nemotron 3 Super files are labelled gitSha 519a226a; see the README provenance note.",
+  "note": "Computed from committed comparison files. No provider was called. status NOT QUALIFIED with basis incomplete-record means the run is missing measurements, not that the model failed a quality or latency bar. Super and Lightning were both scored on the current 46-item hard tier, including trap-h4, at concurrency 3. The thresholds were not changed for this rerun. The replaced Super files were labelled gitSha 519a226a; see the README provenance note.",
   "baseline": {
     "model": "nvidia/nemotron-3-super-120b-a12b",
     "reasoning": "on",
-    "gitSha": "519a226a",
-    "hardScore": 0.9555555555555556
+    "gitSha": "c8d84957",
+    "hardScore": 0.9565217391304348
   },
   "requirements": [
     {
@@ -29,32 +29,32 @@
     {
       "model": "nvidia/nemotron-3-super-120b-a12b",
       "reasoning": "on",
-      "gitSha": "519a226a",
-      "status": "QUALIFIED",
+      "gitSha": "c8d84957",
+      "status": "NOT QUALIFIED",
       "basis": "measured",
-      "summary": "Every recorded requirement met the contract.",
+      "summary": "NOT QUALIFIED because a recorded measurement missed a contract threshold.",
       "requirements": [
         {
           "id": "hard-tier-score",
           "pass": true,
           "compared": true,
-          "measured": 0.9555555555555556,
+          "measured": 0.9565217391304348,
           "rule": "tierScores.hard.score >= 0.9",
           "detail": "meets the minimum hard-tier score"
         },
         {
           "id": "latency-p50",
-          "pass": true,
+          "pass": false,
           "compared": true,
-          "measured": 3799,
+          "measured": 6746,
           "rule": "latencyMs.p50 <= 5000 at concurrency 3",
-          "detail": "p50 is within the maximum at the required concurrency"
+          "detail": "p50 is above the maximum at the required concurrency"
         },
         {
           "id": "tool-selection",
           "pass": true,
           "compared": true,
-          "measured": 0.8888888888888888,
+          "measured": 0.9,
           "rule": "hard tool-selection score >= 0.8",
           "detail": "meets the minimum hard-tier tool-selection score"
         },
@@ -62,7 +62,7 @@
           "id": "no-regression",
           "pass": true,
           "compared": true,
-          "measured": 0.9555555555555556,
+          "measured": 0.9565217391304348,
           "rule": "hard-tier score drops by at most 0.05 from the baseline",
           "detail": "hard-tier score is within the allowed drop from the baseline"
         }
@@ -71,7 +71,7 @@
     {
       "model": "nvidia/nemotron-3-super-120b-a12b",
       "reasoning": "low",
-      "gitSha": "519a226a",
+      "gitSha": "c8d84957",
       "status": "QUALIFIED",
       "basis": "measured",
       "summary": "Every recorded requirement met the contract.",
@@ -80,7 +80,7 @@
           "id": "hard-tier-score",
           "pass": true,
           "compared": true,
-          "measured": 0.9555555555555556,
+          "measured": 0.9565217391304348,
           "rule": "tierScores.hard.score >= 0.9",
           "detail": "meets the minimum hard-tier score"
         },
@@ -88,7 +88,49 @@
           "id": "latency-p50",
           "pass": true,
           "compared": true,
-          "measured": 1037,
+          "measured": 1555,
+          "rule": "latencyMs.p50 <= 5000 at concurrency 3",
+          "detail": "p50 is within the maximum at the required concurrency"
+        },
+        {
+          "id": "tool-selection",
+          "pass": true,
+          "compared": true,
+          "measured": 0.9,
+          "rule": "hard tool-selection score >= 0.8",
+          "detail": "meets the minimum hard-tier tool-selection score"
+        },
+        {
+          "id": "no-regression",
+          "pass": true,
+          "compared": true,
+          "measured": 0.9565217391304348,
+          "rule": "hard-tier score drops by at most 0.05 from the baseline",
+          "detail": "hard-tier score is within the allowed drop from the baseline"
+        }
+      ]
+    },
+    {
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "reasoning": "off",
+      "gitSha": "c8d84957",
+      "status": "NOT QUALIFIED",
+      "basis": "measured",
+      "summary": "NOT QUALIFIED because a recorded measurement missed a contract threshold.",
+      "requirements": [
+        {
+          "id": "hard-tier-score",
+          "pass": false,
+          "compared": true,
+          "measured": 0.8478260869565217,
+          "rule": "tierScores.hard.score >= 0.9",
+          "detail": "below the minimum hard-tier score"
+        },
+        {
+          "id": "latency-p50",
+          "pass": true,
+          "compared": true,
+          "measured": 582,
           "rule": "latencyMs.p50 <= 5000 at concurrency 3",
           "detail": "p50 is within the maximum at the required concurrency"
         },
@@ -102,51 +144,9 @@
         },
         {
           "id": "no-regression",
-          "pass": true,
-          "compared": true,
-          "measured": 0.9555555555555556,
-          "rule": "hard-tier score drops by at most 0.05 from the baseline",
-          "detail": "hard-tier score is within the allowed drop from the baseline"
-        }
-      ]
-    },
-    {
-      "model": "nvidia/nemotron-3-super-120b-a12b",
-      "reasoning": "off",
-      "gitSha": "519a226a",
-      "status": "NOT QUALIFIED",
-      "basis": "measured",
-      "summary": "NOT QUALIFIED because a recorded measurement missed a contract threshold.",
-      "requirements": [
-        {
-          "id": "hard-tier-score",
           "pass": false,
           "compared": true,
-          "measured": 0.8,
-          "rule": "tierScores.hard.score >= 0.9",
-          "detail": "below the minimum hard-tier score"
-        },
-        {
-          "id": "latency-p50",
-          "pass": true,
-          "compared": true,
-          "measured": 500,
-          "rule": "latencyMs.p50 <= 5000 at concurrency 3",
-          "detail": "p50 is within the maximum at the required concurrency"
-        },
-        {
-          "id": "tool-selection",
-          "pass": true,
-          "compared": true,
-          "measured": 0.8888888888888888,
-          "rule": "hard tool-selection score >= 0.8",
-          "detail": "meets the minimum hard-tier tool-selection score"
-        },
-        {
-          "id": "no-regression",
-          "pass": false,
-          "compared": true,
-          "measured": 0.8,
+          "measured": 0.8478260869565217,
           "rule": "hard-tier score drops by at most 0.05 from the baseline",
           "detail": "hard-tier score drops more than the allowed amount from the baseline"
         }
