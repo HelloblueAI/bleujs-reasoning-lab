@@ -120,24 +120,25 @@ one, so a hard item cannot silently degrade into an easy one.
 
 ### Current result: what reasoning mode costs
 
-Nemotron 3 Super 120B A12B, 84 items, 3 runs per item, majority vote,
-concurrency 3 ([full record](src/evals/results/model-nvidia-nemotron-3-super-120b-a12b-comparison.json)):
+Nemotron 3 Super 120B A12B, 85 items (46 hard), 3 runs per item, majority vote,
+concurrency 3, git SHA `c8d84957`
+([full record](src/evals/results/model-nvidia-nemotron-3-super-120b-a12b-comparison.json)):
 
 | Reasoning | Hard tier   | Completion tokens | Latency p50 |
 | --------- | ----------- | ----------------- | ----------- |
-| `on`      | 43/45 (96%) | 97,125            | 3.8s        |
-| `low`     | 43/45 (96%) | 19,145            | 1.0s        |
-| `off`     | 36/45 (80%) | 9,287             | 0.5s        |
+| `on`      | 44/46 (96%) | 92,270            | 6.7s        |
+| `low`     | 44/46 (96%) | 21,876            | 1.6s        |
+| `off`     | 39/46 (85%) | 5,964             | 0.6s        |
 
-Two things worth noting. Turning reasoning off costs 16 points on the hard tier,
-and most of that loss is concentrated in the 5x5 logic puzzle (100% → 40%) and
-hard arithmetic (100% → 80%) — the tasks that need more than one step. But `low`
-matched `on` exactly while spending **5x fewer completion tokens** and answering
-**~4x faster**, which says the expensive full reasoning channel bought nothing
-measurable on these datasets.
+Two things worth noting. Turning reasoning off costs 5 hard-tier items, and that
+loss is concentrated in the 5x5 logic puzzle (5/5 → 2/5) and hard arithmetic
+(20/20 → 17/20). `low` matched `on` exactly on the hard tier while using about
+4x fewer completion tokens and answering about 4x faster.
 
 Treat the `on`/`low` tie as a tie, not as evidence `low` is better: there are no
-confidence intervals yet, and 45 hard items cannot resolve a 2-item difference.
+confidence intervals yet, and 46 hard items cannot resolve a one- or two-item
+difference. This table replaces the earlier 45-item Super run. It does not
+estimate that run.
 
 This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_CHAT_MODEL`, which the Worker never reads, so an eval model can never be served by `/reason`. Per-variant results land in `src/evals/results/model-<model>-thinking-<mode>.json`.
 
@@ -152,9 +153,11 @@ This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_
 | Tool selection  | hard-tier tool-selection score at least 0.80                    |
 | No regression   | hard-tier score drops by at most 0.05 from Super reasoning-on   |
 
-Against those committed files, Super reasoning-on and reasoning-low are `QUALIFIED`. Super reasoning-off is `NOT QUALIFIED` on a recorded measurement: its hard-tier score is 0.80, and the drop from reasoning-on is larger than 0.05. That row has `basis: "measured"`.
+Both committed runs now use the same 46-item hard tier, including `trap-h4`, with 3 runs and concurrency 3. The thresholds were not changed after the Super rerun.
 
-Lightning was rerun on the current tiered dataset at concurrency 3, with reasoning on, low, and off (`gitSha` `6ff90e47`). All three rows are `basis: "measured"`. Reasoning-on scores 44/46 on the hard tier and reasoning-low scores 43/46, so both clear 0.90 and the regression limit. Both are `NOT QUALIFIED` because latency p50 is 6894ms and 6695ms, above the 5000ms maximum. Reasoning-off is `NOT QUALIFIED` because its recorded hard-tier score is 26/46. Super's committed run has 45 hard items; this Lightning run has 46, because `trap-h4` was added after Super was recorded.
+Super reasoning-low is `QUALIFIED`. Super reasoning-on is `NOT QUALIFIED` because its measured p50 is 6746ms, above 5000ms. Its hard-tier score is 44/46, tool selection is 0.90, and it is the regression baseline, so those three requirements pass. Super reasoning-off is `NOT QUALIFIED` because its hard-tier score is 39/46 (0.848), below 0.90, and the drop from reasoning-on is larger than 0.05. All three rows are `basis: "measured"`.
+
+Lightning (`gitSha` `6ff90e47`) is also `basis: "measured"`. Reasoning-on is 44/46 with p50 6894ms, and reasoning-low is 43/46 with p50 6695ms. Both clear 0.90, tool selection, and the regression limit, and both are `NOT QUALIFIED` on latency. Reasoning-off is 26/46 and is `NOT QUALIFIED` on that recorded hard-tier score.
 
 The full pass/fail record is [`src/evals/results/capability-contract-mvp.json`](src/evals/results/capability-contract-mvp.json). [`tests/unit/capabilityContract.test.ts`](tests/unit/capabilityContract.test.ts) fails if that file drifts from the evaluator.
 
@@ -163,8 +166,8 @@ The full pass/fail record is [`src/evals/results/capability-contract-mvp.json`](
 State these before citing any number from this repo:
 
 - **Read the hard tier, not the blended score.** The core tier is saturated for strong models, so `itemScore` hides whether a configuration change mattered. `tierScores.hard` is the number that separates variants.
-- **Retrieval and tool selection are saturated even on the hard tier.** Nemotron 3 Super scores 5/5 and 9/9 on hard retrieval and hard tool selection in every mode, so those two benchmarks currently discriminate between _baselines_, not between model configurations. Arithmetic, the logic puzzles, and abstention are where the reasoning setting shows up.
-- **Datasets are still small** — 84 items across five benchmarks. Enough to separate reasoning-off from reasoning-on, not enough to rank two close configurations.
+- **Retrieval is saturated on the hard tier.** Nemotron 3 Super scores 5/5 on hard retrieval in every reasoning mode. Hard tool selection is 9/10 with reasoning on and low, and 10/10 with reasoning off. Arithmetic, the logic puzzles, and abstention are where the reasoning setting shows up.
+- **Datasets are still small** — 85 items across five benchmarks, 46 of them hard. Enough to separate reasoning-off from reasoning-on, not enough to rank two close configurations.
 - **No confidence intervals yet.** Differences are reported without significance testing, so treat close scores as ties.
 - **Latency is shared-endpoint latency**, not a dedicated deployment, and is only comparable between variants recorded at the same concurrency.
 - **Cost metrics are the reliable ones.** Completion-token counts and latency percentiles are measured over hundreds of requests; small accuracy deltas are not.
@@ -201,8 +204,9 @@ The committed run took about 32 minutes for all three variants. Decoding is samp
 
 **Provenance of the committed files:**
 
-- The Nemotron 3 Super files record `gitSha` `519a226a`, but they were produced with the tiered datasets that were committed next, in `97fc486c`. Datasets, graders, and runners are unchanged from `97fc486c` to current `main` (later commits only change how the SHA is recorded), so reproduce from either — not from `519a226a`, which has only the original 39 items. Runs recorded from now on append `-dirty` to the SHA when the working tree had uncommitted changes.
-- The Nemotron 3.5 Lightning files were rerun on the current tiered dataset at concurrency 3 (`gitSha` `6ff90e47`). They include the hard tool-selection item `trap-h4`, which the Super files do not, so the hard-tier denominators are 46 and 45.
+- The current Nemotron 3 Super files are a rerun at `gitSha` `c8d84957`: 46 hard items, including `trap-h4`, 3 runs, concurrency 3. They replace the earlier Super files.
+- Those earlier Super files recorded `gitSha` `519a226a`, but they were produced with the tiered datasets that were committed next, in `97fc486c`, and they had 45 hard items because `trap-h4` did not exist yet. Do not reproduce that replaced run from `519a226a`, which has only the original 39 items. Runs recorded from now on append `-dirty` to the SHA when the working tree had uncommitted changes.
+- The Nemotron 3.5 Lightning files are the rerun at `gitSha` `6ff90e47`, on the same 46-item hard tier and the same concurrency, runs, temperature, top-p, token budget, and timeout. No dataset or grader file changed between `6ff90e47` and `c8d84957`. The two runs were not collected in the same session, so latency is still shared-endpoint latency.
 
 ---
 

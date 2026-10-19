@@ -15,14 +15,14 @@ const resultsDir = resolve(here, "../results");
 /**
  * First contract. Thresholds are deliberately few and come from measurements
  * this repo already commits:
- * - 0.90 hard-tier score keeps reasoning-on and reasoning-low (both 0.956) and
- *   rejects reasoning-off (0.80) on the Super run.
- * - 5000ms p50 is above Super reasoning-on at concurrency 3 (3799ms) and is
- *   not applied to a run that did not record concurrency.
+ * - 0.90 hard-tier score was set from the earlier Super run. It is not moved
+ *   after a rerun.
+ * - 5000ms p50 was above that earlier Super reasoning-on measurement (3799ms).
+ *   It is applied only when concurrency was recorded as 3, and it is not
+ *   raised if a later run is slower.
  * - 0.80 hard tool-selection is the structured-result bar. The keyword router
- *   scores 0 on these hard items; the recorded Super runs are above 0.80.
- * - 0.05 is the regression tolerance already described in the Super comparison
- *   caveats (about two items on a 45-item hard tier).
+ *   scores 0 on these hard items.
+ * - 0.05 is the regression tolerance (about two items on this hard tier).
  */
 export const REASONING_LAB_MVP: CapabilityContract = {
   id: "reasoning-lab-mvp",
@@ -40,9 +40,9 @@ export const REASONING_LAB_MVP: CapabilityContract = {
 export const CONTRACT_NOTE =
   "Computed from committed comparison files. No provider was called. " +
   "status NOT QUALIFIED with basis incomplete-record means the run is missing measurements, not that the model failed a quality or latency bar. " +
-  "Lightning was rerun on the current tiered dataset at concurrency 3, so those rows are measured. " +
-  "Super's committed hard tier has 45 items; Lightning's rerun has 46 because trap-h4 was added after Super was recorded. " +
-  "The Nemotron 3 Super files are labelled gitSha 519a226a; see the README provenance note.";
+  "Super and Lightning were both scored on the current 46-item hard tier, including trap-h4, at concurrency 3. " +
+  "The thresholds were not changed for this rerun. " +
+  "The replaced Super files were labelled gitSha 519a226a; see the README provenance note.";
 
 const COMPARISON_FILES = [
   "model-nvidia-nemotron-3-super-120b-a12b-comparison.json",

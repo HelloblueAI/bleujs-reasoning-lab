@@ -1,8 +1,8 @@
 {
   "suite": "model-benchmark",
   "labVersion": "6.0.0",
-  "gitSha": "519a226a",
-  "timestamp": 1789903959309,
+  "gitSha": "c8d84957",
+  "timestamp": 1792400553607,
   "provider": "nvidia",
   "model": "nvidia/nemotron-3-super-120b-a12b",
   "reasoning": "low",
@@ -15,40 +15,40 @@
     "concurrency": 3
   },
   "total": 5,
-  "passed": 4,
-  "failed": 1,
-  "passRate": 0.8,
-  "itemScore": 0.9642857142857143,
+  "passed": 3,
+  "failed": 2,
+  "passRate": 0.6,
+  "itemScore": 0.9411764705882353,
   "tierScores": {
     "core": {
       "total": 39,
-      "correct": 38,
-      "score": 0.9743589743589743
+      "correct": 36,
+      "score": 0.9230769230769231
     },
     "hard": {
-      "total": 45,
-      "correct": 43,
-      "score": 0.9555555555555556
+      "total": 46,
+      "correct": 44,
+      "score": 0.9565217391304348
     }
   },
   "inconclusiveItems": 0,
-  "rateLimited": 1,
+  "rateLimited": 0,
   "timedOut": 0,
   "latencyMs": {
-    "p50": 1037,
-    "p95": 7150,
-    "max": 26267
+    "p50": 1555,
+    "p95": 12056,
+    "max": 42466
   },
-  "completionTokens": 19145,
-  "durationMs": 575403,
+  "completionTokens": 21876,
+  "durationMs": 532714,
   "benchmarks": [
     {
       "id": "arithmetic",
       "name": "Arithmetic (exact)",
       "metric": "exact match",
       "total": 39,
-      "correct": 38,
-      "score": 0.9743589743589743,
+      "correct": 39,
+      "score": 1,
       "passed": true,
       "runs": 3,
       "deterministic": false,
@@ -57,8 +57,8 @@
       "tierScores": {
         "core": {
           "total": 19,
-          "correct": 18,
-          "score": 0.9473684210526315
+          "correct": 19,
+          "score": 1
         },
         "hard": {
           "total": 20,
@@ -71,11 +71,11 @@
       "rateLimited": 0,
       "timedOut": 0,
       "latencyMs": {
-        "p50": 1057,
-        "p95": 7927,
-        "max": 26267
+        "p50": 1686,
+        "p95": 13763,
+        "max": 42466
       },
-      "durationMs": 223817,
+      "durationMs": 139756,
       "items": [
         {
           "id": "add-1",
@@ -89,34 +89,34 @@
             {
               "passed": true,
               "got": "124",
-              "latencyMs": 1266,
+              "latencyMs": 715,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 93,
-              "reasoningChars": 322,
+              "completionTokens": 21,
+              "reasoningChars": 19,
               "error": null
             },
             {
               "passed": true,
               "got": "124",
-              "latencyMs": 1598,
+              "latencyMs": 1565,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 34,
-              "reasoningChars": 54,
+              "completionTokens": 46,
+              "reasoningChars": 116,
               "error": null
             },
             {
               "passed": true,
               "got": "124",
-              "latencyMs": 434,
+              "latencyMs": 1052,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 32,
-              "reasoningChars": 65,
+              "completionTokens": 31,
+              "reasoningChars": 20,
               "error": null
             }
           ]
@@ -133,34 +133,34 @@
             {
               "passed": true,
               "got": "10000",
-              "latencyMs": 991,
+              "latencyMs": 3085,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 71,
-              "reasoningChars": 102,
+              "completionTokens": 37,
+              "reasoningChars": 27,
               "error": null
             },
             {
               "passed": true,
               "got": "10000",
-              "latencyMs": 1784,
+              "latencyMs": 818,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 51,
-              "reasoningChars": 77,
+              "completionTokens": 37,
+              "reasoningChars": 27,
               "error": null
             },
             {
               "passed": true,
               "got": "10000",
-              "latencyMs": 3783,
+              "latencyMs": 3614,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 35,
-              "reasoningChars": 46,
+              "completionTokens": 63,
+              "reasoningChars": 134,
               "error": null
             }
           ]
@@ -177,34 +177,34 @@
             {
               "passed": true,
               "got": "345",
-              "latencyMs": 1927,
+              "latencyMs": 1080,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 42,
-              "reasoningChars": 103,
+              "completionTokens": 50,
+              "reasoningChars": 120,
               "error": null
             },
             {
               "passed": true,
               "got": "345",
-              "latencyMs": 516,
+              "latencyMs": 1641,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 41,
-              "reasoningChars": 63,
+              "completionTokens": 36,
+              "reasoningChars": 93,
               "error": null
             },
             {
               "passed": true,
               "got": "345",
-              "latencyMs": 512,
+              "latencyMs": 1856,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 38,
-              "reasoningChars": 51,
+              "completionTokens": 22,
+              "reasoningChars": 20,
               "error": null
             }
           ]
@@ -221,34 +221,34 @@
             {
               "passed": true,
               "got": "57",
-              "latencyMs": 659,
+              "latencyMs": 782,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 38,
+              "reasoningChars": 61,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "57",
+              "latencyMs": 1999,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 30,
+              "reasoningChars": 27,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "57",
+              "latencyMs": 1177,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 32,
               "reasoningChars": 48,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "57",
-              "latencyMs": 1290,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 31,
-              "reasoningChars": 42,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "57",
-              "latencyMs": 490,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 35,
-              "reasoningChars": 53,
               "error": null
             }
           ]
@@ -265,34 +265,34 @@
             {
               "passed": true,
               "got": "437",
-              "latencyMs": 1308,
+              "latencyMs": 1213,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 37,
-              "reasoningChars": 64,
+              "completionTokens": 43,
+              "reasoningChars": 61,
               "error": null
             },
             {
               "passed": true,
               "got": "437",
-              "latencyMs": 555,
+              "latencyMs": 2437,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 32,
-              "reasoningChars": 40,
+              "completionTokens": 39,
+              "reasoningChars": 73,
               "error": null
             },
             {
               "passed": true,
               "got": "437",
-              "latencyMs": 492,
+              "latencyMs": 1720,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 22,
-              "reasoningChars": 19,
+              "completionTokens": 27,
+              "reasoningChars": 22,
               "error": null
             }
           ]
@@ -309,18 +309,7 @@
             {
               "passed": true,
               "got": "1728",
-              "latencyMs": 1543,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 34,
-              "reasoningChars": 30,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "1728",
-              "latencyMs": 1067,
+              "latencyMs": 622,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
@@ -331,12 +320,23 @@
             {
               "passed": true,
               "got": "1728",
-              "latencyMs": 778,
+              "latencyMs": 1732,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 53,
-              "reasoningChars": 96,
+              "completionTokens": 31,
+              "reasoningChars": 25,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "1728",
+              "latencyMs": 1167,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 35,
+              "reasoningChars": 48,
               "error": null
             }
           ]
@@ -353,34 +353,34 @@
             {
               "passed": true,
               "got": "49696562936559",
-              "latencyMs": 7927,
+              "latencyMs": 13763,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 847,
-              "reasoningChars": 1022,
+              "completionTokens": 871,
+              "reasoningChars": 1063,
               "error": null
             },
             {
               "passed": true,
               "got": "49696562936559",
-              "latencyMs": 26267,
+              "latencyMs": 42466,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 760,
-              "reasoningChars": 1036,
+              "completionTokens": 2143,
+              "reasoningChars": 2943,
               "error": null
             },
             {
               "passed": true,
               "got": "49696562936559",
-              "latencyMs": 5694,
+              "latencyMs": 17829,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 606,
-              "reasoningChars": 703,
+              "completionTokens": 837,
+              "reasoningChars": 1061,
               "error": null
             }
           ]
@@ -397,34 +397,34 @@
             {
               "passed": true,
               "got": "256",
-              "latencyMs": 1168,
+              "latencyMs": 938,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 34,
-              "reasoningChars": 40,
+              "completionTokens": 40,
+              "reasoningChars": 68,
               "error": null
             },
             {
               "passed": true,
               "got": "256",
-              "latencyMs": 2776,
+              "latencyMs": 1034,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 45,
-              "reasoningChars": 90,
+              "completionTokens": 36,
+              "reasoningChars": 49,
               "error": null
             },
             {
               "passed": true,
               "got": "256",
-              "latencyMs": 2542,
+              "latencyMs": 2025,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 34,
-              "reasoningChars": 44,
+              "reasoningChars": 52,
               "error": null
             }
           ]
@@ -441,34 +441,34 @@
             {
               "passed": true,
               "got": "125",
-              "latencyMs": 891,
+              "latencyMs": 685,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 42,
-              "reasoningChars": 75,
+              "completionTokens": 25,
+              "reasoningChars": 39,
               "error": null
             },
             {
               "passed": true,
               "got": "125",
-              "latencyMs": 581,
+              "latencyMs": 1358,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 42,
-              "reasoningChars": 78,
+              "completionTokens": 41,
+              "reasoningChars": 86,
               "error": null
             },
             {
               "passed": true,
               "got": "125",
-              "latencyMs": 589,
+              "latencyMs": 1087,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 40,
-              "reasoningChars": 61,
+              "completionTokens": 34,
+              "reasoningChars": 46,
               "error": null
             }
           ]
@@ -485,34 +485,34 @@
             {
               "passed": true,
               "got": "10",
-              "latencyMs": 501,
+              "latencyMs": 1677,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 30,
-              "reasoningChars": 41,
+              "completionTokens": 26,
+              "reasoningChars": 63,
               "error": null
             },
             {
               "passed": true,
               "got": "10",
-              "latencyMs": 349,
+              "latencyMs": 3990,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 22,
-              "reasoningChars": 35,
+              "completionTokens": 60,
+              "reasoningChars": 103,
               "error": null
             },
             {
               "passed": true,
               "got": "10",
-              "latencyMs": 391,
+              "latencyMs": 1081,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 23,
-              "reasoningChars": 39,
+              "completionTokens": 31,
+              "reasoningChars": 51,
               "error": null
             }
           ]
@@ -529,34 +529,34 @@
             {
               "passed": true,
               "got": "6.25",
-              "latencyMs": 805,
+              "latencyMs": 855,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 29,
+              "reasoningChars": 35,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "6.25",
+              "latencyMs": 11654,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 36,
-              "reasoningChars": 50,
+              "reasoningChars": 48,
               "error": null
             },
             {
               "passed": true,
               "got": "6.25",
-              "latencyMs": 1274,
+              "latencyMs": 958,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 42,
-              "reasoningChars": 52,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "6.25",
-              "latencyMs": 506,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 32,
-              "reasoningChars": 51,
+              "completionTokens": 48,
+              "reasoningChars": 68,
               "error": null
             }
           ]
@@ -573,34 +573,34 @@
             {
               "passed": true,
               "got": "10004511.184645",
-              "latencyMs": 1306,
+              "latencyMs": 2635,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 146,
-              "reasoningChars": 153,
+              "reasoningChars": 155,
               "error": null
             },
             {
               "passed": true,
               "got": "10004511.184645",
-              "latencyMs": 1490,
+              "latencyMs": 3381,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 192,
-              "reasoningChars": 211,
+              "completionTokens": 111,
+              "reasoningChars": 86,
               "error": null
             },
             {
               "passed": true,
               "got": "10004511.184645",
-              "latencyMs": 1604,
+              "latencyMs": 6075,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 188,
-              "reasoningChars": 188,
+              "completionTokens": 123,
+              "reasoningChars": 120,
               "error": null
             }
           ]
@@ -617,34 +617,34 @@
             {
               "passed": true,
               "got": "985434.504155",
-              "latencyMs": 2232,
+              "latencyMs": 5449,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 177,
+              "reasoningChars": 196,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "985434.504155",
+              "latencyMs": 4976,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 247,
+              "reasoningChars": 323,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "985434.504155",
+              "latencyMs": 1238,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 76,
-              "reasoningChars": 51,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "985434.504155",
-              "latencyMs": 1043,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 131,
-              "reasoningChars": 142,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "985434.504155",
-              "latencyMs": 1727,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 232,
-              "reasoningChars": 269,
+              "reasoningChars": 50,
               "error": null
             }
           ]
@@ -653,42 +653,42 @@
           "id": "dec-5",
           "tier": "core",
           "expected": "90.0000081",
-          "passed": false,
-          "passedRuns": 0,
+          "passed": true,
+          "passedRuns": 2,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
-              "passed": false,
-              "got": "99999999/1111111",
-              "latencyMs": 9866,
+              "passed": true,
+              "got": "90.000008099999",
+              "latencyMs": 16383,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 687,
-              "reasoningChars": 1189,
-              "error": null
-            },
-            {
-              "passed": false,
-              "got": "99999999/1111111",
-              "latencyMs": 12221,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 451,
-              "reasoningChars": 813,
+              "completionTokens": 446,
+              "reasoningChars": 656,
               "error": null
             },
             {
               "passed": false,
               "got": "90+9/1111111",
-              "latencyMs": 6262,
+              "latencyMs": 20917,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 522,
-              "reasoningChars": 881,
+              "completionTokens": 659,
+              "reasoningChars": 1276,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "90.0000081000081",
+              "latencyMs": 7678,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 392,
+              "reasoningChars": 534,
               "error": null
             }
           ]
@@ -705,34 +705,34 @@
             {
               "passed": true,
               "got": "864197.532",
-              "latencyMs": 1009,
+              "latencyMs": 2842,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 76,
-              "reasoningChars": 91,
+              "completionTokens": 142,
+              "reasoningChars": 172,
               "error": null
             },
             {
               "passed": true,
               "got": "864197.532",
-              "latencyMs": 720,
+              "latencyMs": 1613,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 66,
-              "reasoningChars": 48,
+              "completionTokens": 73,
+              "reasoningChars": 78,
               "error": null
             },
             {
               "passed": true,
               "got": "864197.532",
-              "latencyMs": 1055,
+              "latencyMs": 1096,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 70,
-              "reasoningChars": 66,
+              "completionTokens": 73,
+              "reasoningChars": 75,
               "error": null
             }
           ]
@@ -749,34 +749,34 @@
             {
               "passed": true,
               "got": "25",
-              "latencyMs": 622,
+              "latencyMs": 1624,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 38,
-              "reasoningChars": 64,
+              "completionTokens": 44,
+              "reasoningChars": 122,
               "error": null
             },
             {
               "passed": true,
               "got": "25",
-              "latencyMs": 741,
+              "latencyMs": 5475,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 22,
-              "reasoningChars": 10,
+              "completionTokens": 30,
+              "reasoningChars": 40,
               "error": null
             },
             {
               "passed": true,
               "got": "25",
-              "latencyMs": 620,
+              "latencyMs": 1692,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 38,
-              "reasoningChars": 85,
+              "completionTokens": 28,
+              "reasoningChars": 37,
               "error": null
             }
           ]
@@ -793,34 +793,34 @@
             {
               "passed": true,
               "got": "-30000",
-              "latencyMs": 689,
+              "latencyMs": 1545,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 37,
-              "reasoningChars": 20,
+              "completionTokens": 41,
+              "reasoningChars": 32,
               "error": null
             },
             {
               "passed": true,
               "got": "-30000",
-              "latencyMs": 963,
+              "latencyMs": 575,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 21,
-              "reasoningChars": 15,
+              "completionTokens": 28,
+              "reasoningChars": 16,
               "error": null
             },
             {
               "passed": true,
               "got": "-30000",
-              "latencyMs": 1688,
+              "latencyMs": 1283,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 35,
-              "reasoningChars": 57,
+              "completionTokens": 43,
+              "reasoningChars": 72,
               "error": null
             }
           ]
@@ -837,34 +837,34 @@
             {
               "passed": true,
               "got": "-2030",
-              "latencyMs": 2509,
+              "latencyMs": 5422,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 44,
+              "completionTokens": 35,
+              "reasoningChars": 27,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "-2030",
+              "latencyMs": 2929,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 33,
+              "reasoningChars": 46,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "-2030",
+              "latencyMs": 3171,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 41,
               "reasoningChars": 65,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "-2030",
-              "latencyMs": 1801,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 61,
-              "reasoningChars": 77,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "-2030",
-              "latencyMs": 868,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 34,
-              "reasoningChars": 26,
               "error": null
             }
           ]
@@ -881,34 +881,34 @@
             {
               "passed": true,
               "got": "-18914003885552",
-              "latencyMs": 6385,
+              "latencyMs": 12331,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 835,
-              "reasoningChars": 993,
+              "completionTokens": 724,
+              "reasoningChars": 854,
               "error": null
             },
             {
               "passed": true,
               "got": "-18914003885552",
-              "latencyMs": 7150,
+              "latencyMs": 17273,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 800,
-              "reasoningChars": 948,
+              "completionTokens": 740,
+              "reasoningChars": 966,
               "error": null
             },
             {
               "passed": true,
               "got": "-18914003885552",
-              "latencyMs": 13961,
+              "latencyMs": 12104,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 676,
-              "reasoningChars": 814,
+              "completionTokens": 606,
+              "reasoningChars": 655,
               "error": null
             }
           ]
@@ -925,34 +925,34 @@
             {
               "passed": true,
               "got": "35",
-              "latencyMs": 862,
+              "latencyMs": 1877,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 49,
-              "reasoningChars": 82,
+              "completionTokens": 65,
+              "reasoningChars": 120,
               "error": null
             },
             {
               "passed": true,
               "got": "35",
-              "latencyMs": 1057,
+              "latencyMs": 706,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 41,
-              "reasoningChars": 56,
+              "completionTokens": 43,
+              "reasoningChars": 50,
               "error": null
             },
             {
               "passed": true,
               "got": "35",
-              "latencyMs": 4143,
+              "latencyMs": 1366,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 42,
-              "reasoningChars": 40,
+              "reasoningChars": 52,
               "error": null
             }
           ]
@@ -969,34 +969,34 @@
             {
               "passed": true,
               "got": "180",
-              "latencyMs": 2176,
+              "latencyMs": 7673,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 29,
-              "reasoningChars": 29,
+              "completionTokens": 31,
+              "reasoningChars": 47,
               "error": null
             },
             {
               "passed": true,
               "got": "180",
-              "latencyMs": 1452,
+              "latencyMs": 1013,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 48,
-              "reasoningChars": 88,
+              "completionTokens": 34,
+              "reasoningChars": 33,
               "error": null
             },
             {
               "passed": true,
               "got": "180",
-              "latencyMs": 2374,
+              "latencyMs": 1371,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 41,
-              "reasoningChars": 44,
+              "completionTokens": 35,
+              "reasoningChars": 47,
               "error": null
             }
           ]
@@ -1013,34 +1013,34 @@
             {
               "passed": true,
               "got": "72",
-              "latencyMs": 686,
+              "latencyMs": 1187,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 52,
-              "reasoningChars": 59,
+              "completionTokens": 51,
+              "reasoningChars": 64,
               "error": null
             },
             {
               "passed": true,
               "got": "72",
-              "latencyMs": 738,
+              "latencyMs": 1183,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 57,
-              "reasoningChars": 57,
+              "completionTokens": 53,
+              "reasoningChars": 63,
               "error": null
             },
             {
               "passed": true,
               "got": "72",
-              "latencyMs": 1277,
+              "latencyMs": 1384,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 52,
-              "reasoningChars": 62,
+              "completionTokens": 44,
+              "reasoningChars": 41,
               "error": null
             }
           ]
@@ -1057,34 +1057,34 @@
             {
               "passed": true,
               "got": "925",
-              "latencyMs": 828,
+              "latencyMs": 1299,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 59,
-              "reasoningChars": 59,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "925",
-              "latencyMs": 548,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 45,
-              "reasoningChars": 42,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "925",
-              "latencyMs": 1266,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 58,
+              "completionTokens": 53,
               "reasoningChars": 58,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "925",
+              "latencyMs": 922,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 47,
+              "reasoningChars": 46,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "925",
+              "latencyMs": 1819,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 54,
+              "reasoningChars": 53,
               "error": null
             }
           ]
@@ -1101,34 +1101,34 @@
             {
               "passed": true,
               "got": "541",
-              "latencyMs": 1963,
+              "latencyMs": 2295,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 45,
-              "reasoningChars": 47,
+              "completionTokens": 92,
+              "reasoningChars": 92,
               "error": null
             },
             {
               "passed": true,
               "got": "541",
-              "latencyMs": 782,
+              "latencyMs": 2705,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 46,
-              "reasoningChars": 44,
+              "completionTokens": 60,
+              "reasoningChars": 82,
               "error": null
             },
             {
               "passed": true,
               "got": "541",
-              "latencyMs": 2354,
+              "latencyMs": 1408,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 45,
-              "reasoningChars": 41,
+              "completionTokens": 52,
+              "reasoningChars": 67,
               "error": null
             }
           ]
@@ -1145,34 +1145,34 @@
             {
               "passed": true,
               "got": "420",
-              "latencyMs": 846,
+              "latencyMs": 1346,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 47,
-              "reasoningChars": 46,
+              "completionTokens": 44,
+              "reasoningChars": 56,
               "error": null
             },
             {
               "passed": true,
               "got": "420",
-              "latencyMs": 423,
+              "latencyMs": 1275,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 31,
-              "reasoningChars": 25,
+              "completionTokens": 54,
+              "reasoningChars": 57,
               "error": null
             },
             {
               "passed": true,
               "got": "420",
-              "latencyMs": 1444,
+              "latencyMs": 1468,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 69,
-              "reasoningChars": 93,
+              "completionTokens": 40,
+              "reasoningChars": 45,
               "error": null
             }
           ]
@@ -1189,34 +1189,34 @@
             {
               "passed": true,
               "got": "280",
-              "latencyMs": 534,
+              "latencyMs": 2064,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 39,
+              "completionTokens": 38,
               "reasoningChars": 41,
               "error": null
             },
             {
               "passed": true,
               "got": "280",
-              "latencyMs": 507,
+              "latencyMs": 1171,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 35,
-              "reasoningChars": 43,
+              "completionTokens": 38,
+              "reasoningChars": 61,
               "error": null
             },
             {
               "passed": true,
               "got": "280",
-              "latencyMs": 597,
+              "latencyMs": 1277,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 40,
-              "reasoningChars": 55,
+              "completionTokens": 31,
+              "reasoningChars": 26,
               "error": null
             }
           ]
@@ -1233,34 +1233,34 @@
             {
               "passed": true,
               "got": "100",
-              "latencyMs": 1814,
+              "latencyMs": 1788,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 81,
+              "reasoningChars": 164,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "100",
+              "latencyMs": 1646,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 63,
+              "reasoningChars": 119,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "100",
+              "latencyMs": 1842,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 69,
-              "reasoningChars": 151,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "100",
-              "latencyMs": 800,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 76,
-              "reasoningChars": 161,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "100",
-              "latencyMs": 665,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 44,
-              "reasoningChars": 67,
+              "reasoningChars": 137,
               "error": null
             }
           ]
@@ -1277,34 +1277,34 @@
             {
               "passed": true,
               "got": "4.6",
-              "latencyMs": 1136,
+              "latencyMs": 1686,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 49,
-              "reasoningChars": 59,
+              "completionTokens": 57,
+              "reasoningChars": 104,
               "error": null
             },
             {
               "passed": true,
               "got": "4.6",
-              "latencyMs": 508,
+              "latencyMs": 2184,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 48,
-              "reasoningChars": 49,
+              "completionTokens": 78,
+              "reasoningChars": 145,
               "error": null
             },
             {
               "passed": true,
               "got": "4.6",
-              "latencyMs": 2656,
+              "latencyMs": 1750,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 52,
-              "reasoningChars": 70,
+              "completionTokens": 83,
+              "reasoningChars": 113,
               "error": null
             }
           ]
@@ -1321,34 +1321,34 @@
             {
               "passed": true,
               "got": "1105",
-              "latencyMs": 974,
+              "latencyMs": 13219,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 39,
+              "reasoningChars": 40,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "1105",
+              "latencyMs": 1559,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 45,
+              "reasoningChars": 65,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "1105",
+              "latencyMs": 1273,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 52,
-              "reasoningChars": 83,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "1105",
-              "latencyMs": 716,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 47,
-              "reasoningChars": 55,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "1105",
-              "latencyMs": 738,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 57,
-              "reasoningChars": 88,
+              "reasoningChars": 71,
               "error": null
             }
           ]
@@ -1365,34 +1365,34 @@
             {
               "passed": true,
               "got": "1157.625",
-              "latencyMs": 2119,
+              "latencyMs": 1987,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 88,
-              "reasoningChars": 114,
+              "completionTokens": 90,
+              "reasoningChars": 136,
               "error": null
             },
             {
               "passed": true,
               "got": "1157.625",
-              "latencyMs": 548,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 56,
-              "reasoningChars": 72,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "1157.625",
-              "latencyMs": 14507,
+              "latencyMs": 1804,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 100,
-              "reasoningChars": 97,
+              "reasoningChars": 148,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "1157.625",
+              "latencyMs": 1714,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 65,
+              "reasoningChars": 75,
               "error": null
             }
           ]
@@ -1409,34 +1409,34 @@
             {
               "passed": true,
               "got": "5040",
-              "latencyMs": 1418,
+              "latencyMs": 3624,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 63,
-              "reasoningChars": 91,
+              "completionTokens": 48,
+              "reasoningChars": 55,
               "error": null
             },
             {
               "passed": true,
               "got": "5040",
-              "latencyMs": 1206,
+              "latencyMs": 889,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 44,
+              "reasoningChars": 50,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "5040",
+              "latencyMs": 1118,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 51,
-              "reasoningChars": 75,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "5040",
-              "latencyMs": 639,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 47,
-              "reasoningChars": 51,
+              "reasoningChars": 63,
               "error": null
             }
           ]
@@ -1453,34 +1453,34 @@
             {
               "passed": true,
               "got": "250000",
-              "latencyMs": 742,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 63,
-              "reasoningChars": 87,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "250000",
-              "latencyMs": 1348,
+              "latencyMs": 4347,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 85,
-              "reasoningChars": 96,
+              "reasoningChars": 106,
               "error": null
             },
             {
               "passed": true,
               "got": "250000",
-              "latencyMs": 435,
+              "latencyMs": 4242,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 33,
-              "reasoningChars": 19,
+              "completionTokens": 63,
+              "reasoningChars": 103,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "250000",
+              "latencyMs": 3872,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 90,
+              "reasoningChars": 143,
               "error": null
             }
           ]
@@ -1497,34 +1497,34 @@
             {
               "passed": true,
               "got": "15900",
-              "latencyMs": 1199,
+              "latencyMs": 5340,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 81,
-              "reasoningChars": 144,
+              "completionTokens": 55,
+              "reasoningChars": 55,
               "error": null
             },
             {
               "passed": true,
               "got": "15900",
-              "latencyMs": 1037,
+              "latencyMs": 1393,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 89,
-              "reasoningChars": 150,
+              "completionTokens": 64,
+              "reasoningChars": 70,
               "error": null
             },
             {
               "passed": true,
               "got": "15900",
-              "latencyMs": 925,
+              "latencyMs": 1362,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 77,
-              "reasoningChars": 116,
+              "completionTokens": 52,
+              "reasoningChars": 45,
               "error": null
             }
           ]
@@ -1541,18 +1541,7 @@
             {
               "passed": true,
               "got": "560",
-              "latencyMs": 3753,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 56,
-              "reasoningChars": 86,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "560",
-              "latencyMs": 5413,
+              "latencyMs": 969,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
@@ -1563,12 +1552,23 @@
             {
               "passed": true,
               "got": "560",
-              "latencyMs": 1078,
+              "latencyMs": 1273,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 57,
-              "reasoningChars": 107,
+              "completionTokens": 52,
+              "reasoningChars": 99,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "560",
+              "latencyMs": 2692,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 59,
+              "reasoningChars": 104,
               "error": null
             }
           ]
@@ -1585,34 +1585,34 @@
             {
               "passed": true,
               "got": "120",
-              "latencyMs": 929,
+              "latencyMs": 5218,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 80,
-              "reasoningChars": 191,
+              "completionTokens": 70,
+              "reasoningChars": 163,
               "error": null
             },
             {
               "passed": true,
               "got": "120",
-              "latencyMs": 773,
+              "latencyMs": 1742,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 87,
-              "reasoningChars": 175,
+              "completionTokens": 69,
+              "reasoningChars": 176,
               "error": null
             },
             {
               "passed": true,
               "got": "120",
-              "latencyMs": 3764,
+              "latencyMs": 1440,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 71,
-              "reasoningChars": 164,
+              "completionTokens": 74,
+              "reasoningChars": 176,
               "error": null
             }
           ]
@@ -1629,34 +1629,34 @@
             {
               "passed": true,
               "got": "5050",
-              "latencyMs": 534,
+              "latencyMs": 1002,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 28,
-              "reasoningChars": 39,
+              "completionTokens": 38,
+              "reasoningChars": 61,
               "error": null
             },
             {
               "passed": true,
               "got": "5050",
-              "latencyMs": 473,
+              "latencyMs": 1286,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 37,
-              "reasoningChars": 53,
+              "completionTokens": 32,
+              "reasoningChars": 54,
               "error": null
             },
             {
               "passed": true,
               "got": "5050",
-              "latencyMs": 732,
+              "latencyMs": 1501,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 43,
-              "reasoningChars": 38,
+              "completionTokens": 40,
+              "reasoningChars": 30,
               "error": null
             }
           ]
@@ -1673,34 +1673,34 @@
             {
               "passed": true,
               "got": "28",
-              "latencyMs": 1080,
+              "latencyMs": 2930,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 52,
-              "reasoningChars": 73,
+              "completionTokens": 63,
+              "reasoningChars": 78,
               "error": null
             },
             {
               "passed": true,
               "got": "28",
-              "latencyMs": 575,
+              "latencyMs": 1115,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 49,
-              "reasoningChars": 69,
+              "completionTokens": 61,
+              "reasoningChars": 86,
               "error": null
             },
             {
               "passed": true,
               "got": "28",
-              "latencyMs": 5286,
+              "latencyMs": 1040,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 64,
-              "reasoningChars": 94,
+              "completionTokens": 62,
+              "reasoningChars": 84,
               "error": null
             }
           ]
@@ -1710,41 +1710,41 @@
           "tier": "hard",
           "expected": "1234000",
           "passed": true,
-          "passedRuns": 2,
+          "passedRuns": 3,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "1234000",
-              "latencyMs": 2557,
+              "latencyMs": 2603,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 114,
-              "reasoningChars": 151,
-              "error": null
-            },
-            {
-              "passed": false,
-              "got": "1234056",
-              "latencyMs": 2925,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 82,
-              "reasoningChars": 88,
+              "completionTokens": 94,
+              "reasoningChars": 115,
               "error": null
             },
             {
               "passed": true,
               "got": "1234000",
-              "latencyMs": 1767,
+              "latencyMs": 7700,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 109,
-              "reasoningChars": 117,
+              "completionTokens": 132,
+              "reasoningChars": 186,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "1234000",
+              "latencyMs": 1887,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 111,
+              "reasoningChars": 130,
               "error": null
             }
           ]
@@ -1761,34 +1761,34 @@
             {
               "passed": true,
               "got": "8",
-              "latencyMs": 2071,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 90,
-              "reasoningChars": 143,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "8",
-              "latencyMs": 1032,
+              "latencyMs": 2210,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 77,
-              "reasoningChars": 102,
+              "reasoningChars": 100,
               "error": null
             },
             {
               "passed": true,
               "got": "8",
-              "latencyMs": 841,
+              "latencyMs": 1256,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 45,
-              "reasoningChars": 57,
+              "completionTokens": 40,
+              "reasoningChars": 36,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "8",
+              "latencyMs": 5262,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 80,
+              "reasoningChars": 113,
               "error": null
             }
           ]
@@ -1824,11 +1824,11 @@
       "rateLimited": 0,
       "timedOut": 0,
       "latencyMs": {
-        "p50": 2205,
-        "p95": 7930,
-        "max": 9583
+        "p50": 5323,
+        "p95": 16104,
+        "max": 23305
       },
-      "durationMs": 56727,
+      "durationMs": 285463,
       "items": [
         {
           "id": "wing-assignment-3-Alpha",
@@ -1842,34 +1842,34 @@
             {
               "passed": true,
               "got": "Orchestration",
-              "latencyMs": 2483,
+              "latencyMs": 1821,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 113,
-              "reasoningChars": 406,
+              "completionTokens": 64,
+              "reasoningChars": 216,
               "error": null
             },
             {
               "passed": true,
               "got": "Orchestration",
-              "latencyMs": 7930,
+              "latencyMs": 2410,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 118,
-              "reasoningChars": 427,
+              "completionTokens": 119,
+              "reasoningChars": 447,
               "error": null
             },
             {
               "passed": true,
               "got": "Orchestration",
-              "latencyMs": 1921,
+              "latencyMs": 3856,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 125,
-              "reasoningChars": 474,
+              "completionTokens": 120,
+              "reasoningChars": 447,
               "error": null
             }
           ]
@@ -1886,34 +1886,34 @@
             {
               "passed": true,
               "got": "Reasoning",
-              "latencyMs": 1179,
+              "latencyMs": 982,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 27,
-              "reasoningChars": 73,
+              "completionTokens": 29,
+              "reasoningChars": 69,
               "error": null
             },
             {
               "passed": true,
               "got": "Reasoning",
-              "latencyMs": 4643,
+              "latencyMs": 953,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 23,
-              "reasoningChars": 57,
+              "completionTokens": 31,
+              "reasoningChars": 75,
               "error": null
             },
             {
               "passed": true,
               "got": "Reasoning",
-              "latencyMs": 1257,
+              "latencyMs": 9762,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 30,
-              "reasoningChars": 77,
+              "completionTokens": 41,
+              "reasoningChars": 121,
               "error": null
             }
           ]
@@ -1930,34 +1930,34 @@
             {
               "passed": true,
               "got": "Understanding",
-              "latencyMs": 900,
+              "latencyMs": 3111,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 91,
-              "reasoningChars": 389,
+              "completionTokens": 100,
+              "reasoningChars": 400,
               "error": null
             },
             {
               "passed": true,
               "got": "Understanding",
-              "latencyMs": 1182,
+              "latencyMs": 2564,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 110,
-              "reasoningChars": 438,
+              "completionTokens": 88,
+              "reasoningChars": 345,
               "error": null
             },
             {
               "passed": true,
               "got": "Understanding",
-              "latencyMs": 959,
+              "latencyMs": 5323,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 106,
-              "reasoningChars": 475,
+              "completionTokens": 72,
+              "reasoningChars": 284,
               "error": null
             }
           ]
@@ -1974,34 +1974,34 @@
             {
               "passed": true,
               "got": "Retrieval",
-              "latencyMs": 2727,
+              "latencyMs": 6830,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 282,
-              "reasoningChars": 1163,
+              "completionTokens": 121,
+              "reasoningChars": 478,
               "error": null
             },
             {
               "passed": true,
               "got": "Retrieval",
-              "latencyMs": 2205,
+              "latencyMs": 12056,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 167,
-              "reasoningChars": 670,
+              "completionTokens": 336,
+              "reasoningChars": 1395,
               "error": null
             },
             {
               "passed": true,
               "got": "Retrieval",
-              "latencyMs": 2843,
+              "latencyMs": 7956,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 145,
-              "reasoningChars": 531,
+              "completionTokens": 284,
+              "reasoningChars": 1033,
               "error": null
             }
           ]
@@ -2018,34 +2018,34 @@
             {
               "passed": true,
               "got": "Reasoning",
-              "latencyMs": 720,
+              "latencyMs": 1302,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 22,
-              "reasoningChars": 55,
+              "completionTokens": 35,
+              "reasoningChars": 91,
               "error": null
             },
             {
               "passed": true,
               "got": "Reasoning",
-              "latencyMs": 574,
+              "latencyMs": 1154,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 29,
-              "reasoningChars": 83,
+              "completionTokens": 31,
+              "reasoningChars": 65,
               "error": null
             },
             {
               "passed": true,
               "got": "Reasoning",
-              "latencyMs": 753,
+              "latencyMs": 855,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 25,
-              "reasoningChars": 63,
+              "completionTokens": 32,
+              "reasoningChars": 77,
               "error": null
             }
           ]
@@ -2062,34 +2062,34 @@
             {
               "passed": true,
               "got": "Understanding",
-              "latencyMs": 9583,
+              "latencyMs": 6607,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 171,
-              "reasoningChars": 731,
+              "completionTokens": 203,
+              "reasoningChars": 823,
               "error": null
             },
             {
               "passed": true,
               "got": "Understanding",
-              "latencyMs": 5513,
+              "latencyMs": 2906,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 183,
-              "reasoningChars": 761,
+              "completionTokens": 139,
+              "reasoningChars": 571,
               "error": null
             },
             {
               "passed": true,
               "got": "Understanding",
-              "latencyMs": 2308,
+              "latencyMs": 9226,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 168,
-              "reasoningChars": 636,
+              "completionTokens": 252,
+              "reasoningChars": 1024,
               "error": null
             }
           ]
@@ -2106,34 +2106,34 @@
             {
               "passed": true,
               "got": "Routing",
-              "latencyMs": 1635,
+              "latencyMs": 8027,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 221,
-              "reasoningChars": 910,
+              "completionTokens": 307,
+              "reasoningChars": 1069,
               "error": null
             },
             {
               "passed": true,
               "got": "Routing",
-              "latencyMs": 1892,
+              "latencyMs": 6594,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 175,
-              "reasoningChars": 610,
+              "completionTokens": 309,
+              "reasoningChars": 1041,
               "error": null
             },
             {
               "passed": true,
               "got": "Routing",
-              "latencyMs": 2357,
+              "latencyMs": 16104,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 214,
-              "reasoningChars": 882,
+              "completionTokens": 194,
+              "reasoningChars": 744,
               "error": null
             }
           ]
@@ -2150,34 +2150,34 @@
             {
               "passed": true,
               "got": "Orchestration",
-              "latencyMs": 2246,
+              "latencyMs": 13280,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 175,
-              "reasoningChars": 620,
+              "completionTokens": 238,
+              "reasoningChars": 886,
               "error": null
             },
             {
               "passed": true,
               "got": "Orchestration",
-              "latencyMs": 6001,
+              "latencyMs": 8420,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 180,
-              "reasoningChars": 756,
+              "completionTokens": 242,
+              "reasoningChars": 922,
               "error": null
             },
             {
               "passed": true,
               "got": "Orchestration",
-              "latencyMs": 2391,
+              "latencyMs": 23305,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 132,
-              "reasoningChars": 532,
+              "completionTokens": 719,
+              "reasoningChars": 2593,
               "error": null
             }
           ]
@@ -2213,11 +2213,11 @@
       "rateLimited": 0,
       "timedOut": 0,
       "latencyMs": {
-        "p50": 812,
-        "p95": 18220,
-        "max": 19481
+        "p50": 1203,
+        "p95": 2713,
+        "max": 4452
       },
-      "durationMs": 67727,
+      "durationMs": 13207,
       "items": [
         {
           "id": "capital-iran",
@@ -2231,34 +2231,34 @@
             {
               "passed": true,
               "got": "Tehran is the capital city of Iran.",
-              "latencyMs": 1047,
+              "latencyMs": 717,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 20,
-              "reasoningChars": 45,
+              "completionTokens": 27,
+              "reasoningChars": 57,
               "error": null
             },
             {
               "passed": true,
               "got": "Tehran is the capital city of Iran.",
-              "latencyMs": 5315,
+              "latencyMs": 833,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 24,
-              "reasoningChars": 45,
+              "completionTokens": 18,
+              "reasoningChars": 26,
               "error": null
             },
             {
               "passed": true,
               "got": "Tehran is the capital city of Iran.",
-              "latencyMs": 2550,
+              "latencyMs": 1245,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 20,
-              "reasoningChars": 45,
+              "completionTokens": 23,
+              "reasoningChars": 42,
               "error": null
             }
           ]
@@ -2275,34 +2275,34 @@
             {
               "passed": true,
               "got": "Photosynthesis lets plants convert sunlight into chemical energy.",
-              "latencyMs": 657,
+              "latencyMs": 1203,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 26,
-              "reasoningChars": 49,
+              "completionTokens": 25,
+              "reasoningChars": 46,
               "error": null
             },
             {
               "passed": true,
               "got": "Photosynthesis lets plants convert sunlight into chemical energy.",
-              "latencyMs": 537,
+              "latencyMs": 1042,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 20,
-              "reasoningChars": 41,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "Photosynthesis lets plants convert sunlight into chemical energy.",
-              "latencyMs": 1539,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 15,
+              "completionTokens": 17,
               "reasoningChars": 23,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "Photosynthesis lets plants convert sunlight into chemical energy.",
+              "latencyMs": 1523,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 23,
+              "reasoningChars": 43,
               "error": null
             }
           ]
@@ -2319,34 +2319,34 @@
             {
               "passed": true,
               "got": "HTTP status code 404 means the requested resource was not found.",
-              "latencyMs": 18220,
+              "latencyMs": 1522,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 25,
-              "reasoningChars": 58,
+              "completionTokens": 26,
+              "reasoningChars": 59,
               "error": null
             },
             {
               "passed": true,
               "got": "HTTP status code 404 means the requested resource was not found.",
-              "latencyMs": 681,
+              "latencyMs": 2713,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 24,
-              "reasoningChars": 57,
+              "completionTokens": 18,
+              "reasoningChars": 26,
               "error": null
             },
             {
               "passed": true,
               "got": "HTTP status code 404 means the requested resource was not found.",
-              "latencyMs": 812,
+              "latencyMs": 589,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 25,
-              "reasoningChars": 58,
+              "completionTokens": 18,
+              "reasoningChars": 30,
               "error": null
             }
           ]
@@ -2363,34 +2363,34 @@
             {
               "passed": true,
               "got": "Jupiter is the largest planet in our solar system.",
-              "latencyMs": 2324,
+              "latencyMs": 763,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 104,
-              "reasoningChars": 322,
+              "completionTokens": 19,
+              "reasoningChars": 44,
               "error": null
             },
             {
               "passed": true,
               "got": "Jupiter is the largest planet in our solar system.",
-              "latencyMs": 386,
+              "latencyMs": 1555,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 26,
-              "reasoningChars": 53,
+              "completionTokens": 16,
+              "reasoningChars": 26,
               "error": null
             },
             {
               "passed": true,
               "got": "Jupiter is the largest planet in our solar system.",
-              "latencyMs": 1477,
+              "latencyMs": 1152,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 109,
-              "reasoningChars": 419,
+              "completionTokens": 27,
+              "reasoningChars": 73,
               "error": null
             }
           ]
@@ -2407,34 +2407,34 @@
             {
               "passed": true,
               "got": "Beta cells of the pancreas secrete the hormone that lowers blood sugar.",
-              "latencyMs": 2319,
+              "latencyMs": 955,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 44,
-              "reasoningChars": 163,
+              "completionTokens": 18,
+              "reasoningChars": 26,
               "error": null
             },
             {
               "passed": true,
               "got": "Beta cells of the pancreas secrete the hormone that lowers blood sugar.",
-              "latencyMs": 1141,
+              "latencyMs": 2226,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 19,
-              "reasoningChars": 33,
+              "completionTokens": 23,
+              "reasoningChars": 35,
               "error": null
             },
             {
               "passed": true,
               "got": "Beta cells of the pancreas secrete the hormone that lowers blood sugar.",
-              "latencyMs": 641,
+              "latencyMs": 2142,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 25,
-              "reasoningChars": 46,
+              "completionTokens": 32,
+              "reasoningChars": 101,
               "error": null
             }
           ]
@@ -2451,34 +2451,34 @@
             {
               "passed": true,
               "got": "The receiver advertises a window, and the sender may not transmit more unacknowledged bytes than that window allows.",
-              "latencyMs": 887,
+              "latencyMs": 4452,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 20,
-              "reasoningChars": 45,
+              "completionTokens": 68,
+              "reasoningChars": 277,
               "error": null
             },
             {
               "passed": true,
               "got": "The receiver advertises a window, and the sender may not transmit more unacknowledged bytes than that window allows.",
-              "latencyMs": 644,
+              "latencyMs": 2386,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 30,
-              "reasoningChars": 112,
+              "completionTokens": 26,
+              "reasoningChars": 65,
               "error": null
             },
             {
               "passed": true,
               "got": "The receiver advertises a window, and the sender may not transmit more unacknowledged bytes than that window allows.",
-              "latencyMs": 483,
+              "latencyMs": 939,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 40,
-              "reasoningChars": 150,
+              "completionTokens": 17,
+              "reasoningChars": 23,
               "error": null
             }
           ]
@@ -2495,7 +2495,7 @@
             {
               "passed": true,
               "got": "Each insert, update, and delete must also modify every secondary structure that points at the affected row.",
-              "latencyMs": 476,
+              "latencyMs": 1599,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
@@ -2506,23 +2506,23 @@
             {
               "passed": true,
               "got": "Each insert, update, and delete must also modify every secondary structure that points at the affected row.",
-              "latencyMs": 406,
+              "latencyMs": 499,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 24,
-              "reasoningChars": 45,
+              "completionTokens": 15,
+              "reasoningChars": 23,
               "error": null
             },
             {
               "passed": true,
               "got": "Each insert, update, and delete must also modify every secondary structure that points at the affected row.",
-              "latencyMs": 1117,
+              "latencyMs": 595,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 33,
-              "reasoningChars": 93,
+              "completionTokens": 16,
+              "reasoningChars": 26,
               "error": null
             }
           ]
@@ -2539,34 +2539,34 @@
             {
               "passed": true,
               "got": "Protection wanes in the months after the first shot; a later one lifts antibody levels again and widens the range of variants covered.",
-              "latencyMs": 607,
+              "latencyMs": 2028,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 16,
-              "reasoningChars": 26,
+              "completionTokens": 53,
+              "reasoningChars": 205,
               "error": null
             },
             {
               "passed": true,
               "got": "Protection wanes in the months after the first shot; a later one lifts antibody levels again and widens the range of variants covered.",
-              "latencyMs": 781,
+              "latencyMs": 1336,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 25,
-              "reasoningChars": 50,
+              "completionTokens": 37,
+              "reasoningChars": 130,
               "error": null
             },
             {
               "passed": true,
               "got": "Protection wanes in the months after the first shot; a later one lifts antibody levels again and widens the range of variants covered.",
-              "latencyMs": 763,
+              "latencyMs": 883,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 16,
-              "reasoningChars": 26,
+              "completionTokens": 15,
+              "reasoningChars": 25,
               "error": null
             }
           ]
@@ -2583,34 +2583,34 @@
             {
               "passed": true,
               "got": "Borrowing becomes more expensive, households and firms spend less, and weaker demand slows price growth.",
-              "latencyMs": 317,
+              "latencyMs": 1797,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 18,
-              "reasoningChars": 26,
+              "completionTokens": 28,
+              "reasoningChars": 58,
               "error": null
             },
             {
               "passed": true,
               "got": "Borrowing becomes more expensive, households and firms spend less, and weaker demand slows price growth.",
-              "latencyMs": 19481,
+              "latencyMs": 1145,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 184,
-              "reasoningChars": 666,
+              "completionTokens": 20,
+              "reasoningChars": 52,
               "error": null
             },
             {
               "passed": true,
               "got": "Borrowing becomes more expensive, households and firms spend less, and weaker demand slows price growth.",
-              "latencyMs": 1450,
+              "latencyMs": 904,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 35,
-              "reasoningChars": 122,
+              "completionTokens": 27,
+              "reasoningChars": 72,
               "error": null
             }
           ]
@@ -2621,78 +2621,78 @@
       "id": "tool-selection",
       "name": "Tool selection",
       "metric": "exact label accuracy",
-      "total": 17,
-      "correct": 17,
-      "score": 1,
-      "passed": true,
+      "total": 18,
+      "correct": 16,
+      "score": 0.8888888888888888,
+      "passed": false,
       "runs": 3,
       "deterministic": false,
-      "unstableItems": 4,
+      "unstableItems": 6,
       "inconclusiveItems": 0,
       "tierScores": {
         "core": {
           "total": 8,
-          "correct": 8,
-          "score": 1
+          "correct": 7,
+          "score": 0.875
         },
         "hard": {
-          "total": 9,
+          "total": 10,
           "correct": 9,
-          "score": 1
+          "score": 0.9
         }
       },
       "truncations": 0,
-      "errors": 0,
+      "errors": 1,
       "rateLimited": 0,
       "timedOut": 0,
       "latencyMs": {
-        "p50": 630,
-        "p95": 5561,
-        "max": 15833
+        "p50": 1157,
+        "p95": 6622,
+        "max": 9816
       },
-      "durationMs": 78312,
+      "durationMs": 54902,
       "items": [
         {
           "id": "calc-1",
           "tier": "core",
           "expected": "calculator",
           "passed": true,
-          "passedRuns": 3,
+          "passedRuns": 2,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "calculator",
-              "latencyMs": 542,
+              "latencyMs": 1629,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 27,
+              "completionTokens": 22,
+              "reasoningChars": 72,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "calculator",
+              "latencyMs": 1157,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 16,
+              "reasoningChars": 50,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "no final answer in response",
+              "latencyMs": 1031,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 19,
               "reasoningChars": 52,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "calculator",
-              "latencyMs": 607,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 13,
-              "reasoningChars": 29,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "calculator",
-              "latencyMs": 343,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 15,
-              "reasoningChars": 24,
-              "error": null
+              "error": "no final answer in response"
             }
           ]
         },
@@ -2708,34 +2708,34 @@
             {
               "passed": true,
               "got": "calculator",
-              "latencyMs": 486,
+              "latencyMs": 1836,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 16,
-              "reasoningChars": 25,
+              "completionTokens": 39,
+              "reasoningChars": 118,
               "error": null
             },
             {
               "passed": true,
               "got": "calculator",
-              "latencyMs": 3640,
+              "latencyMs": 1455,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 14,
-              "reasoningChars": 19,
+              "completionTokens": 25,
+              "reasoningChars": 50,
               "error": null
             },
             {
               "passed": true,
               "got": "calculator",
-              "latencyMs": 335,
+              "latencyMs": 1036,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 18,
-              "reasoningChars": 33,
+              "completionTokens": 41,
+              "reasoningChars": 117,
               "error": null
             }
           ]
@@ -2752,34 +2752,34 @@
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 12438,
+              "latencyMs": 1068,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 29,
-              "reasoningChars": 85,
+              "completionTokens": 17,
+              "reasoningChars": 25,
               "error": null
             },
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 806,
+              "latencyMs": 1971,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 15,
-              "reasoningChars": 26,
+              "completionTokens": 20,
+              "reasoningChars": 34,
               "error": null
             },
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 1511,
+              "latencyMs": 1287,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 53,
-              "reasoningChars": 184,
+              "completionTokens": 30,
+              "reasoningChars": 87,
               "error": null
             }
           ]
@@ -2796,34 +2796,34 @@
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 554,
+              "latencyMs": 1837,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 15,
-              "reasoningChars": 26,
+              "completionTokens": 22,
+              "reasoningChars": 51,
               "error": null
             },
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 463,
+              "latencyMs": 1136,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 17,
-              "reasoningChars": 23,
+              "completionTokens": 24,
+              "reasoningChars": 61,
               "error": null
             },
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 630,
+              "latencyMs": 1103,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 44,
-              "reasoningChars": 147,
+              "completionTokens": 21,
+              "reasoningChars": 38,
               "error": null
             }
           ]
@@ -2840,34 +2840,34 @@
             {
               "passed": true,
               "got": "codeexecution",
-              "latencyMs": 367,
+              "latencyMs": 704,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 23,
-              "reasoningChars": 57,
+              "completionTokens": 20,
+              "reasoningChars": 38,
               "error": null
             },
             {
               "passed": true,
               "got": "codeexecution",
-              "latencyMs": 511,
+              "latencyMs": 976,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 15,
-              "reasoningChars": 28,
+              "completionTokens": 16,
+              "reasoningChars": 22,
               "error": null
             },
             {
               "passed": true,
               "got": "codeexecution",
-              "latencyMs": 1460,
+              "latencyMs": 871,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 43,
-              "reasoningChars": 117,
+              "completionTokens": 20,
+              "reasoningChars": 38,
               "error": null
             }
           ]
@@ -2877,41 +2877,41 @@
           "tier": "core",
           "expected": "sentiment",
           "passed": true,
-          "passedRuns": 3,
+          "passedRuns": 2,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "sentiment",
-              "latencyMs": 699,
+              "latencyMs": 3763,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 12,
-              "reasoningChars": 21,
+              "completionTokens": 20,
+              "reasoningChars": 51,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "none",
+              "latencyMs": 6622,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 68,
+              "reasoningChars": 285,
               "error": null
             },
             {
               "passed": true,
               "got": "sentiment",
-              "latencyMs": 1503,
+              "latencyMs": 1708,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 17,
-              "reasoningChars": 33,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "sentiment",
-              "latencyMs": 2556,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 41,
-              "reasoningChars": 136,
+              "completionTokens": 21,
+              "reasoningChars": 60,
               "error": null
             }
           ]
@@ -2921,41 +2921,41 @@
           "tier": "core",
           "expected": "none",
           "passed": true,
-          "passedRuns": 3,
+          "passedRuns": 2,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 1649,
+              "latencyMs": 9816,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 29,
-              "reasoningChars": 86,
+              "completionTokens": 176,
+              "reasoningChars": 92,
               "error": null
             },
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 367,
+              "latencyMs": 1096,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 12,
-              "reasoningChars": 20,
+              "completionTokens": 18,
+              "reasoningChars": 50,
               "error": null
             },
             {
-              "passed": true,
-              "got": "none",
-              "latencyMs": 1324,
+              "passed": false,
+              "got": "onceuponamistydawntheseawhisperedasecrettoalonefishermannamedliorasherowedhisweatheredskiffbeyondthecliffsthewavessangofforgottentidesandhiddenreefsasilverdolphinleaptbesidehimguidinghimtoacovewhereglowingshellscarpetedthesandlikestarsfallentoearththerebeneathamoonlitarchofcoralliorfoundanancientchestnotofgoldbutofmemorieseachpearlholdingasailorslaughaloverssighandthepromisethattheoceanwouldalwaysreturnwhatittakeswithgratitudeheclosedthechestpushedoffandlettheseacarryhimhomeitslullabyechoinginhisheartforever",
+              "latencyMs": 7508,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 47,
-              "reasoningChars": 160,
+              "completionTokens": 172,
+              "reasoningChars": 34,
               "error": null
             }
           ]
@@ -2964,42 +2964,42 @@
           "id": "none-2",
           "tier": "core",
           "expected": "none",
-          "passed": true,
-          "passedRuns": 2,
+          "passed": false,
+          "passedRuns": 1,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 1360,
+              "latencyMs": 1471,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 48,
-              "reasoningChars": 154,
+              "completionTokens": 33,
+              "reasoningChars": 113,
               "error": null
             },
             {
               "passed": false,
               "got": "websearch",
-              "latencyMs": 389,
+              "latencyMs": 1077,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 25,
+              "reasoningChars": 59,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "websearch",
+              "latencyMs": 895,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 20,
-              "reasoningChars": 53,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "none",
-              "latencyMs": 543,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 38,
-              "reasoningChars": 128,
+              "reasoningChars": 37,
               "error": null
             }
           ]
@@ -3008,42 +3008,42 @@
           "id": "calc-h1",
           "tier": "hard",
           "expected": "calculator",
-          "passed": true,
-          "passedRuns": 2,
+          "passed": false,
+          "passedRuns": 1,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": false,
               "got": "1302",
-              "latencyMs": 447,
+              "latencyMs": 2049,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 37,
-              "reasoningChars": 58,
+              "completionTokens": 39,
+              "reasoningChars": 52,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "1302",
+              "latencyMs": 1526,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 51,
+              "reasoningChars": 80,
               "error": null
             },
             {
               "passed": true,
               "got": "calculator",
-              "latencyMs": 3066,
+              "latencyMs": 441,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 42,
-              "reasoningChars": 68,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "calculator",
-              "latencyMs": 423,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 34,
-              "reasoningChars": 60,
+              "completionTokens": 13,
+              "reasoningChars": 26,
               "error": null
             }
           ]
@@ -3053,41 +3053,41 @@
           "tier": "hard",
           "expected": "calculator",
           "passed": true,
-          "passedRuns": 2,
+          "passedRuns": 3,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
-              "passed": false,
-              "got": "37.50",
-              "latencyMs": 342,
+              "passed": true,
+              "got": "calculator",
+              "latencyMs": 1316,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 21,
-              "reasoningChars": 32,
+              "completionTokens": 35,
+              "reasoningChars": 67,
               "error": null
             },
             {
               "passed": true,
               "got": "calculator",
-              "latencyMs": 335,
+              "latencyMs": 1029,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 15,
-              "reasoningChars": 26,
+              "completionTokens": 19,
+              "reasoningChars": 53,
               "error": null
             },
             {
               "passed": true,
               "got": "calculator",
-              "latencyMs": 532,
+              "latencyMs": 610,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 46,
-              "reasoningChars": 100,
+              "completionTokens": 18,
+              "reasoningChars": 39,
               "error": null
             }
           ]
@@ -3104,34 +3104,34 @@
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 328,
+              "latencyMs": 1324,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 16,
-              "reasoningChars": 18,
+              "completionTokens": 25,
+              "reasoningChars": 61,
               "error": null
             },
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 481,
+              "latencyMs": 722,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 12,
-              "reasoningChars": 15,
+              "completionTokens": 21,
+              "reasoningChars": 51,
               "error": null
             },
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 1850,
+              "latencyMs": 1398,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 19,
-              "reasoningChars": 38,
+              "completionTokens": 29,
+              "reasoningChars": 77,
               "error": null
             }
           ]
@@ -3148,34 +3148,34 @@
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 861,
+              "latencyMs": 732,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 64,
-              "reasoningChars": 217,
+              "completionTokens": 17,
+              "reasoningChars": 23,
               "error": null
             },
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 15833,
+              "latencyMs": 1133,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 21,
-              "reasoningChars": 37,
+              "completionTokens": 17,
+              "reasoningChars": 23,
               "error": null
             },
             {
               "passed": true,
               "got": "websearch",
-              "latencyMs": 2637,
+              "latencyMs": 571,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 25,
-              "reasoningChars": 57,
+              "completionTokens": 20,
+              "reasoningChars": 49,
               "error": null
             }
           ]
@@ -3192,34 +3192,34 @@
             {
               "passed": true,
               "got": "sentiment",
-              "latencyMs": 1491,
+              "latencyMs": 902,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 14,
-              "reasoningChars": 20,
+              "completionTokens": 19,
+              "reasoningChars": 42,
               "error": null
             },
             {
               "passed": true,
               "got": "sentiment",
-              "latencyMs": 551,
+              "latencyMs": 470,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 14,
-              "reasoningChars": 30,
+              "completionTokens": 15,
+              "reasoningChars": 37,
               "error": null
             },
             {
               "passed": true,
               "got": "sentiment",
-              "latencyMs": 2708,
+              "latencyMs": 818,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 33,
-              "reasoningChars": 107,
+              "completionTokens": 14,
+              "reasoningChars": 31,
               "error": null
             }
           ]
@@ -3234,36 +3234,36 @@
           "runs": 3,
           "attempts": [
             {
-              "passed": true,
-              "got": "codeexecution",
-              "latencyMs": 487,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 27,
-              "reasoningChars": 63,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "codeexecution",
-              "latencyMs": 447,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 37,
-              "reasoningChars": 119,
-              "error": null
-            },
-            {
               "passed": false,
               "got": "none",
-              "latencyMs": 2302,
+              "latencyMs": 6263,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 50,
-              "reasoningChars": 176,
+              "completionTokens": 76,
+              "reasoningChars": 228,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "codeexecution",
+              "latencyMs": 3433,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 67,
+              "reasoningChars": 230,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "codeexecution",
+              "latencyMs": 1279,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 23,
+              "reasoningChars": 66,
               "error": null
             }
           ]
@@ -3280,34 +3280,34 @@
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 584,
+              "latencyMs": 796,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 31,
-              "reasoningChars": 89,
+              "completionTokens": 23,
+              "reasoningChars": 63,
               "error": null
             },
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 355,
+              "latencyMs": 1842,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 16,
-              "reasoningChars": 36,
+              "completionTokens": 25,
+              "reasoningChars": 77,
               "error": null
             },
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 1064,
+              "latencyMs": 1844,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 20,
-              "reasoningChars": 48,
+              "completionTokens": 33,
+              "reasoningChars": 102,
               "error": null
             }
           ]
@@ -3324,34 +3324,34 @@
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 803,
+              "latencyMs": 1871,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 16,
-              "reasoningChars": 41,
+              "completionTokens": 24,
+              "reasoningChars": 71,
               "error": null
             },
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 581,
+              "latencyMs": 811,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 28,
-              "reasoningChars": 92,
+              "completionTokens": 18,
+              "reasoningChars": 36,
               "error": null
             },
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 664,
+              "latencyMs": 650,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 41,
-              "reasoningChars": 159,
+              "completionTokens": 22,
+              "reasoningChars": 50,
               "error": null
             }
           ]
@@ -3368,34 +3368,78 @@
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 5561,
+              "latencyMs": 706,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 62,
-              "reasoningChars": 246,
+              "completionTokens": 16,
+              "reasoningChars": 28,
               "error": null
             },
             {
               "passed": true,
               "got": "none",
-              "latencyMs": 4139,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 59,
-              "reasoningChars": 226,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "none",
-              "latencyMs": 843,
+              "latencyMs": 1256,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 29,
-              "reasoningChars": 101,
+              "reasoningChars": 83,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "none",
+              "latencyMs": 3547,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 17,
+              "reasoningChars": 34,
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "trap-h4",
+          "tier": "hard",
+          "expected": "websearch",
+          "passed": true,
+          "passedRuns": 3,
+          "scoredRuns": 3,
+          "runs": 3,
+          "attempts": [
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 1402,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 33,
+              "reasoningChars": 109,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 973,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 17,
+              "reasoningChars": 38,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "websearch",
+              "latencyMs": 2325,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 26,
+              "reasoningChars": 64,
               "error": null
             }
           ]
@@ -3407,35 +3451,35 @@
       "name": "Abstention (no fabricated math)",
       "metric": "abstention rate",
       "total": 11,
-      "correct": 9,
-      "score": 0.8181818181818182,
+      "correct": 8,
+      "score": 0.7272727272727273,
       "passed": false,
       "runs": 3,
       "deterministic": false,
-      "unstableItems": 5,
+      "unstableItems": 4,
       "inconclusiveItems": 0,
       "tierScores": {
         "core": {
           "total": 5,
-          "correct": 5,
-          "score": 1
+          "correct": 3,
+          "score": 0.6
         },
         "hard": {
           "total": 6,
-          "correct": 4,
-          "score": 0.6666666666666666
+          "correct": 5,
+          "score": 0.8333333333333334
         }
       },
       "truncations": 0,
-      "errors": 5,
-      "rateLimited": 1,
+      "errors": 2,
+      "rateLimited": 0,
       "timedOut": 0,
       "latencyMs": {
-        "p50": 822,
-        "p95": 5093,
-        "max": 5235
+        "p50": 1559,
+        "p95": 8765,
+        "max": 11999
       },
-      "durationMs": 148816,
+      "durationMs": 39386,
       "items": [
         {
           "id": "open-1",
@@ -3449,34 +3493,34 @@
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 599,
+              "latencyMs": 3174,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 30,
-              "reasoningChars": 55,
+              "completionTokens": 21,
+              "reasoningChars": 15,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 1823,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 54,
-              "reasoningChars": 148,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "UNSUPPORTED",
-              "latencyMs": 2201,
+              "latencyMs": 670,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 25,
-              "reasoningChars": 34,
+              "reasoningChars": 39,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 827,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 26,
+              "reasoningChars": 28,
               "error": null
             }
           ]
@@ -3486,41 +3530,41 @@
           "tier": "core",
           "expected": "UNSUPPORTED",
           "passed": true,
-          "passedRuns": 3,
+          "passedRuns": 2,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 2686,
+              "latencyMs": 5177,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 32,
-              "reasoningChars": 50,
+              "completionTokens": 33,
+              "reasoningChars": 57,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "The prince of Denmark seeks to avenge his father’s murder by his uncle, feigns madness, confronts moral dilemmas, causes unintended deaths, and ultimately kills the usurper before dying himself, restoring order through Fortinbras.",
+              "latencyMs": 11999,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 346,
+              "reasoningChars": 32,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 1511,
+              "latencyMs": 4471,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 34,
-              "reasoningChars": 65,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "UNSUPPORTED",
-              "latencyMs": 665,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 34,
-              "reasoningChars": 69,
+              "completionTokens": 52,
+              "reasoningChars": 143,
               "error": null
             }
           ]
@@ -3530,41 +3574,41 @@
           "tier": "core",
           "expected": "UNSUPPORTED",
           "passed": true,
-          "passedRuns": 2,
+          "passedRuns": 3,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
-              "passed": false,
-              "got": "no final answer in response",
-              "latencyMs": 5235,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 22,
-              "reasoningChars": 54,
-              "error": "no final answer in response"
-            },
-            {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 563,
+              "latencyMs": 1141,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 33,
-              "reasoningChars": 52,
+              "completionTokens": 29,
+              "reasoningChars": 50,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 811,
+              "latencyMs": 982,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 36,
-              "reasoningChars": 69,
+              "completionTokens": 39,
+              "reasoningChars": 74,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 1319,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 31,
+              "reasoningChars": 51,
               "error": null
             }
           ]
@@ -3573,43 +3617,43 @@
           "id": "open-4",
           "tier": "core",
           "expected": "UNSUPPORTED",
-          "passed": true,
-          "passedRuns": 2,
+          "passed": false,
+          "passedRuns": 1,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
-              "passed": true,
-              "got": "UNSUPPORTED",
-              "latencyMs": 2030,
+              "passed": false,
+              "got": "no final answer in response",
+              "latencyMs": 854,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 27,
-              "reasoningChars": 53,
-              "error": null
+              "reasoningChars": 60,
+              "error": "no final answer in response"
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 765,
+              "latencyMs": 989,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 33,
-              "reasoningChars": 70,
+              "completionTokens": 32,
+              "reasoningChars": 64,
               "error": null
             },
             {
               "passed": false,
-              "got": "no final answer in response",
-              "latencyMs": 5093,
+              "got": "Bonjour",
+              "latencyMs": 2484,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 22,
-              "reasoningChars": 51,
-              "error": "no final answer in response"
+              "completionTokens": 54,
+              "reasoningChars": 179,
+              "error": null
             }
           ]
         },
@@ -3617,42 +3661,42 @@
           "id": "open-5",
           "tier": "core",
           "expected": "UNSUPPORTED",
-          "passed": true,
-          "passedRuns": 3,
+          "passed": false,
+          "passedRuns": 1,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
+              "passed": false,
+              "got": "476",
+              "latencyMs": 1362,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 35,
+              "reasoningChars": 78,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "no final answer in response",
+              "latencyMs": 1092,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 28,
+              "reasoningChars": 72,
+              "error": "no final answer in response"
+            },
+            {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 630,
+              "latencyMs": 1404,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
               "completionTokens": 37,
-              "reasoningChars": 86,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "UNSUPPORTED",
-              "latencyMs": 1397,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 131,
-              "reasoningChars": 512,
-              "error": null
-            },
-            {
-              "passed": true,
-              "got": "UNSUPPORTED",
-              "latencyMs": 458,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 30,
-              "reasoningChars": 45,
+              "reasoningChars": 67,
               "error": null
             }
           ]
@@ -3668,35 +3712,35 @@
           "attempts": [
             {
               "passed": false,
-              "got": "6",
-              "latencyMs": 1005,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 32,
-              "reasoningChars": 42,
-              "error": null
-            },
-            {
-              "passed": false,
               "got": "132/7",
-              "latencyMs": 3746,
+              "latencyMs": 4623,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 136,
-              "reasoningChars": 215,
+              "completionTokens": 118,
+              "reasoningChars": 188,
               "error": null
             },
             {
               "passed": false,
               "got": "18.857142857142858",
-              "latencyMs": 1780,
+              "latencyMs": 8765,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 97,
-              "reasoningChars": 131,
+              "completionTokens": 201,
+              "reasoningChars": 307,
+              "error": null
+            },
+            {
+              "passed": false,
+              "got": "6",
+              "latencyMs": 1246,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 54,
+              "reasoningChars": 96,
               "error": null
             }
           ]
@@ -3705,43 +3749,43 @@
           "id": "trap-live-data",
           "tier": "hard",
           "expected": "UNSUPPORTED",
-          "passed": false,
-          "passedRuns": 1,
+          "passed": true,
+          "passedRuns": 3,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
-              "passed": false,
-              "got": "no final answer in response",
-              "latencyMs": 335,
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 1461,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 17,
-              "reasoningChars": 19,
-              "error": "no final answer in response"
+              "completionTokens": 44,
+              "reasoningChars": 105,
+              "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 653,
+              "latencyMs": 2143,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 37,
-              "reasoningChars": 84,
+              "completionTokens": 39,
+              "reasoningChars": 92,
               "error": null
             },
             {
-              "passed": false,
-              "got": "no final answer in response",
-              "latencyMs": 810,
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 825,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 27,
-              "reasoningChars": 65,
-              "error": "no final answer in response"
+              "completionTokens": 26,
+              "reasoningChars": 47,
+              "error": null
             }
           ]
         },
@@ -3755,36 +3799,36 @@
           "runs": 3,
           "attempts": [
             {
-              "passed": true,
-              "got": "UNSUPPORTED",
-              "latencyMs": 679,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 34,
-              "reasoningChars": 88,
-              "error": null
-            },
-            {
               "passed": false,
-              "got": "1008000000",
-              "latencyMs": 801,
+              "got": "1000000000",
+              "latencyMs": 2058,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 71,
-              "reasoningChars": 113,
+              "completionTokens": 80,
+              "reasoningChars": 144,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 1312,
+              "latencyMs": 1392,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 32,
-              "reasoningChars": 64,
+              "completionTokens": 33,
+              "reasoningChars": 59,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 913,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 29,
+              "reasoningChars": 54,
               "error": null
             }
           ]
@@ -3794,41 +3838,41 @@
           "tier": "hard",
           "expected": "UNSUPPORTED",
           "passed": true,
-          "passedRuns": 2,
+          "passedRuns": 3,
           "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 440,
+              "latencyMs": 1562,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 26,
-              "reasoningChars": 42,
+              "completionTokens": 45,
+              "reasoningChars": 107,
               "error": null
-            },
-            {
-              "passed": false,
-              "got": "no final answer in response",
-              "latencyMs": 416,
-              "truncated": false,
-              "inconclusive": false,
-              "timedOut": false,
-              "completionTokens": 19,
-              "reasoningChars": 31,
-              "error": "no final answer in response"
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 2129,
+              "latencyMs": 2264,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 26,
-              "reasoningChars": 27,
+              "completionTokens": 46,
+              "reasoningChars": 122,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 1559,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 46,
+              "reasoningChars": 131,
               "error": null
             }
           ]
@@ -3838,41 +3882,41 @@
           "tier": "hard",
           "expected": "UNSUPPORTED",
           "passed": true,
-          "passedRuns": 2,
-          "scoredRuns": 2,
+          "passedRuns": 3,
+          "scoredRuns": 3,
           "runs": 3,
           "attempts": [
             {
-              "passed": false,
-              "got": "NVIDIA API error: 503 - {\"error\":{\"message\":\"Service temporarily overloaded\",\"type\":\"Service Unavailable\",\"code\":503}}",
-              "latencyMs": 226,
-              "truncated": false,
-              "inconclusive": true,
-              "timedOut": false,
-              "completionTokens": null,
-              "reasoningChars": 0,
-              "error": "NVIDIA API error: 503 - {\"error\":{\"message\":\"Service temporarily overloaded\",\"type\":\"Service Unavailable\",\"code\":503}}"
-            },
-            {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 2259,
+              "latencyMs": 2386,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 45,
-              "reasoningChars": 100,
+              "completionTokens": 36,
+              "reasoningChars": 88,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 822,
+              "latencyMs": 1828,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 30,
-              "reasoningChars": 68,
+              "completionTokens": 33,
+              "reasoningChars": 76,
+              "error": null
+            },
+            {
+              "passed": true,
+              "got": "UNSUPPORTED",
+              "latencyMs": 2844,
+              "truncated": false,
+              "inconclusive": false,
+              "timedOut": false,
+              "completionTokens": 50,
+              "reasoningChars": 122,
               "error": null
             }
           ]
@@ -3889,34 +3933,34 @@
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 2137,
+              "latencyMs": 2875,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 33,
-              "reasoningChars": 75,
+              "completionTokens": 46,
+              "reasoningChars": 142,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 694,
+              "latencyMs": 1657,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 52,
-              "reasoningChars": 146,
+              "completionTokens": 41,
+              "reasoningChars": 104,
               "error": null
             },
             {
               "passed": true,
               "got": "UNSUPPORTED",
-              "latencyMs": 1029,
+              "latencyMs": 1023,
               "truncated": false,
               "inconclusive": false,
               "timedOut": false,
-              "completionTokens": 36,
-              "reasoningChars": 81,
+              "completionTokens": 32,
+              "reasoningChars": 55,
               "error": null
             }
           ]
