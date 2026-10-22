@@ -518,14 +518,22 @@ export const ROUTING_FIXTURES: ReadonlyArray<{
       ["openai", false],
     ],
   },
+  {
+    id: "req-6",
+    attempts: [
+      ["bleujs", false],
+      ["nvidia", false],
+      ["openai", true],
+    ],
+  },
 ];
 
 /** Expected routing metrics for ROUTING_FIXTURES (exact). */
 export const ROUTING_EXPECTED = {
   /** requests that produced an answer / total requests */
-  successRate: 0.8, // 4 of 5 solved
+  successRate: 5 / 6, // 5 of 6 solved
   /** requests solved by a fallback provider / total requests */
-  fallbackRate: 0.4, // req-2 and req-3
+  fallbackRate: 3 / 6, // req-2, req-3, and req-6
 };
 
 /**
