@@ -237,6 +237,8 @@ People outside this repository whose pull requests have been merged:
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [Saubhagya Chopra](https://github.com/saubhagya-chopra) | Nine arithmetic items ([#46](https://github.com/HelloblueAI/bleujs-reasoning-lab/pull/46)) and the largest-planet retrieval query ([#54](https://github.com/HelloblueAI/bleujs-reasoning-lab/pull/54)) |
 | [Kartavya Dikshit](https://github.com/KartavyaDikshit)  | The first held-out logic puzzle ([#9](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/9))                                                                                                   |
+| [knownshah](https://github.com/knownshah)               | The hard tool-selection trap ([#73](https://github.com/HelloblueAI/bleujs-reasoning-lab/pull/73))                                                                                                      |
+| [Avadh Kalathiya](https://github.com/AvadhKalathiya)    | The routing fixture where OpenAI is the provider that succeeds ([#89](https://github.com/HelloblueAI/bleujs-reasoning-lab/pull/89))                                                                    |
 
 Maintainer and dependency-bot commits are not listed. New outside contributions are added here when they merge; see [CONTRIBUTING.md](CONTRIBUTING.md#recognition).
 
