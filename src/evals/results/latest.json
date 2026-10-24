@@ -1,12 +1,12 @@
 {
   "labVersion": "6.0.0",
-  "gitSha": "ef9ad96e",
-  "generatedAt": "2026-09-20T13:14:17.085Z",
+  "gitSha": "b6b50be5",
+  "generatedAt": "2026-10-24T07:40:16.009Z",
   "benchmark": {
     "suite": "benchmark",
     "labVersion": "6.0.0",
-    "gitSha": "ef9ad96e",
-    "timestamp": 1789910057085,
+    "gitSha": "b6b50be5",
+    "timestamp": 1792827616009,
     "total": 6,
     "passed": 6,
     "failed": 0,
@@ -328,14 +328,14 @@
           {
             "id": "success-rate",
             "passed": true,
-            "got": "0.80",
-            "expected": "0.80"
+            "got": "0.83",
+            "expected": "0.83"
           },
           {
             "id": "fallback-rate",
             "passed": true,
-            "got": "0.40",
-            "expected": "0.40"
+            "got": "0.50",
+            "expected": "0.50"
           }
         ]
       },

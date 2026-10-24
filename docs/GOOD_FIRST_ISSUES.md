@@ -34,8 +34,6 @@ will check the change.
 | Issue                                                                | Labels           | Task                                                                 |
 | -------------------------------------------------------------------- | ---------------- | -------------------------------------------------------------------- |
 | [#69](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/69) | good first issue | One hard retrieval query the word-overlap baseline misses            |
-| [#70](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/70) | good first issue | One hard tool-selection request the keyword router gets wrong        |
-| [#34](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/34) | good first issue | One routing fixture where OpenAI is the provider that succeeds       |
 | [#71](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/71) | help wanted      | Completion tokens per correct hard-tier item, from committed results |
 
 Docs-only PRs that keep `README.md` and `docs/api/README.md` curl examples in
@@ -52,6 +50,8 @@ sync with `POST /reason` are also welcome — no issue required.
 - Dashboard `GET /eval` pass rate — [#29](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/29)
 - Hosted-model benchmarks — [#36](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/36), shipped as `pnpm run eval:model` instead of inside the offline suite
 - Eval result persistence — `pnpm run eval` writes `src/evals/results/latest.json`
+- Hard tool-selection trap — [#70](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/70) / [#73](https://github.com/HelloblueAI/bleujs-reasoning-lab/pull/73) ([knownshah](https://github.com/knownshah))
+- OpenAI fallback routing fixture — [#34](https://github.com/HelloblueAI/bleujs-reasoning-lab/issues/34) / [#89](https://github.com/HelloblueAI/bleujs-reasoning-lab/pull/89) ([Avadh Kalathiya](https://github.com/AvadhKalathiya))
 
 ---
 
