@@ -1,5 +1,7 @@
 # BleuJS Reasoning Lab
 
+**UW students:** [UW Student Projects: Start Here](https://github.com/HelloblueAI/.github/blob/main/profile/UW-STUDENT-PROJECTS.md). Claim one listed issue. GPU tasks stay closed until access is confirmed.
+
 [![CI](https://github.com/HelloblueAI/bleujs-reasoning-lab/actions/workflows/lab-ci.yml/badge.svg)](https://github.com/HelloblueAI/bleujs-reasoning-lab/actions/workflows/lab-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
