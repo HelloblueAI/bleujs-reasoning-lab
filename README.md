@@ -67,7 +67,7 @@ See [docs/PROJECT_STRUCTURE.md](docs/PROJECT_STRUCTURE.md) for details.
 ```bash
 # Benchmark scores from the last committed run (no API key required)
 curl http://localhost:8787/capabilities
-# → {"success":true,"data":{"benchmarks":{"passed":6,"total":6,"passRate":1,
+# → {"success":true,"data":{"benchmarks":{"passed":7,"total":7,"passRate":1,
 #      "gitSha":"...","scores":{"arithmetic":1,"tool-selection":1,...}},
 #      "limitations":["Datasets are small (tens of items per benchmark)...]}}
 
@@ -86,7 +86,7 @@ curl -X POST http://localhost:8787/reason \
 
 The lab separates two very different things:
 
-- **Offline benchmarks** ([`src/evals/benchmarks/`](src/evals/benchmarks/), served by `GET /eval`) score **deterministic baselines** against **fixed datasets** with **exact grading**: arithmetic, constraint logic puzzles, retrieval top-1, tool selection, provider routing rates, and abstention. No API keys, no sampling — the same commit always yields the same numbers, written to [`src/evals/results/latest.json`](src/evals/results/latest.json).
+- **Offline benchmarks** ([`src/evals/benchmarks/`](src/evals/benchmarks/), served by `GET /eval`) score **deterministic baselines** against **fixed datasets** with **exact grading**: arithmetic, constraint logic puzzles, retrieval top-1, evidence resolution over conflicting/currentness fixtures, tool selection, provider routing rates, and abstention. No API keys, no sampling — the same commit always yields the same numbers, written to [`src/evals/results/latest.json`](src/evals/results/latest.json).
 
 ```bash
 pnpm run eval   # refreshes results/latest.json
@@ -111,14 +111,56 @@ puzzle, so the benchmarks could not answer the question the lab exists to ask.
 
 | Tier   | Built for                                                                                                                                                                                                                                                                           | Offline baseline scores                            |
 | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| `core` | What the deterministic baselines handle: two-operand arithmetic, lexically obvious retrieval, literal tool keywords                                                                                                                                                                 | 100% — it is a regression test                     |
-| `hard` | Defeating pattern matching: order of operations, percentages, unit conversion, multi-step word problems, near-miss passages where the correct answer shares _fewer_ words with the query, tool requests with no trigger word, and arithmetic-shaped questions that are unanswerable | 0/20 arithmetic, 0/5 retrieval, 0/9 tool selection |
+| `core` | What the deterministic baselines handle: two-operand arithmetic, lexically obvious retrieval, literal tool keywords, single-source evidence resolution                                                                                                                               | 100% — it is a regression test                     |
+| `hard` | Defeating pattern matching or requiring explicit fixture policy: order of operations, percentages, unit conversion, multi-step word problems, near-miss passages, conflicting/outdated evidence, tool requests with no trigger word, and arithmetic-shaped questions that are unanswerable | 0/20 arithmetic, 0/5 retrieval, 0/9 tool selection |
 
-`pnpm run eval` scores the core tier only, so it stays a clean regression test.
+`pnpm run eval` scores the core tier only for pattern-matching baselines, so it
+stays a clean regression test. The logic-puzzle and evidence-resolution
+benchmarks also score their hard fixture examples offline because their
+deterministic solvers are the fixture oracles, not measured model results.
 `pnpm run eval:model` runs both and reports `tierScores` per benchmark and per
 suite. [`tests/unit/datasetTiers.test.ts`](tests/unit/datasetTiers.test.ts)
-enforces both directions: baselines must pass every core item and fail every hard
-one, so a hard item cannot silently degrade into an easy one.
+enforces the adversarial tier for pattern-matching baselines and checks that the
+evidence fixtures state their authority/time resolution policy.
+
+### Evidence conflict/currentness eval
+
+[`EVIDENCE_RESOLUTION_ITEMS`](src/evals/benchmarks/datasets.ts) is a small
+offline fixture set for questions where a model must reconcile a bounded evidence
+packet. The examples cover current vs archived evidence, a newer unofficial note
+that should not override course-staff evidence, an explicit superseding
+correction, and an unresolved conflict where the expected answer is
+`UNSUPPORTED`. These are fixture examples only; they are not measured model
+results until someone runs `pnpm run eval:model` with their own eval credential.
+
+The grader makes these assumptions explicit in the prompt and tests:
+
+- use only the provided evidence packet;
+- current authoritative sources beat archived copies in the same lineage;
+- explicit `supersedes` metadata overrides the superseded source;
+- higher-authority sources beat lower-authority sources, so newest does not
+  automatically mean correct;
+- comparable current authoritative sources that conflict without a resolving
+  source require abstention.
+
+For UW research extensions:
+
+1. Add a small, public, non-customer fixture to
+   [`EVIDENCE_RESOLUTION_ITEMS`](src/evals/benchmarks/datasets.ts). Include
+   source ids, authority, `issuedAt`, `status`, `answer`, and a
+   `resolutionReason`.
+2. Use `UNSUPPORTED` when the packet cannot resolve a conflict. Do not invent a
+   winner from recency alone.
+3. Add or update unit tests in
+   [`tests/unit/evidenceResolution.test.ts`](tests/unit/evidenceResolution.test.ts)
+   when a new policy edge case is introduced.
+4. Run `pnpm run test:unit -- tests/unit/evidenceResolution.test.ts
+   tests/unit/datasetTiers.test.ts`, `pnpm run eval`, and `pnpm run test:eval`.
+   These need no private credentials, production access, paid service, GPU, or
+   Snowflake.
+5. Optional model measurements use `pnpm run eval:model` with a personal
+   `NVIDIA_EVAL_API_KEY`; keep those results separate from fixture examples and
+   report inconclusive/rate-limited items explicitly.
 
 ### Current result: what reasoning mode costs
 
@@ -141,6 +183,9 @@ Treat the `on`/`low` tie as a tie, not as evidence `low` is better: there are no
 confidence intervals yet, and 46 hard items cannot resolve a one- or two-item
 difference. This table replaces the earlier 45-item Super run. It does not
 estimate that run.
+
+This recorded model result predates the evidence-resolution benchmark. It should
+not be cited as a measurement of conflicting or outdated evidence behavior.
 
 This path is **evaluation only**. It reads `NVIDIA_EVAL_API_KEY` / `NVIDIA_EVAL_CHAT_MODEL`, which the Worker never reads, so an eval model can never be served by `/reason`. Per-variant results land in `src/evals/results/model-<model>-thinking-<mode>.json`.
 
@@ -171,6 +216,7 @@ State these before citing any number from this repo:
 - **Retrieval is saturated on the hard tier.** Nemotron 3 Super scores 5/5 on hard retrieval in every reasoning mode. Hard tool selection is 9/10 with reasoning on and low, and 10/10 with reasoning off. Arithmetic, the logic puzzles, and abstention are where the reasoning setting shows up.
 - **Datasets are still small** — 85 items across five benchmarks, 46 of them hard. Enough to separate reasoning-off from reasoning-on, not enough to rank two close configurations.
 - **No confidence intervals yet.** Differences are reported without significance testing, so treat close scores as ties.
+- **Evidence-resolution has fixtures before model measurements.** The committed offline examples test the grader and policy assumptions; no committed model benchmark result includes that benchmark yet.
 - **Latency is shared-endpoint latency**, not a dedicated deployment, and is only comparable between variants recorded at the same concurrency.
 - **Cost metrics are the reliable ones.** Completion-token counts and latency percentiles are measured over hundreds of requests; small accuracy deltas are not.
 - **Single vendor so far.** Committed model results are all NVIDIA variants; cross-vendor baselines are not yet recorded.

@@ -33,10 +33,15 @@ import type {
 import {
   ABSTENTION_ITEMS,
   ARITHMETIC_ITEMS,
+  EVIDENCE_RESOLUTION_ITEMS,
   RETRIEVAL_QUERIES,
   type Tier,
   TOOL_SELECTION_ITEMS,
 } from "./datasets";
+import {
+  formatEvidenceResolutionPrompt,
+  gradeEvidenceResolutionAnswer,
+} from "./evidenceResolution";
 
 /** Same bar as the offline suite so scores read on one scale. */
 const PASS_THRESHOLD = 0.9;
@@ -149,6 +154,27 @@ function retrievalSpec(): BenchmarkSpec {
   };
 }
 
+function evidenceResolutionSpec(): BenchmarkSpec {
+  return {
+    id: "evidence-resolution",
+    name: "Evidence resolution (conflict/currentness)",
+    metric: "exact answer or abstention",
+    items: EVIDENCE_RESOLUTION_ITEMS.map((item) => ({
+      id: item.id,
+      tier: item.tier,
+      expected: item.expected,
+      prompt: {
+        system:
+          `${BASE_SYSTEM} Resolve the question from the provided evidence ` +
+          `packet. Do not use outside knowledge. Answer with the exact value ` +
+          `from the evidence, or UNSUPPORTED when the evidence cannot decide.`,
+        user: formatEvidenceResolutionPrompt(item),
+      },
+      grade: (answer) => gradeEvidenceResolutionAnswer(answer, item),
+    })),
+  };
+}
+
 function toolSelectionSpec(): BenchmarkSpec {
   return {
     id: "tool-selection",
@@ -255,6 +281,7 @@ export const MODEL_BENCHMARK_SPECS: ReadonlyArray<() => BenchmarkSpec> = [
   arithmeticSpec,
   logicPuzzleSpec,
   retrievalSpec,
+  evidenceResolutionSpec,
   toolSelectionSpec,
   abstentionSpec,
 ];

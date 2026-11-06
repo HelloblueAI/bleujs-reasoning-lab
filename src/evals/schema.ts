@@ -9,6 +9,7 @@ export type BenchmarkId =
   | "arithmetic"
   | "logic-puzzle"
   | "retrieval"
+  | "evidence-resolution"
   | "tool-selection"
   | "routing"
   | "abstention";

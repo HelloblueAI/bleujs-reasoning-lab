@@ -5,16 +5,18 @@
  * per-item results so regressions between releases are diffable. None require
  * API keys.
  *
- * Scope: this suite scores the **core tier only**. Core items are what these
- * deterministic baselines are built to handle — two-operand arithmetic, lexically
- * obvious retrieval, literal tool keywords — so the suite is a clean regression
- * test that should hold at 100%. The hard tier exists to separate *models* from
- * each other and is expected to defeat a regex or a bag-of-words ranker, so
- * including it here would only measure a known limitation. `pnpm run eval:model`
- * runs both tiers and reports them separately.
+ * Scope: most benchmarks score the **core tier only**. Core items are what
+ * these deterministic baselines are built to handle — two-operand arithmetic,
+ * lexically obvious retrieval, literal tool keywords — so the suite is a clean
+ * regression test that should hold at 100%. The hard tier exists to separate
+ * *models* from each other and is expected to defeat a regex or a bag-of-words
+ * ranker, so including it in those baselines would only measure a known
+ * limitation.
  *
- * The logic puzzle is the exception: the CSP solver genuinely solves both
- * puzzles, so both are scored here.
+ * Logic puzzles and evidence resolution are the exceptions: their deterministic
+ * solvers are the fixture oracles, so both tiers are scored offline. `pnpm run
+ * eval:model` runs both tiers for every model-facing benchmark and reports them
+ * separately.
  */
 
 import { tryArithmeticReason } from "@/routing/arithmeticReason";
@@ -25,12 +27,17 @@ import { LAB_VERSION } from "@/metrics/labStatus";
 import {
   ABSTENTION_ITEMS,
   ARITHMETIC_ITEMS,
+  EVIDENCE_RESOLUTION_ITEMS,
   ofTier,
   RETRIEVAL_QUERIES,
   ROUTING_EXPECTED,
   ROUTING_FIXTURES,
   TOOL_SELECTION_ITEMS,
 } from "./datasets";
+import {
+  gradeEvidenceResolutionAnswer,
+  resolveEvidenceByPolicy,
+} from "./evidenceResolution";
 import type {
   BenchmarkItemResult,
   BenchmarkResult,
@@ -142,6 +149,27 @@ function runToolSelection(): BenchmarkResult {
   );
 }
 
+function runEvidenceResolution(): BenchmarkResult {
+  const start = Date.now();
+  const items: BenchmarkItemResult[] = EVIDENCE_RESOLUTION_ITEMS.map((item) => {
+    const got = resolveEvidenceByPolicy(item);
+    const graded = gradeEvidenceResolutionAnswer(got, item);
+    return {
+      id: item.id,
+      passed: graded.passed,
+      got: graded.got,
+      expected: item.expected,
+    };
+  });
+  return finalize(
+    "evidence-resolution",
+    "Evidence resolution (conflict/currentness)",
+    "exact answer or abstention",
+    items,
+    start,
+  );
+}
+
 function runRouting(): BenchmarkResult {
   const start = Date.now();
   const total = ROUTING_FIXTURES.length;
@@ -238,6 +266,7 @@ export async function runBenchmarkSuite(
     runArithmetic(),
     runLogicPuzzle(),
     runRetrieval(),
+    runEvidenceResolution(),
     runToolSelection(),
     runRouting(),
     runAbstention(),

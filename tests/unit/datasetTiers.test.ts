@@ -15,6 +15,8 @@ import { describe, expect, it } from "vitest";
 import {
   ABSTENTION_ITEMS,
   ARITHMETIC_ITEMS,
+  EVIDENCE_RESOLUTION_ITEMS,
+  EVIDENCE_UNSUPPORTED,
   ofTier,
   RETRIEVAL_QUERIES,
   type Tier,
@@ -40,6 +42,7 @@ describe("dataset hygiene", () => {
   const datasets: Array<[string, ReadonlyArray<{ id: string; tier: Tier }>]> = [
     ["arithmetic", ARITHMETIC_ITEMS],
     ["retrieval", RETRIEVAL_QUERIES],
+    ["evidence-resolution", EVIDENCE_RESOLUTION_ITEMS],
     ["tool-selection", TOOL_SELECTION_ITEMS],
     ["abstention", ABSTENTION_ITEMS],
   ];
@@ -122,6 +125,20 @@ describe("hard tier: pattern matching must not be enough", () => {
     for (const item of ofTier(ABSTENTION_ITEMS, "hard")) {
       expect(item.reason.length, item.id).toBeGreaterThan(10);
     }
+  });
+
+  it("documents how each hard evidence item resolves or abstains", () => {
+    for (const item of ofTier(EVIDENCE_RESOLUTION_ITEMS, "hard")) {
+      expect(item.resolutionReason.length, item.id).toBeGreaterThan(20);
+      expect(item.sources.length, item.id).toBeGreaterThan(1);
+    }
+  });
+
+  it("includes an unresolved evidence conflict that must abstain", () => {
+    const unresolved = ofTier(EVIDENCE_RESOLUTION_ITEMS, "hard").filter(
+      (item) => item.expected === EVIDENCE_UNSUPPORTED,
+    );
+    expect(unresolved.length).toBeGreaterThan(0);
   });
 });
 

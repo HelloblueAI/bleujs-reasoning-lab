@@ -34,4 +34,18 @@ describe("benchmark suite", () => {
     const abstention = result.benchmarks.find((b) => b.id === "abstention");
     expect(abstention?.correct).toBe(abstention?.total);
   });
+
+  it("resolves evidence conflicts only when the fixture policy supports it", async () => {
+    const result = await runBenchmarkSuite("test");
+    const evidence = result.benchmarks.find(
+      (b) => b.id === "evidence-resolution",
+    );
+    expect(evidence?.correct).toBe(6);
+    expect(evidence?.total).toBe(6);
+    expect(
+      evidence?.items.find(
+        (item) => item.id === "microgrant-unresolved-authority-conflict",
+      )?.got,
+    ).toBe("UNSUPPORTED");
+  });
 });
