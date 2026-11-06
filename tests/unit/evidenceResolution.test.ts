@@ -37,7 +37,13 @@ describe("evidence resolution fixtures", () => {
         item,
       ).passed,
     ).toBe(true);
+    expect(gradeEvidenceResolutionAnswer("at Bagley 154", item).passed).toBe(
+      true,
+    );
     expect(gradeEvidenceResolutionAnswer("Bagley 131", item).passed).toBe(
+      false,
+    );
+    expect(gradeEvidenceResolutionAnswer("at Bagley 131", item).passed).toBe(
       false,
     );
   });
@@ -46,7 +52,13 @@ describe("evidence resolution fixtures", () => {
     const item = fixture("data-office-current-vs-archived");
 
     expect(gradeEvidenceResolutionAnswer("Smith 205", item).passed).toBe(true);
+    expect(gradeEvidenceResolutionAnswer("in Smith 205", item).passed).toBe(
+      true,
+    );
     expect(gradeEvidenceResolutionAnswer("Savery 260", item).passed).toBe(
+      false,
+    );
+    expect(gradeEvidenceResolutionAnswer("in Savery 260", item).passed).toBe(
       false,
     );
   });
@@ -74,9 +86,27 @@ describe("evidence resolution fixtures", () => {
     expect(gradeEvidenceResolutionAnswer("Card Access Form", item).passed).toBe(
       true,
     );
+    expect(
+      gradeEvidenceResolutionAnswer("the Card Access Form", item).passed,
+    ).toBe(true);
     expect(gradeEvidenceResolutionAnswer("Key Request Form", item).passed).toBe(
       false,
     );
+    expect(
+      gradeEvidenceResolutionAnswer("the Key Request Form", item).passed,
+    ).toBe(false);
+    expect(
+      gradeEvidenceResolutionAnswer("not the Card Access Form", item).passed,
+    ).toBe(false);
+    expect(
+      gradeEvidenceResolutionAnswer(
+        "the Card Access Form is not required",
+        item,
+      ).passed,
+    ).toBe(false);
+    expect(
+      gradeEvidenceResolutionAnswer(EVIDENCE_UNSUPPORTED, item).passed,
+    ).toBe(false);
   });
 
   it("shows the authority and time assumptions in the model prompt", () => {

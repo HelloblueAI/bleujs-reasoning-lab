@@ -11,6 +11,15 @@ const AUTHORITY_RANK: Record<EvidenceSource["authority"], number> = {
   unofficial: 1,
 };
 
+const SAFE_LEADING_CONTEXT_WORDS = new Set([
+  "A",
+  "AN",
+  "AT",
+  "IN",
+  "ON",
+  "THE",
+]);
+
 function normalizedAnswer(raw: string): string {
   let value = raw
     .replace(/\*\*/g, "")
@@ -39,13 +48,25 @@ function normalizedAnswer(raw: string): string {
   return value;
 }
 
+function stripSafeLeadingContext(value: string): string {
+  const tokens = value.split(" ");
+  while (tokens.length > 1 && SAFE_LEADING_CONTEXT_WORDS.has(tokens[0] ?? "")) {
+    tokens.shift();
+  }
+  return tokens.join(" ");
+}
+
 export function gradeEvidenceResolutionAnswer(
   answer: string,
   item: EvidenceResolutionItem,
 ): { passed: boolean; got: string } {
   const got = normalizedAnswer(answer);
   const expected = normalizedAnswer(item.expected);
-  return { passed: got === expected, got: got || answer };
+  const passed =
+    got === expected ||
+    (expected !== EVIDENCE_UNSUPPORTED &&
+      stripSafeLeadingContext(got) === expected);
+  return { passed, got: got || answer };
 }
 
 export function formatEvidenceResolutionPrompt(
