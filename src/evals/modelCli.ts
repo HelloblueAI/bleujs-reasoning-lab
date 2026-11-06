@@ -154,10 +154,11 @@ function writeComparison(model: string): string | null {
             "strong models — every variant scored 1.000 on retrieval and the " +
             "3x3 puzzle — so a blended itemScore hides whether the reasoning " +
             "setting mattered. The hard tier is where configurations separate.",
-          "Hard items are built so that pattern matching fails: the offline " +
+          "Most hard items are built so that pattern matching fails: the offline " +
             "baselines score 0/20 on hard arithmetic, 0/5 on hard retrieval, " +
-            "and 0/9 on hard tool selection. A model beating those numbers is " +
-            "doing something a regex cannot.",
+            "and 0/9 on hard tool selection. Evidence-resolution hard items " +
+            "instead use explicit authority/time fixture metadata; the offline " +
+            "policy oracle is an answer-key check, not a measured model result.",
           "Latency is shared free-endpoint latency, not a dedicated deployment.",
           "Latency is only comparable between variants recorded at the same " +
             "concurrency (config.concurrency): the endpoint queues under load, " +

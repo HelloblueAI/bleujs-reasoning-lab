@@ -346,6 +346,235 @@ export const RETRIEVAL_QUERIES: ReadonlyArray<{
   },
 ];
 
+export const EVIDENCE_UNSUPPORTED = "UNSUPPORTED";
+
+export type EvidenceAuthority =
+  "official" | "course-staff" | "department" | "unofficial";
+
+export type EvidenceStatus = "current" | "archived";
+
+export interface EvidenceSource {
+  id: string;
+  title: string;
+  authority: EvidenceAuthority;
+  issuedAt: string;
+  status: EvidenceStatus;
+  claim: string;
+  /**
+   * Structured fixture answer. This is the grader key, not a measured model
+   * result, and it should never contain private or customer data.
+   */
+  answer: string | null;
+  /** Source ids this source explicitly replaces. */
+  supersedes?: string[];
+}
+
+/**
+ * Evidence resolution: answer from a bounded packet of source snippets, or
+ * abstain when the packet does not resolve the conflict.
+ *
+ * These are fixture examples, not measured model results. They make the
+ * authority/time assumptions explicit:
+ * - current authoritative sources beat archived copies in the same lineage;
+ * - explicit `supersedes` metadata beats the superseded source;
+ * - higher-authority sources beat lower-authority sources, even when the lower
+ *   authority source is newer;
+ * - if comparable current authoritative sources conflict and no source
+ *   supersedes another, the expected behavior is abstention.
+ */
+export interface EvidenceResolutionItem {
+  id: string;
+  question: string;
+  sources: EvidenceSource[];
+  /** Exact answer value, or EVIDENCE_UNSUPPORTED when evidence cannot decide. */
+  expected: string;
+  tier: Tier;
+  /** Human-readable policy reason for the answer key. */
+  resolutionReason: string;
+}
+
+export const EVIDENCE_RESOLUTION_ITEMS: ReadonlyArray<EvidenceResolutionItem> =
+  [
+    {
+      id: "library-helpdesk-hours",
+      question:
+        "In this fixture, when does the Allen Research Help Desk open on Monday?",
+      sources: [
+        {
+          id: "allen-current",
+          title: "Allen Library research help page",
+          authority: "official",
+          issuedAt: "2026-09-01",
+          status: "current",
+          claim:
+            "For autumn quarter, the Allen Research Help Desk opens at 09:00 on Monday.",
+          answer: "09:00",
+        },
+        {
+          id: "allen-cafe",
+          title: "Allen Library cafe page",
+          authority: "official",
+          issuedAt: "2026-09-01",
+          status: "current",
+          claim:
+            "The cafe opens at 08:00; this page does not list research help desk hours.",
+          answer: null,
+        },
+      ],
+      expected: "09:00",
+      tier: "core",
+      resolutionReason:
+        "one current official source states the help desk opening time",
+    },
+    {
+      id: "course-tool-current",
+      question:
+        "In this fixture, which tool should CSE 190 students use to submit Project 1?",
+      sources: [
+        {
+          id: "cse190-current",
+          title: "CSE 190 autumn project page",
+          authority: "course-staff",
+          issuedAt: "2026-10-02",
+          status: "current",
+          claim: "Project 1 submissions are collected in Canvas.",
+          answer: "CANVAS",
+        },
+        {
+          id: "cse190-style",
+          title: "CSE 190 style guide",
+          authority: "course-staff",
+          issuedAt: "2026-09-25",
+          status: "current",
+          claim:
+            "Use TypeScript for examples. This guide does not name the submission tool.",
+          answer: null,
+        },
+      ],
+      expected: "CANVAS",
+      tier: "core",
+      resolutionReason:
+        "one current course-staff source names the submission tool",
+    },
+    {
+      id: "chem-lab-authority-over-recency",
+      question: "In this fixture, where is CHEM 142 lab orientation held?",
+      sources: [
+        {
+          id: "chem142-syllabus",
+          title: "CHEM 142 autumn syllabus",
+          authority: "course-staff",
+          issuedAt: "2026-08-20",
+          status: "current",
+          claim: "Lab orientation for CHEM 142 is held in Bagley 154.",
+          answer: "BAGLEY 154",
+        },
+        {
+          id: "chem142-student-notes",
+          title: "Student-run CHEM 142 notes",
+          authority: "unofficial",
+          issuedAt: "2026-09-03",
+          status: "current",
+          claim:
+            "A student note says lab orientation is in Bagley 131, copied from last year's post.",
+          answer: "BAGLEY 131",
+        },
+      ],
+      expected: "BAGLEY 154",
+      tier: "hard",
+      resolutionReason:
+        "the current course-staff source outranks a newer unofficial note",
+    },
+    {
+      id: "data-office-current-vs-archived",
+      question:
+        "In this fixture, where are DATA 201 office hours held this quarter?",
+      sources: [
+        {
+          id: "data201-archived",
+          title: "DATA 201 winter 2025 archive",
+          authority: "course-staff",
+          issuedAt: "2025-01-05",
+          status: "archived",
+          claim: "Office hours were held in Savery 260.",
+          answer: "SAVERY 260",
+        },
+        {
+          id: "data201-current",
+          title: "DATA 201 autumn 2026 office-hours page",
+          authority: "course-staff",
+          issuedAt: "2026-09-28",
+          status: "current",
+          claim: "This quarter's office hours are held in Smith 205.",
+          answer: "SMITH 205",
+        },
+      ],
+      expected: "SMITH 205",
+      tier: "hard",
+      resolutionReason:
+        "the current course-staff page supersedes the archived course page",
+    },
+    {
+      id: "microgrant-unresolved-authority-conflict",
+      question:
+        "In this fixture, what is the undergraduate research microgrant deadline?",
+      sources: [
+        {
+          id: "microgrant-dept",
+          title: "Department undergraduate research page",
+          authority: "department",
+          issuedAt: "2026-10-01",
+          status: "current",
+          claim: "Microgrant applications are due November 15.",
+          answer: "NOVEMBER 15",
+        },
+        {
+          id: "microgrant-aid",
+          title: "Student aid microgrant page",
+          authority: "department",
+          issuedAt: "2026-10-01",
+          status: "current",
+          claim: "Microgrant applications are due December 1.",
+          answer: "DECEMBER 1",
+        },
+      ],
+      expected: EVIDENCE_UNSUPPORTED,
+      tier: "hard",
+      resolutionReason:
+        "two current department sources conflict and neither supersedes the other",
+    },
+    {
+      id: "robotics-superseding-correction",
+      question: "In this fixture, which form unlocks the robotics lab door?",
+      sources: [
+        {
+          id: "robotics-handbook",
+          title: "Robotics lab handbook",
+          authority: "official",
+          issuedAt: "2026-01-12",
+          status: "current",
+          claim: "Submit the Key Request Form for lab door access.",
+          answer: "KEY REQUEST FORM",
+        },
+        {
+          id: "robotics-safety-bulletin",
+          title: "Robotics safety office bulletin",
+          authority: "official",
+          issuedAt: "2026-05-04",
+          status: "current",
+          claim:
+            "Correction: the Card Access Form replaces the Key Request Form for robotics lab doors.",
+          answer: "CARD ACCESS FORM",
+          supersedes: ["robotics-handbook"],
+        },
+      ],
+      expected: "CARD ACCESS FORM",
+      tier: "hard",
+      resolutionReason:
+        "the bulletin explicitly supersedes the older handbook instruction",
+    },
+  ];
+
 /**
  * Tool selection: labeled query -> expected tool id.
  *
